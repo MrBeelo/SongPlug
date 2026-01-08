@@ -1,0 +1,4 @@
+name: SongPlug
+version: '1.0-SNAPSHOT'
+main: net.mrbeelo.songPlug.SongPlug
+api-version: '1.21'
