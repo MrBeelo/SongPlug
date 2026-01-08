@@ -90,11 +90,34 @@ public class SongPlugHelper {
         player.give(item);
     }
 
-    public static void handleSongClear(Player player, String name) {
-        if(player.getScoreboardTags().contains(name)) {
-            player.getScoreboardTags().remove(name);
-            giveCustomItemName(player, Material.DIRT, name);
-        }
+    public static void giveSong(Player player, String name) {
+        Material material = Material.BARRIER;
+
+        if(songIn(name, redSongs)) material = Material.RED_STAINED_GLASS;
+        if(songIn(name, blueSongs)) material = Material.BLUE_STAINED_GLASS;
+        if(songIn(name, yellowSongs)) material = Material.YELLOW_STAINED_GLASS;
+        if(songIn(name, greenSongs)) material = Material.LIME_STAINED_GLASS;
+
+        giveCustomItemName(player, material, name);
+    }
+
+    public static void dropCustomItemName(Player player, Material material, String name) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        meta.itemName(Component.text(name));
+        item.setItemMeta(meta);
+        player.getWorld().dropItem(player.getLocation(), item);
+    }
+
+    public static void dropSong(Player player, String name) {
+        Material material = Material.BARRIER;
+
+        if(songIn(name, redSongs)) material = Material.RED_STAINED_GLASS;
+        if(songIn(name, blueSongs)) material = Material.BLUE_STAINED_GLASS;
+        if(songIn(name, yellowSongs)) material = Material.YELLOW_STAINED_GLASS;
+        if(songIn(name, greenSongs)) material = Material.LIME_STAINED_GLASS;
+
+        dropCustomItemName(player, material, name);
     }
 
     public static Score scoreType(Player player, String scoreboardName) {

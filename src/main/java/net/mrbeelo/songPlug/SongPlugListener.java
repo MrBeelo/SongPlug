@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
@@ -30,49 +31,6 @@ public class SongPlugListener implements Listener {
     @EventHandler
     public void scrolled(PlayerItemHeldEvent event) {
         Player player = event.getPlayer();
-
-        if(!player.getScoreboardTags().contains("ArdoniClass")) return;
-
-        if(player.getScoreboardTags().contains("SongModeOn")) {
-            int oldSlot = event.getPreviousSlot();
-            int newSlot = event.getNewSlot();
-
-            Score score = scoreType(player, "songCycle");
-
-            if(newSlot == 0 && oldSlot == 8) {
-                increaseSongCycle(score);
-            } else if(newSlot == 8 && oldSlot == 0) {
-                decreaseSongCycle(score);
-            } else if(newSlot > oldSlot) {
-                increaseSongCycle(score);
-            } else if(newSlot < oldSlot) {
-                decreaseSongCycle(score);
-            }
-
-            int newPlayerScore = score.getScore();
-            Component text;
-
-            String songName = switch(newPlayerScore) {
-                case 1 -> "Aggressium";
-                case 2 -> "Mobilium";
-                case 3 -> "Protisium";
-                case 4 -> "Supporium";
-                default -> "ERROR";
-            };
-
-            NamedTextColor songNamedTextColor = switch(newPlayerScore) {
-                case 1 -> NamedTextColor.RED;
-                case 2 -> NamedTextColor.YELLOW;
-                case 3 -> NamedTextColor.BLUE;
-                case 4 -> NamedTextColor.GREEN;
-                default -> NamedTextColor.LIGHT_PURPLE;
-            };
-
-            text = Component.text(songName).color(songNamedTextColor);
-            player.showTitle(Title.title(Component.text(""), text));
-            event.setCancelled(true);
-        }
-
         Score score = scoreType(player, "fCycle");
         score.setScore(0);
     }
@@ -198,6 +156,27 @@ public class SongPlugListener implements Listener {
                     return;
                 }
             }
+        } else if(view.title().equals(Component.text("Class Selection"))) {
+            ItemStack stack = event.getCurrentItem();
+
+            if(stack != null && event.getWhoClicked() instanceof Player player) {
+                for(String tag : player.getScoreboardTags()) {
+                    if(tag.endsWith("Class")) player.getScoreboardTags().remove(tag);
+                }
+
+                String[] classNames = {"Human", "Felina", "Ardoni", "Magnorite", "Necromancer"};
+
+                for(String name : classNames) {
+                    if(stack.getItemMeta().getDisplayName().equals(name)) {
+                        player.getScoreboardTags().add(name + "Class");
+                        event.setCancelled(true);
+                        view.close();
+                    }
+                }
+
+                event.setCancelled(true);
+                view.close();
+            }
         }
     }
 
@@ -228,7 +207,12 @@ public class SongPlugListener implements Listener {
 
                         if(player.getScoreboardTags().contains("Has" + songColor + "Song")) {
                             player.getScoreboardTags().remove("Has" + songColor + "Song");
-                            for(String song : songs) handleSongClear(player, song);
+                            for(String song : songs) {
+                                if(player.getScoreboardTags().contains(song)) {
+                                    player.getScoreboardTags().remove(song);
+                                    giveSong(player, song);
+                                }
+                            }
                         }
                     }
 
@@ -258,10 +242,38 @@ public class SongPlugListener implements Listener {
                     if(!player.getScoreboardTags().contains("Has" + songColor + "Song")) {
                         player.getScoreboardTags().add(name);
                         player.getScoreboardTags().add("Has" + songColor + "Song");
-                        player.getInventory().clear(player.getInventory().getHeldItemSlot());
+                        player.getInventory().getItemInMainHand().setAmount(player.getInventory().getItemInMainHand().getAmount() - 1);
                         player.sendMessage("You have been infused with " + name + " (" + songType + ")!");
                     } else {
                         player.sendMessage("You already have a " + songType + " Song!");
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void playerDied(PlayerDeathEvent event) {
+        Player player = event.getPlayer();
+        if(player.getScoreboardTags().contains("ArdoniClass")) {
+            String[] songColors = {"Red", "Blue", "Yellow", "Green"};
+
+            for(String songColor : songColors) {
+                String[] songs = switch (songColor) {
+                    case "Red" -> redSongs;
+                    case "Blue" -> blueSongs;
+                    case "Yellow" -> yellowSongs;
+                    case "Green" -> greenSongs;
+                    default -> redSongs;
+                };
+
+                if(player.getScoreboardTags().contains("Has" + songColor + "Song")) {
+                    player.getScoreboardTags().remove("Has" + songColor + "Song");
+                    for(String song : songs) {
+                        if(player.getScoreboardTags().contains(song)) {
+                            player.getScoreboardTags().remove(song);
+                            dropSong(player, song);
+                        }
                     }
                 }
             }

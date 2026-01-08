@@ -5,6 +5,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Score;
 
+import java.util.Objects;
+
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 import static net.mrbeelo.songPlug.SongPlugTick.*;
 
@@ -27,6 +29,8 @@ public final class SongPlug extends JavaPlugin {
         instance = this;
         getServer().getPluginManager().registerEvents(new SongPlugListener(), this);
         getServer().getScheduler().runTaskTimer(this, this::tick, 0,  1);
+        Objects.requireNonNull(getCommand("class")).setExecutor(new SongPlugCommandExecutor());
+        Objects.requireNonNull(getCommand("givesong")).setExecutor(new SongPlugCommandExecutor());
     }
 
     @Override

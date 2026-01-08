@@ -208,7 +208,7 @@ public class SongPlugTick {
                         for(Entity entity2 : player.getWorld().getEntities()) {
                             if(entity.getBoundingBox().overlaps(entity2.getBoundingBox()) && entity2 instanceof LivingEntity living &&
                                     entity2 != entity && entity2 != player) {
-                                living.damage(40, entity);
+                                living.damage(80, entity);
                                 player.getWorld().createExplosion(location, 2, false, false);
                                 if(entity2 instanceof Player player3 && player3.getActiveItem().getType() == Material.SHIELD) {
                                     ItemStack stack = player3.getActiveItem();

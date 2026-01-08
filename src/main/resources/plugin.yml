@@ -2,3 +2,8 @@ name: SongPlug
 version: '1.0-SNAPSHOT'
 main: net.mrbeelo.songPlug.SongPlug
 api-version: '1.21'
+commands:
+  class:
+    description: Opens a menu for the player to change their class
+  givesong:
+    description: Gives the player a song
