@@ -36,16 +36,19 @@ public class SongPlugTick {
             Score blueCooldownScore = scoreType(player, "blueEnergyCooldown");
             Score yellowCooldownScore = scoreType(player, "yellowEnergyCooldown");
             Score greenCooldownScore = scoreType(player, "greenEnergyCooldown");
+            Score infuseCooldownScore = scoreType(player, "InfuseCooldown");
 
             int redEnergyCooldown = redCooldownScore.getScore();
             int blueEnergyCooldown = blueCooldownScore.getScore();
             int yellowEnergyCooldown = yellowCooldownScore.getScore();
             int greenEnergyCooldown = greenCooldownScore.getScore();
+            int infuseCooldown = infuseCooldownScore.getScore();
 
             if(redEnergyCooldown > 0) redCooldownScore.setScore(redEnergyCooldown - 1);
             if(blueEnergyCooldown > 0) blueCooldownScore.setScore(blueEnergyCooldown - 1);
             if(yellowEnergyCooldown > 0) yellowCooldownScore.setScore(yellowEnergyCooldown - 1);
             if(greenEnergyCooldown > 0) greenCooldownScore.setScore(greenEnergyCooldown - 1);
+            if(infuseCooldown > 0) infuseCooldownScore.setScore(infuseCooldown - 1);
         }
     }
 

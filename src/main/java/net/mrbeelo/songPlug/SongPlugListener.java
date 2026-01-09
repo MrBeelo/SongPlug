@@ -1,9 +1,11 @@
 package net.mrbeelo.songPlug;
 
+import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -55,13 +57,7 @@ public class SongPlugListener implements Listener {
                 return;
             }
 
-            Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST, Component.text("Song Selection"));
-            menu.setItem(4, customNameItemStack(Material.RED_STAINED_GLASS, Component.text("Aggressium").color(NamedTextColor.RED)));
-            menu.setItem(12, customNameItemStack(Material.BLUE_STAINED_GLASS, Component.text("Protisium").color(NamedTextColor.BLUE)));
-            menu.setItem(13, customNameItemStack(Material.BARRIER, Component.text("Cancel").color(NamedTextColor.GRAY)));
-            menu.setItem(14, customNameItemStack(Material.YELLOW_STAINED_GLASS, Component.text("Mobilium").color(NamedTextColor.YELLOW)));
-            menu.setItem(22, customNameItemStack(Material.LIME_STAINED_GLASS, Component.text("Supporium").color(NamedTextColor.GREEN)));
-            player.openInventory(menu);
+            openSongMenu(player);
         }
     }
 
@@ -167,7 +163,7 @@ public class SongPlugListener implements Listener {
                 String[] classNames = {"Human", "Felina", "Ardoni", "Magnorite", "Necromancer"};
 
                 for(String name : classNames) {
-                    if(stack.getItemMeta().getDisplayName().equals(name)) {
+                    if(stack.getItemMeta().getDisplayName().substring(2).equals(name)) {
                         player.getScoreboardTags().add(name + "Class");
                         event.setCancelled(true);
                         view.close();
@@ -176,6 +172,37 @@ public class SongPlugListener implements Listener {
 
                 event.setCancelled(true);
                 view.close();
+
+                if(stack.getItemMeta().getDisplayName().equals("§eArdoni")) {
+                    openRaceMenu(player);
+                } else {
+                    for(String tag : player.getScoreboardTags()) {
+                        if(tag.endsWith("Race")) player.getScoreboardTags().remove(tag);
+                    }
+                }
+            }
+        } else if(view.title().equals(Component.text("Race Selection"))) {
+            ItemStack stack = event.getCurrentItem();
+
+            if(stack != null && event.getWhoClicked() instanceof Player player) {
+                for(String tag : player.getScoreboardTags()) {
+                    if(tag.endsWith("Race")) player.getScoreboardTags().remove(tag);
+                }
+
+                String[] raceNames = {"Clanless", "Sendaris", "Nestoris", "Mendoris", "Kaltaris", "Voltaris"};
+
+                for(String name : raceNames) {
+                    if(stack.getItemMeta().getDisplayName().equals(name)) {
+                        player.getScoreboardTags().add(name + "ArdoniRace");
+                        event.setCancelled(true);
+                        view.close();
+                    }
+                }
+
+                event.setCancelled(true);
+                view.close();
+
+                if(stack.getItemMeta().getDisplayName().equals("Cancel")) openClassMenu(player);
             }
         }
     }
@@ -190,6 +217,11 @@ public class SongPlugListener implements Listener {
             if(downBlock.getType() == Material.STRUCTURE_BLOCK && player.isSneaking()) {
                 ItemStack itemStack = player.getInventory().getItemInMainHand();
                 ItemMeta meta = itemStack.getItemMeta();
+
+                Score infuseCooldownScore = scoreType(player, "InfuseCooldown");
+
+                if(infuseCooldownScore.getScore() > 0) return;
+                infuseCooldownScore.setScore(5);
 
                 if(meta == null && itemStack.isEmpty()) {
                     player.sendMessage("Clearing Songs!");
@@ -278,5 +310,66 @@ public class SongPlugListener implements Listener {
                 }
             }
         }
+    }
+
+    @EventHandler
+    public void onChat(AsyncChatEvent event) {
+        Player player = event.getPlayer();
+
+        String className = "ERROR";
+        String raceName = "ERROR";
+        NamedTextColor classColor = NamedTextColor.WHITE;
+        NamedTextColor raceColor = NamedTextColor.WHITE;
+
+
+        for(String tag : player.getScoreboardTags()) {
+            if(tag.endsWith("Class")) {
+                String nameByItself = tag.substring(0, tag.length() - 5);
+                className = nameByItself.toUpperCase();
+
+                classColor = switch(nameByItself.toUpperCase()) {
+                    case "HUMAN" -> NamedTextColor.GRAY;
+                    case "FELINA" -> NamedTextColor.DARK_GREEN;
+                    case "ARDONI", "MAGNORITE" -> NamedTextColor.GOLD;
+                    case "NECROMANCER" -> NamedTextColor.DARK_GRAY;
+                    default -> throw new IllegalStateException("Unexpected value: " + nameByItself.toUpperCase());
+                };
+            }
+
+            if(tag.endsWith("ArdoniRace")) {
+                String nameByItself2 = tag.substring(0, tag.length() - 10);
+                raceName = nameByItself2.toUpperCase();
+
+                raceColor = switch(nameByItself2.toUpperCase()) {
+                    case "CLANLESS" -> NamedTextColor.WHITE;
+                    case "SENDARIS" -> NamedTextColor.BLUE;
+                    case "NESTORIS" -> NamedTextColor.YELLOW;
+                    case "MENDORIS" -> NamedTextColor.LIGHT_PURPLE;
+                    case "KALTARIS" -> NamedTextColor.GREEN;
+                    case "VOLTARIS" -> NamedTextColor.RED;
+                    default -> throw new IllegalStateException("Unexpected value: " + nameByItself2.toUpperCase());
+                };
+            }
+        }
+
+
+        String joinedName;
+        NamedTextColor joinedColor;
+
+        if(className.equals("ARDONI")) {
+            joinedName = className + " - " + raceName;
+            joinedColor = raceColor;
+        } else {
+            joinedName = className;
+            joinedColor = classColor;
+        }
+
+        String finalJoinedName = joinedName;
+        event.renderer((source, sourceDisplayName, message, viewer) ->
+                Component.text("[" + finalJoinedName + "] ", joinedColor)
+                        .append(sourceDisplayName.color(NamedTextColor.WHITE))
+                        .append(Component.text(": ", NamedTextColor.WHITE))
+                        .append(message.color(NamedTextColor.WHITE))
+        );
     }
 }

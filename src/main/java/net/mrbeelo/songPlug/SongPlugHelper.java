@@ -1,6 +1,7 @@
 package net.mrbeelo.songPlug;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -10,6 +11,8 @@ import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.entity.*;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -179,5 +182,37 @@ public class SongPlugHelper {
     public static boolean isAnEntityItem(Entity entity) {
         return entity instanceof Arrow || entity instanceof Fireball || entity instanceof FallingBlock
                 || entity instanceof Interaction || entity instanceof ArmorStand;
+    }
+
+    public static void openSongMenu(Player player) {
+        Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST, Component.text("Song Selection"));
+        menu.setItem(4, customNameItemStack(Material.RED_STAINED_GLASS, Component.text("Aggressium").color(NamedTextColor.RED)));
+        menu.setItem(12, customNameItemStack(Material.BLUE_STAINED_GLASS, Component.text("Protisium").color(NamedTextColor.BLUE)));
+        menu.setItem(13, customNameItemStack(Material.BARRIER, Component.text("Cancel").color(NamedTextColor.GRAY)));
+        menu.setItem(14, customNameItemStack(Material.YELLOW_STAINED_GLASS, Component.text("Mobilium").color(NamedTextColor.YELLOW)));
+        menu.setItem(22, customNameItemStack(Material.LIME_STAINED_GLASS, Component.text("Supporium").color(NamedTextColor.GREEN)));
+        player.openInventory(menu);
+    }
+
+    public static void openClassMenu(Player player) {
+        Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST, Component.text("Class Selection"));
+        menu.setItem(11, customNameItemStack(Material.PLAYER_HEAD, Component.text("Human").color(NamedTextColor.YELLOW)));
+        menu.setItem(12, customNameItemStack(Material.OAK_LOG, Component.text("Felina").color(NamedTextColor.YELLOW)));
+        menu.setItem(13, customNameItemStack(Material.DARK_PRISMARINE, Component.text("Ardoni").color(NamedTextColor.YELLOW)));
+        menu.setItem(14, customNameItemStack(Material.MAGMA_BLOCK, Component.text("Magnorite").color(NamedTextColor.YELLOW)));
+        menu.setItem(15, customNameItemStack(Material.ZOMBIE_HEAD, Component.text("Necromancer").color(NamedTextColor.YELLOW)));
+        player.openInventory(menu);
+    }
+
+    public static void openRaceMenu(Player player) {
+        Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST, Component.text("Race Selection"));
+        menu.setItem(10, customNameItemStack(Material.WHITE_WOOL, Component.text("Clanless")));
+        menu.setItem(11, customNameItemStack(Material.CYAN_WOOL, Component.text("Sendaris")));
+        menu.setItem(12, customNameItemStack(Material.YELLOW_WOOL, Component.text("Nestoris")));
+        menu.setItem(13, customNameItemStack(Material.PURPLE_WOOL, Component.text("Mendoris")));
+        menu.setItem(14, customNameItemStack(Material.LIME_WOOL, Component.text("Kaltaris")));
+        menu.setItem(15, customNameItemStack(Material.RED_WOOL, Component.text("Voltaris")));
+        menu.setItem(26, customNameItemStack(Material.BARRIER, Component.text("Cancel")));
+        player.openInventory(menu);
     }
 }

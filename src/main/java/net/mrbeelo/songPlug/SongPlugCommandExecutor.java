@@ -12,8 +12,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
-import static net.mrbeelo.songPlug.SongPlugHelper.customNameItemStack;
-import static net.mrbeelo.songPlug.SongPlugHelper.giveSong;
+import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugCommandExecutor implements CommandExecutor {
     @Override
@@ -21,13 +20,7 @@ public class SongPlugCommandExecutor implements CommandExecutor {
         String name = command.getName();
         if(name.equals("class")) {
             if(commandSender instanceof Player player) {
-                Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST, Component.text("Class Selection"));
-                menu.setItem(11, customNameItemStack(Material.PLAYER_HEAD, Component.text("Human")));
-                menu.setItem(12, customNameItemStack(Material.OAK_LOG, Component.text("Felina")));
-                menu.setItem(13, customNameItemStack(Material.DARK_PRISMARINE, Component.text("Ardoni")));
-                menu.setItem(14, customNameItemStack(Material.MAGMA_BLOCK, Component.text("Magnorite")));
-                menu.setItem(15, customNameItemStack(Material.ZOMBIE_HEAD, Component.text("Necromancer")));
-                player.openInventory(menu);
+                openClassMenu(player);
             } else {
                 commandSender.sendMessage("I don't think you are a player...");
             }
