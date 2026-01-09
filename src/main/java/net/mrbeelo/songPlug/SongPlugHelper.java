@@ -157,6 +157,10 @@ public class SongPlugHelper {
                 Score usingAggrosphereScore = scoreType(player, "UsingAggrosphere");
                 usingAggrosphereScore.setScore(230);
                 break;
+            case "Proteheal":
+                Score usingProtehealScore = scoreType(player, "UsingProteheal");
+                usingProtehealScore.setScore(230);
+                break;
             default: break;
         }
     }

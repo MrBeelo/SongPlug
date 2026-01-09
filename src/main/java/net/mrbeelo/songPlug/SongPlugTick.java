@@ -69,7 +69,7 @@ public class SongPlugTick {
 
             if(usingActiveSong == 201) {
                 Entity target = player.getTargetEntity(18, false);
-                if(target != null) {
+                if(!isAnEntityItem(target) && target != null) {
                     target.getScoreboardTags().add("GotSupporoliftedBy" + player.getName());
                 } else {
                     usingActiveSongScore.setScore(0);
@@ -133,7 +133,7 @@ public class SongPlugTick {
 
             if(usingActiveSong == 201) {
                 Entity target = player.getTargetEntity(18, false);
-                if(target != null) {
+                if(isAnEntityItem(target)) {
                     target.getScoreboardTags().add("GotSupporokenisiedBy" + player.getName());
                 } else {
                     usingActiveSongScore.setScore(0);
@@ -218,6 +218,11 @@ public class SongPlugTick {
                                     stack.damage(9999, living);
                                 }
                                 for(Player player2 : Bukkit.getOnlinePlayers()) {
+                                    if(entity.getScoreboardTags().contains("GotSupporokenisiedBy" + player2.getName())) {
+                                        Score supporokenisisPlayerActiveScore = scoreType(player2, "UsingActiveSong");
+                                        supporokenisisPlayerActiveScore.setScore(0);
+                                    }
+
                                     if(locationDistance(entity, player2) <= 30) {
                                         player2.playSound(player2.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
                                     }
@@ -241,7 +246,13 @@ public class SongPlugTick {
 
                         if(location.getBlock().isSolid()) {
                             usingAggrosphereScore.setScore(0);
+
                             for(Player player2 : Bukkit.getOnlinePlayers()) {
+                                if(entity.getScoreboardTags().contains("GotSupporokenisiedBy" + player2.getName())) {
+                                    Score supporokenisisPlayerActiveScore = scoreType(player2, "UsingActiveSong");
+                                    supporokenisisPlayerActiveScore.setScore(0);
+                                }
+
                                 if(locationDistance(entity, player2) <= 10) {
                                     player2.playSound(player2.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
                                 }
@@ -256,6 +267,34 @@ public class SongPlugTick {
                     if(entity.getScoreboardTags().contains("Aggrosphere" + player.getName())) entity.remove();
                     player.getScoreboardTags().remove("UsedAggrosphere");
                 }
+            }
+        }
+
+        //PROTEHEAL
+        if(player.getScoreboardTags().contains("UsedProteheal")) {
+            Score usingProtehealScore = scoreType(player, "UsingProteheal");
+            int usingProteheal = usingProtehealScore.getScore();
+            if(usingProteheal > 0) usingProtehealScore.setScore(usingProteheal - 1);
+
+            if(usingProteheal == 229) {
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 7) {
+                        player2.playSound(player2.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
+                    }
+                }
+            }
+
+            if(usingProteheal == 201) {
+                Entity target = player.getTargetEntity(7, false);
+                int amount = 20;
+                if(target instanceof Player player2) {
+                    player2.heal(amount);
+                    player2.playSound(player2.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 100f, 0.8f);
+                } else {
+                    player.heal(amount);
+                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 100f, 0.8f);
+                }
+
             }
         }
     }
