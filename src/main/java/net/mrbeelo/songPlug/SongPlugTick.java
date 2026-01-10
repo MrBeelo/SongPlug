@@ -1,6 +1,8 @@
 package net.mrbeelo.songPlug;
 
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
@@ -8,6 +10,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+
+import java.util.Objects;
 
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
@@ -295,6 +299,82 @@ public class SongPlugTick {
                     player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 100f, 0.8f);
                 }
 
+            }
+        }
+
+        //MOBILILEAP
+        if(player.getScoreboardTags().contains("UsedMobilileap")) {
+            Score usingMobilileapScore = scoreType(player, "UsingMobilileap");
+            int usingMobilileap = usingMobilileapScore.getScore();
+            if(usingMobilileap > 0) usingMobilileapScore.setScore(usingMobilileap - 1);
+
+            AttributeInstance attribute = player.getAttribute(Attribute.SAFE_FALL_DISTANCE);
+            assert attribute != null;
+
+            if(usingMobilileap == 229) {
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 10) {
+                        player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
+                    }
+                }
+            }
+
+            if(usingMobilileap == 201) {
+                player.setVelocity(new Vector(0, 1.9, 0));
+                attribute.setBaseValue(20);
+            }
+
+            if(usingMobilileap <= 200 && usingMobilileap > 0 && player.isOnGround()) {
+                usingMobilileapScore.setScore(0);
+                attribute.setBaseValue(attribute.getDefaultValue());
+            }
+
+            if(usingMobilileap == 0) {
+                attribute.setBaseValue(attribute.getDefaultValue());
+                player.getScoreboardTags().remove("UsedMobilileap");
+            }
+        }
+
+        //MOBILIFLASH
+        if(player.getScoreboardTags().contains("UsedMobiliflash")) {
+            Score usingMobiliflashScore = scoreType(player, "UsingMobiliflash");
+            int usingMobiliflash = usingMobiliflashScore.getScore();
+            if(usingMobiliflash > 0) usingMobiliflashScore.setScore(usingMobiliflash - 1);
+
+            if(usingMobiliflash == 229) {
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 10) {
+                        player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
+                    }
+                }
+            }
+
+            if(usingMobiliflash == 201) {
+                int power = 18;
+                Vector looking = player.getLocation().getDirection();
+                RayTraceResult result = player.getWorld().rayTraceBlocks(
+                        player.getEyeLocation(),
+                        player.getEyeLocation().getDirection(),
+                        power
+                );
+
+                if (result == null || result.getHitBlock() == null) {
+                    player.teleport(getLocationInFrontOfEntity(player, power));
+                } else {
+                    Location loc = result.getHitPosition().toLocation(player.getWorld());
+                    loc.setRotation(player.getLocation().getRotation());
+                    player.teleport(loc);
+                }
+
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 10) {
+                        player2.playSound(player2.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
+                    }
+                }
+            }
+
+            if(usingMobiliflash == 0) {
+                player.getScoreboardTags().remove("UsedMobiliflash");
             }
         }
     }

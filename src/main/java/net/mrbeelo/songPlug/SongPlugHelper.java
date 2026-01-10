@@ -161,6 +161,14 @@ public class SongPlugHelper {
                 Score usingProtehealScore = scoreType(player, "UsingProteheal");
                 usingProtehealScore.setScore(230);
                 break;
+            case "Mobilileap":
+                Score usingMobilileapScore = scoreType(player, "UsingMobilileap");
+                usingMobilileapScore.setScore(230);
+                break;
+            case "Mobiliflash":
+                Score usingMobiliflashScore = scoreType(player, "UsingMobiliflash");
+                usingMobiliflashScore.setScore(230);
+                break;
             default: break;
         }
     }
