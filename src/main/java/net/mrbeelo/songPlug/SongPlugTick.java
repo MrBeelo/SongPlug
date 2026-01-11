@@ -1,5 +1,6 @@
 package net.mrbeelo.songPlug;
 
+import com.destroystokyo.paper.ParticleBuilder;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -7,6 +8,8 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -300,6 +303,10 @@ public class SongPlugTick {
                 }
 
             }
+
+            if(usingProteheal == 0) {
+                player.getScoreboardTags().remove("UsedProteheal");
+            }
         }
 
         //MOBILILEAP
@@ -375,6 +382,86 @@ public class SongPlugTick {
 
             if(usingMobiliflash == 0) {
                 player.getScoreboardTags().remove("UsedMobiliflash");
+            }
+        }
+
+        //AGGROBEAM
+        if(player.getScoreboardTags().contains("UsedAggrobeam")) {
+            if(usingActiveSong == 201) {
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 10) {
+                        player2.playSound(player2.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
+                    }
+                }
+            }
+
+            if(usingActiveSong <= 200 && usingActiveSong > 0) {
+                Entity target = player.getTargetEntity(18, false);
+                if(target instanceof LivingEntity living && !isAnEntityItem(living)) {
+                    living.damage(4, player);
+                }
+
+                for(int i = 0; i < getMaxDistanceInFrontOfPlayer(player, 18, true); i++) {
+                    Location location = getLocationInFrontOfEntity(player, i + 1);
+                    Particle.DUST.builder().color(Color.RED).location(location.add(0, 1.5, 0)).count(0).allPlayers().spawn();
+                }
+
+                Score cooldownScore = scoreType(player, "redEnergyCooldown");
+                cooldownScore.setScore(200);
+
+                if(player.isSneaking()) {
+                    usingActiveSongScore.setScore(0);
+                }
+            }
+
+            if(usingActiveSong == 0) {
+                player.getScoreboardTags().remove("UsedAggrobeam");
+            }
+        }
+
+        //PROTEARMOR
+        if(player.getScoreboardTags().contains("UsedProtearmor")) {
+            AttributeInstance speed = player.getAttribute(Attribute.MOVEMENT_SPEED);
+            AttributeInstance jump = player.getAttribute(Attribute.JUMP_STRENGTH);
+            AttributeInstance attack = player.getAttribute(Attribute.ATTACK_DAMAGE);
+
+            assert speed != null;
+            assert jump != null;
+            assert attack != null;
+
+            if(usingActiveSong == 69) {
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 7) {
+                        player2.playSound(player2.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
+                    }
+                }
+            }
+
+            if(usingActiveSong == 41) {
+                speed.setBaseValue(0);
+                jump.setBaseValue(0);
+                attack.setBaseValue(0);
+                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 100f, 0.8f);
+            }
+
+            if(usingActiveSong <= 40 && usingActiveSong > 0) {
+                Score cooldownScore = scoreType(player, "blueEnergyCooldown");
+                cooldownScore.setScore(200);
+
+                Location center = player.getLocation().add(0, 1, 0); // chest height
+                for (int i = 0; i < 20; i++) {
+                    double x = (Math.random() - 0.5) * 1.5;
+                    double y = Math.random() * 1.5;
+                    double z = (Math.random() - 0.5) * 1.5;
+                    Particle.ENTITY_EFFECT.builder().location(center.clone().add(x, y, z)).count(1).color(Color.BLUE).allPlayers().spawn();
+                }
+            }
+
+            if(usingActiveSong == 0) {
+                speed.setBaseValue(0.1f);
+                jump.setBaseValue(0.42);
+                attack.setBaseValue(1);
+                player.getScoreboardTags().remove("UsedProtearmor");
             }
         }
     }

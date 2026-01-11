@@ -20,6 +20,7 @@ import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import java.util.Arrays;
@@ -141,38 +142,6 @@ public class SongPlugHelper {
         energyCooldownScore.setScore(200);
     }
 
-    public static void triggerSong(Player player, String song) {
-        if(songIn(song, redSongs)) for(String sng : redSongs) player.getScoreboardTags().remove("Used" + sng);
-        if(songIn(song, blueSongs)) for(String sng : blueSongs) player.getScoreboardTags().remove("Used" + sng);
-        if(songIn(song, yellowSongs)) for(String sng : yellowSongs) player.getScoreboardTags().remove("Used" + sng);
-        if(songIn(song, greenSongs)) for(String sng : greenSongs) player.getScoreboardTags().remove("Used" + sng);
-        player.getScoreboardTags().add("Used" + song);
-
-        switch(song) {
-            case "Supporolift", "Supporokenisis":
-                Score activeScore = scoreType(player, "UsingActiveSong");
-                activeScore.setScore(230);
-                break;
-            case "Aggrosphere":
-                Score usingAggrosphereScore = scoreType(player, "UsingAggrosphere");
-                usingAggrosphereScore.setScore(230);
-                break;
-            case "Proteheal":
-                Score usingProtehealScore = scoreType(player, "UsingProteheal");
-                usingProtehealScore.setScore(230);
-                break;
-            case "Mobilileap":
-                Score usingMobilileapScore = scoreType(player, "UsingMobilileap");
-                usingMobilileapScore.setScore(230);
-                break;
-            case "Mobiliflash":
-                Score usingMobiliflashScore = scoreType(player, "UsingMobiliflash");
-                usingMobiliflashScore.setScore(230);
-                break;
-            default: break;
-        }
-    }
-
     public static Location getLocationInFrontOfEntity(Entity entity, float blocks) {
         Location loc = entity.getLocation();
         Vector direction = loc.getDirection().normalize();
@@ -226,5 +195,50 @@ public class SongPlugHelper {
         menu.setItem(15, customNameItemStack(Material.RED_WOOL, Component.text("Voltaris")));
         menu.setItem(26, customNameItemStack(Material.BARRIER, Component.text("Cancel")));
         player.openInventory(menu);
+    }
+
+    public static double getMaxDistanceInFrontOfPlayer(Player player, double max, boolean includeEntities) {
+        if(includeEntities) {
+            Entity target = player.getTargetEntity((int) max);
+            if(target != null) return locationDistance(player, target);
+        }
+
+        RayTraceResult result = player.getWorld().rayTraceBlocks(
+                player.getEyeLocation(),
+                player.getEyeLocation().getDirection(),
+                max
+        );
+
+        if (result != null && result.getHitBlock() != null) {
+            Location loc = result.getHitPosition().toLocation(player.getWorld());
+            loc.setRotation(player.getLocation().getRotation());
+            return player.getLocation().distance(loc);
+        }
+
+        return max;
+    }
+
+    public static void triggerSong(Player player, String song) {
+        if(songIn(song, redSongs)) for(String sng : redSongs) player.getScoreboardTags().remove("Used" + sng);
+        if(songIn(song, blueSongs)) for(String sng : blueSongs) player.getScoreboardTags().remove("Used" + sng);
+        if(songIn(song, yellowSongs)) for(String sng : yellowSongs) player.getScoreboardTags().remove("Used" + sng);
+        if(songIn(song, greenSongs)) for(String sng : greenSongs) player.getScoreboardTags().remove("Used" + sng);
+        player.getScoreboardTags().add("Used" + song);
+
+        switch(song) {
+            case "Supporolift", "Supporokenisis", "Aggrobeam":
+                Score activeScore = scoreType(player, "UsingActiveSong");
+                activeScore.setScore(230);
+                break;
+            case "Protearmor":
+                Score activeScore40 = scoreType(player, "UsingActiveSong");
+                activeScore40.setScore(70);
+                break;
+            case "Aggrosphere", "Proteheal", "Mobilileap", "Mobiliflash":
+                Score passiveScore = scoreType(player, "Using" + song);
+                passiveScore.setScore(230);
+                break;
+            default: break;
+        }
     }
 }

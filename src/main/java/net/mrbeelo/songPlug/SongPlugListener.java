@@ -8,10 +8,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -21,9 +24,12 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.util.Vector;
 
 import java.util.Arrays;
 
@@ -371,5 +377,28 @@ public class SongPlugListener implements Listener {
                         .append(Component.text(": ", NamedTextColor.WHITE))
                         .append(message.color(NamedTextColor.WHITE))
         );
+    }
+
+    @EventHandler
+    public void onPlayerDamaged(EntityDamageByEntityEvent event) {
+        Entity entity = event.getEntity();
+        Entity damager = event.getDamager();
+
+        if(entity instanceof Player player && player.getScoreboardTags().contains("UsedProtearmor")) {
+            Score activeScore = scoreType(player, "UsingActiveSong");
+            if(activeScore.getScore() > 0 && activeScore.getScore() <= 40) {
+                Vector vec = damager.getLocation().getDirection();
+                damager.setVelocity(new Vector(vec.getX() * -1, 0, vec.getZ() * -1));
+                activeScore.setScore(0);
+
+                if(damager instanceof LivingEntity living) {
+                    living.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 40, 2));
+                    living.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 2));
+                    living.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 40, 2));
+                }
+
+                event.setCancelled(true);
+            }
+        }
     }
 }
