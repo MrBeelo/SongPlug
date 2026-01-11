@@ -424,10 +424,12 @@ public class SongPlugTick {
             AttributeInstance speed = player.getAttribute(Attribute.MOVEMENT_SPEED);
             AttributeInstance jump = player.getAttribute(Attribute.JUMP_STRENGTH);
             AttributeInstance attack = player.getAttribute(Attribute.ATTACK_DAMAGE);
+            AttributeInstance armor = player.getAttribute(Attribute.ARMOR);
 
             assert speed != null;
             assert jump != null;
             assert attack != null;
+            assert armor != null;
 
             if(usingActiveSong == 69) {
                 for(Player player2 : Bukkit.getOnlinePlayers()) {
@@ -441,6 +443,7 @@ public class SongPlugTick {
                 speed.setBaseValue(0);
                 jump.setBaseValue(0);
                 attack.setBaseValue(0);
+                armor.setBaseValue(999);
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 100f, 0.8f);
             }
 
@@ -461,6 +464,7 @@ public class SongPlugTick {
                 speed.setBaseValue(0.1f);
                 jump.setBaseValue(0.42);
                 attack.setBaseValue(1);
+                armor.setBaseValue(0);
                 player.getScoreboardTags().remove("UsedProtearmor");
             }
         }
