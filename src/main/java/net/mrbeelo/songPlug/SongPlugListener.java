@@ -15,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -380,7 +381,7 @@ public class SongPlugListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerDamaged(EntityDamageByEntityEvent event) {
+    public void onPlayerDamagedByEntity(EntityDamageByEntityEvent event) {
         Entity entity = event.getEntity();
         Entity damager = event.getDamager();
 
@@ -398,6 +399,27 @@ public class SongPlugListener implements Listener {
                 }
 
                 event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDamaged(EntityDamageEvent event) {
+        Entity entity = event.getEntity();
+        if(entity instanceof Player player) {
+            if(player.getScoreboardTags().contains("UsedAggroquake")) {
+                Score passiveScore = scoreType(player, "UsingAggroquake");
+                if(passiveScore.getScore() >= 195 && passiveScore.getScore() <= 205) {
+                    Vector velocity = player.getVelocity();
+                    player.setVelocity(new Vector(velocity.getX(), 0, velocity.getZ()));
+                    event.setCancelled(true);
+                }
+            } else if(player.getScoreboardTags().contains("UsedMobiliburst")) {
+                Score passiveScore = scoreType(player, "UsingMobiliburst");
+                if(passiveScore.getScore() >= 195 && passiveScore.getScore() <= 205) {
+                    player.setVelocity(new Vector(0, 0, 0));
+                    event.setCancelled(true);
+                }
             }
         }
     }

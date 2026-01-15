@@ -64,6 +64,8 @@ public class SongPlugTick {
         int usingActiveSong = usingActiveSongScore.getScore();
         if(usingActiveSong > 0) usingActiveSongScore.setScore(usingActiveSong - 1);
 
+        //--GREEN SONGS--//
+
         //SUPPOROLIFT
         if(player.getScoreboardTags().contains("UsedSupporolift")) {
             if(usingActiveSong >= 224 && usingActiveSong <= 230) {
@@ -189,6 +191,203 @@ public class SongPlugTick {
             }
         }
 
+        //--YELLOW SONGS--//
+
+        //MOBILILEAP
+        if(player.getScoreboardTags().contains("UsedMobilileap")) {
+            Score usingMobilileapScore = scoreType(player, "UsingMobilileap");
+            int usingMobilileap = usingMobilileapScore.getScore();
+            if(usingMobilileap > 0) usingMobilileapScore.setScore(usingMobilileap - 1);
+
+            AttributeInstance attribute = player.getAttribute(Attribute.SAFE_FALL_DISTANCE);
+            assert attribute != null;
+
+            if(usingMobilileap == 229) {
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 10) {
+                        player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
+                    }
+                }
+            }
+
+            if(usingMobilileap == 201) {
+                player.setVelocity(new Vector(0, 1.9, 0));
+                attribute.setBaseValue(20);
+            }
+
+            if(usingMobilileap <= 200 && usingMobilileap > 0 && player.isOnGround()) {
+                usingMobilileapScore.setScore(0);
+                attribute.setBaseValue(attribute.getDefaultValue());
+            }
+
+            if(usingMobilileap == 0) {
+                attribute.setBaseValue(attribute.getDefaultValue());
+                player.getScoreboardTags().remove("UsedMobilileap");
+            }
+        }
+
+        //MOBILIFLASH
+        if(player.getScoreboardTags().contains("UsedMobiliflash")) {
+            Score usingMobiliflashScore = scoreType(player, "UsingMobiliflash");
+            int usingMobiliflash = usingMobiliflashScore.getScore();
+            if(usingMobiliflash > 0) usingMobiliflashScore.setScore(usingMobiliflash - 1);
+
+            if(usingMobiliflash == 229) {
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 10) {
+                        player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
+                    }
+                }
+            }
+
+            if(usingMobiliflash == 201) {
+                int power = 18;
+                RayTraceResult result = player.getWorld().rayTraceBlocks(
+                        player.getEyeLocation(),
+                        player.getEyeLocation().getDirection(),
+                        power
+                );
+
+                if (result == null || result.getHitBlock() == null) {
+                    player.teleport(getLocationInFrontOfEntity(player, power));
+                } else {
+                    Location loc = result.getHitPosition().toLocation(player.getWorld());
+                    loc.setRotation(player.getLocation().getRotation());
+                    player.teleport(loc);
+                }
+
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 10) {
+                        player2.playSound(player2.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
+                    }
+                }
+            }
+
+            if(usingMobiliflash == 0) {
+                player.getScoreboardTags().remove("UsedMobiliflash");
+            }
+        }
+
+        //MOBILIBURST
+        if(player.getScoreboardTags().contains("UsedMobiliburst")) {
+            Score usingMobiliburstScore = scoreType(player, "UsingMobiliburst");
+            int usingMobiliburst = usingMobiliburstScore.getScore();
+            if(usingMobiliburst > 0) usingMobiliburstScore.setScore(usingMobiliburst - 1);
+
+            if(usingMobiliburst == 229) {
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 10) {
+                        player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
+                    }
+                }
+            }
+
+            if(usingMobiliburst == 201) {
+                int power = 8;
+                Location location = player.getLocation();
+                Location newLocation1 = getLocationInFrontOfEntity(player, (float) getMaxDistanceInFrontOfPlayer(player, power, true) - 1);
+                Location newLocation2 = new Location(player.getWorld(), newLocation1.getX(), location.getY(), newLocation1.getZ(), location.getYaw(), location.getPitch());
+                player.getWorld().createExplosion(newLocation2, 4f, false, false);
+                player.teleport(newLocation2);
+
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 10) {
+                        player2.playSound(player2.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
+                    }
+                }
+            }
+
+            if(usingMobiliburst == 0) {
+                player.getScoreboardTags().remove("UsedMobiliburst");
+            }
+        }
+
+        //--BLUE SONGS--//
+
+        //PROTEHEAL
+        if(player.getScoreboardTags().contains("UsedProteheal")) {
+            Score usingProtehealScore = scoreType(player, "UsingProteheal");
+            int usingProteheal = usingProtehealScore.getScore();
+            if(usingProteheal > 0) usingProtehealScore.setScore(usingProteheal - 1);
+
+            if(usingProteheal == 229) {
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 7) {
+                        player2.playSound(player2.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
+                    }
+                }
+            }
+
+            if(usingProteheal == 201) {
+                Entity target = player.getTargetEntity(7, false);
+                int amount = 20;
+                if(target instanceof Player player2) {
+                    player2.heal(amount);
+                    player2.playSound(player2.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 100f, 0.8f);
+                } else {
+                    player.heal(amount);
+                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 100f, 0.8f);
+                }
+
+            }
+
+            if(usingProteheal == 0) {
+                player.getScoreboardTags().remove("UsedProteheal");
+            }
+        }
+
+        //PROTEARMOR
+        if(player.getScoreboardTags().contains("UsedProtearmor")) {
+            AttributeInstance speed = player.getAttribute(Attribute.MOVEMENT_SPEED);
+            AttributeInstance jump = player.getAttribute(Attribute.JUMP_STRENGTH);
+            AttributeInstance attack = player.getAttribute(Attribute.ATTACK_DAMAGE);
+            AttributeInstance armor = player.getAttribute(Attribute.ARMOR);
+
+            assert speed != null;
+            assert jump != null;
+            assert attack != null;
+            assert armor != null;
+
+            if(usingActiveSong == 69) {
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 7) {
+                        player2.playSound(player2.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
+                    }
+                }
+            }
+
+            if(usingActiveSong == 41) {
+                speed.setBaseValue(0);
+                jump.setBaseValue(0);
+                attack.setBaseValue(0);
+                armor.setBaseValue(999);
+                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 100f, 0.8f);
+            }
+
+            if(usingActiveSong <= 40 && usingActiveSong > 0) {
+                Score cooldownScore = scoreType(player, "blueEnergyCooldown");
+                cooldownScore.setScore(200);
+
+                Location center = player.getLocation().add(0, 1, 0); // chest height
+                for (int i = 0; i < 20; i++) {
+                    double x = (Math.random() - 0.5) * 1.5;
+                    double y = Math.random() * 1.5;
+                    double z = (Math.random() - 0.5) * 1.5;
+                    Particle.ENTITY_EFFECT.builder().location(center.clone().add(x, y, z)).count(1).color(Color.BLUE).allPlayers().spawn();
+                }
+            }
+
+            if(usingActiveSong == 0) {
+                speed.setBaseValue(0.1f);
+                jump.setBaseValue(0.42);
+                attack.setBaseValue(1);
+                armor.setBaseValue(0);
+                player.getScoreboardTags().remove("UsedProtearmor");
+            }
+        }
+
+        //--RED SONGS--//
+
         //AGGROSPHERE
         if(player.getScoreboardTags().contains("UsedAggrosphere")) {
             Score usingAggrosphereScore = scoreType(player, "UsingAggrosphere");
@@ -277,114 +476,6 @@ public class SongPlugTick {
             }
         }
 
-        //PROTEHEAL
-        if(player.getScoreboardTags().contains("UsedProteheal")) {
-            Score usingProtehealScore = scoreType(player, "UsingProteheal");
-            int usingProteheal = usingProtehealScore.getScore();
-            if(usingProteheal > 0) usingProtehealScore.setScore(usingProteheal - 1);
-
-            if(usingProteheal == 229) {
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 7) {
-                        player2.playSound(player2.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
-                    }
-                }
-            }
-
-            if(usingProteheal == 201) {
-                Entity target = player.getTargetEntity(7, false);
-                int amount = 20;
-                if(target instanceof Player player2) {
-                    player2.heal(amount);
-                    player2.playSound(player2.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 100f, 0.8f);
-                } else {
-                    player.heal(amount);
-                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 100f, 0.8f);
-                }
-
-            }
-
-            if(usingProteheal == 0) {
-                player.getScoreboardTags().remove("UsedProteheal");
-            }
-        }
-
-        //MOBILILEAP
-        if(player.getScoreboardTags().contains("UsedMobilileap")) {
-            Score usingMobilileapScore = scoreType(player, "UsingMobilileap");
-            int usingMobilileap = usingMobilileapScore.getScore();
-            if(usingMobilileap > 0) usingMobilileapScore.setScore(usingMobilileap - 1);
-
-            AttributeInstance attribute = player.getAttribute(Attribute.SAFE_FALL_DISTANCE);
-            assert attribute != null;
-
-            if(usingMobilileap == 229) {
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
-                    }
-                }
-            }
-
-            if(usingMobilileap == 201) {
-                player.setVelocity(new Vector(0, 1.9, 0));
-                attribute.setBaseValue(20);
-            }
-
-            if(usingMobilileap <= 200 && usingMobilileap > 0 && player.isOnGround()) {
-                usingMobilileapScore.setScore(0);
-                attribute.setBaseValue(attribute.getDefaultValue());
-            }
-
-            if(usingMobilileap == 0) {
-                attribute.setBaseValue(attribute.getDefaultValue());
-                player.getScoreboardTags().remove("UsedMobilileap");
-            }
-        }
-
-        //MOBILIFLASH
-        if(player.getScoreboardTags().contains("UsedMobiliflash")) {
-            Score usingMobiliflashScore = scoreType(player, "UsingMobiliflash");
-            int usingMobiliflash = usingMobiliflashScore.getScore();
-            if(usingMobiliflash > 0) usingMobiliflashScore.setScore(usingMobiliflash - 1);
-
-            if(usingMobiliflash == 229) {
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
-                    }
-                }
-            }
-
-            if(usingMobiliflash == 201) {
-                int power = 18;
-                Vector looking = player.getLocation().getDirection();
-                RayTraceResult result = player.getWorld().rayTraceBlocks(
-                        player.getEyeLocation(),
-                        player.getEyeLocation().getDirection(),
-                        power
-                );
-
-                if (result == null || result.getHitBlock() == null) {
-                    player.teleport(getLocationInFrontOfEntity(player, power));
-                } else {
-                    Location loc = result.getHitPosition().toLocation(player.getWorld());
-                    loc.setRotation(player.getLocation().getRotation());
-                    player.teleport(loc);
-                }
-
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
-                    }
-                }
-            }
-
-            if(usingMobiliflash == 0) {
-                player.getScoreboardTags().remove("UsedMobiliflash");
-            }
-        }
-
         //AGGROBEAM
         if(player.getScoreboardTags().contains("UsedAggrobeam")) {
             if(usingActiveSong == 201) {
@@ -419,53 +510,18 @@ public class SongPlugTick {
             }
         }
 
-        //PROTEARMOR
-        if(player.getScoreboardTags().contains("UsedProtearmor")) {
-            AttributeInstance speed = player.getAttribute(Attribute.MOVEMENT_SPEED);
-            AttributeInstance jump = player.getAttribute(Attribute.JUMP_STRENGTH);
-            AttributeInstance attack = player.getAttribute(Attribute.ATTACK_DAMAGE);
-            AttributeInstance armor = player.getAttribute(Attribute.ARMOR);
+        //AGGROQUAKE
+        if(player.getScoreboardTags().contains("UsedAggroquake")) {
+            Score usingAggroquakeScore = scoreType(player, "UsingAggroquake");
+            int usingAggroquake = usingAggroquakeScore.getScore();
+            if(usingAggroquake > 0) usingAggroquakeScore.setScore(usingAggroquake - 1);
 
-            assert speed != null;
-            assert jump != null;
-            assert attack != null;
-            assert armor != null;
-
-            if(usingActiveSong == 69) {
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 7) {
-                        player2.playSound(player2.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
-                    }
-                }
+            if(usingAggroquake == 201) {
+                player.getWorld().createExplosion(player.getLocation(), 4f, false, false);
             }
 
-            if(usingActiveSong == 41) {
-                speed.setBaseValue(0);
-                jump.setBaseValue(0);
-                attack.setBaseValue(0);
-                armor.setBaseValue(999);
-                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 100f, 0.8f);
-            }
-
-            if(usingActiveSong <= 40 && usingActiveSong > 0) {
-                Score cooldownScore = scoreType(player, "blueEnergyCooldown");
-                cooldownScore.setScore(200);
-
-                Location center = player.getLocation().add(0, 1, 0); // chest height
-                for (int i = 0; i < 20; i++) {
-                    double x = (Math.random() - 0.5) * 1.5;
-                    double y = Math.random() * 1.5;
-                    double z = (Math.random() - 0.5) * 1.5;
-                    Particle.ENTITY_EFFECT.builder().location(center.clone().add(x, y, z)).count(1).color(Color.BLUE).allPlayers().spawn();
-                }
-            }
-
-            if(usingActiveSong == 0) {
-                speed.setBaseValue(0.1f);
-                jump.setBaseValue(0.42);
-                attack.setBaseValue(1);
-                armor.setBaseValue(0);
-                player.getScoreboardTags().remove("UsedProtearmor");
+            if(usingAggroquake == 0) {
+                player.getScoreboardTags().remove("UsedAggroquake");
             }
         }
     }

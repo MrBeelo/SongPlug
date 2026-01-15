@@ -234,7 +234,7 @@ public class SongPlugHelper {
                 Score activeScore40 = scoreType(player, "UsingActiveSong");
                 activeScore40.setScore(70);
                 break;
-            case "Aggrosphere", "Proteheal", "Mobilileap", "Mobiliflash":
+            case "Aggrosphere", "Proteheal", "Mobilileap", "Mobiliflash", "Aggroquake", "Mobiliburst":
                 Score passiveScore = scoreType(player, "Using" + song);
                 passiveScore.setScore(230);
                 break;
