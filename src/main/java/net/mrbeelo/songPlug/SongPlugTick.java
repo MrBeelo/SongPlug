@@ -287,7 +287,7 @@ public class SongPlugTick {
                 Location location = player.getLocation();
                 Location newLocation1 = getLocationInFrontOfEntity(player, (float) getMaxDistanceInFrontOfPlayer(player, power, true) - 1);
                 Location newLocation2 = new Location(player.getWorld(), newLocation1.getX(), location.getY(), newLocation1.getZ(), location.getYaw(), location.getPitch());
-                player.getWorld().createExplosion(newLocation2, 4f, false, false);
+                player.getWorld().createExplosion(newLocation2, 2, false, false);
                 player.teleport(newLocation2);
 
                 for(Player player2 : Bukkit.getOnlinePlayers()) {
@@ -517,7 +517,7 @@ public class SongPlugTick {
             if(usingAggroquake > 0) usingAggroquakeScore.setScore(usingAggroquake - 1);
 
             if(usingAggroquake == 201) {
-                player.getWorld().createExplosion(player.getLocation(), 4f, false, false);
+                player.getWorld().createExplosion(player.getLocation(), 2, false, false);
             }
 
             if(usingAggroquake == 0) {
