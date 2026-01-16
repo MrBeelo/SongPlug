@@ -242,13 +242,6 @@ public class SongPlugTick {
                             case 3 -> Material.DIAMOND_BOOTS;
                             default -> Material.BARRIER;
                         };
-                        case Material.NETHERITE_INGOT -> switch (random % 4) {
-                            case 0 -> Material.NETHERITE_HELMET;
-                            case 1 -> Material.NETHERITE_CHESTPLATE;
-                            case 2 -> Material.NETHERITE_LEGGINGS;
-                            case 3 -> Material.NETHERITE_BOOTS;
-                            default -> Material.BARRIER;
-                        };
                         default -> Material.STRUCTURE_BLOCK;
                     };
 
@@ -410,6 +403,9 @@ public class SongPlugTick {
                     double z = (Math.random() - 0.5) * 1.5;
                     Particle.ENTITY_EFFECT.builder().location(center.clone().add(x, y, z)).count(1).color(Color.YELLOW).allPlayers().spawn();
                 }
+
+                Score cooldownScore =  scoreType(player, "yellowEnergyCooldown");
+                cooldownScore.setScore(200);
             }
 
             if(usingActiveSong == 0) {
