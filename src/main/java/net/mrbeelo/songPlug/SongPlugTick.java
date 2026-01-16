@@ -15,6 +15,8 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import java.util.Objects;
+import java.util.Random;
+import java.util.random.RandomGenerator;
 
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
@@ -191,6 +193,82 @@ public class SongPlugTick {
             }
         }
 
+
+        //SUPPOROFORM
+        if(player.getScoreboardTags().contains("UsedSupporoform")) {
+            Score usingSupporoformScore = scoreType(player, "UsingSupporoform");
+            int usingSupporoform = usingSupporoformScore.getScore();
+            if(usingSupporoform > 0) usingSupporoformScore.setScore(usingSupporoform - 1);
+
+            if(usingSupporoform >= 224 && usingActiveSong <= 230) {
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 10) {
+                        player2.playSound(player2.getLocation(), Sound.ENTITY_PARROT_IMITATE_EVOKER, SoundCategory.MASTER, 100f, 0.35f);
+                    }
+                }
+            }
+
+            if(usingSupporoform == 201) {
+                ItemStack stack = player.getInventory().getItemInMainHand();
+                if(!stack.isEmpty()) {
+                    int random = Random.from(RandomGenerator.getDefault()).nextInt(0, 10000);
+                    Material newStackMaterial = switch (stack.getType()) {
+                        case Material.COPPER_INGOT -> switch (random % 5) {
+                            case 0 -> Material.COPPER_HELMET;
+                            case 1 -> Material.COPPER_CHESTPLATE;
+                            case 2 -> Material.COPPER_LEGGINGS;
+                            case 3 -> Material.COPPER_BOOTS;
+                            case 4 -> Material.WAXED_COPPER_GOLEM_STATUE;
+                            default -> Material.BARRIER;
+                        };
+                        case Material.IRON_INGOT -> switch (random % 4) {
+                            case 0 -> Material.IRON_HELMET;
+                            case 1 -> Material.IRON_CHESTPLATE;
+                            case 2 -> Material.IRON_LEGGINGS;
+                            case 3 -> Material.IRON_BOOTS;
+                            default -> Material.BARRIER;
+                        };
+                        case Material.GOLD_INGOT -> switch (random % 4) {
+                            case 0 -> Material.GOLDEN_HELMET;
+                            case 1 -> Material.GOLDEN_CHESTPLATE;
+                            case 2 -> Material.GOLDEN_LEGGINGS;
+                            case 3 -> Material.GOLDEN_BOOTS;
+                            default -> Material.BARRIER;
+                        };
+                        case Material.DIAMOND -> switch (random % 4) {
+                            case 0 -> Material.DIAMOND_HELMET;
+                            case 1 -> Material.DIAMOND_CHESTPLATE;
+                            case 2 -> Material.DIAMOND_LEGGINGS;
+                            case 3 -> Material.DIAMOND_BOOTS;
+                            default -> Material.BARRIER;
+                        };
+                        case Material.NETHERITE_INGOT -> switch (random % 4) {
+                            case 0 -> Material.NETHERITE_HELMET;
+                            case 1 -> Material.NETHERITE_CHESTPLATE;
+                            case 2 -> Material.NETHERITE_LEGGINGS;
+                            case 3 -> Material.NETHERITE_BOOTS;
+                            default -> Material.BARRIER;
+                        };
+                        default -> Material.STRUCTURE_BLOCK;
+                    };
+
+                    ItemStack newStack = new ItemStack(newStackMaterial);
+                    player.getInventory().setItem(player.getInventory().getHeldItemSlot(), newStack);
+
+                    for(Player player2 : Bukkit.getOnlinePlayers()) {
+                        if(locationDistance(player, player2) <= 10) {
+                            player2.playSound(player2.getLocation(), Sound.ENTITY_WITHER_HURT, SoundCategory.MASTER, 100f, 1.85f);
+                        }
+                    }
+                }
+
+            }
+
+            if(usingSupporoform == 0) {
+                player.getScoreboardTags().remove("UsedSupporoform");
+            }
+        }
+
         //--YELLOW SONGS--//
 
         //MOBILILEAP
@@ -302,6 +380,44 @@ public class SongPlugTick {
             }
         }
 
+        //MOBILIWINGS
+        if(player.getScoreboardTags().contains("UsedMobiliwings")) {
+            if(usingActiveSong == 229) {
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 10) {
+                        player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
+                    }
+                }
+            }
+
+            if(usingActiveSong == 201) {
+                player.setAllowFlight(true);
+                player.setVelocity(new Vector(player.getVelocity().getX(), 1.3, player.getVelocity().getZ()));
+
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 10) {
+                        player2.playSound(player2.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
+                    }
+                }
+            }
+
+            if(usingActiveSong > 0 && usingActiveSong <= 200) {
+                //TEMPORARY PARTICLES
+                Location center = player.getLocation().add(0, 1, 0);
+                for (int i = 0; i < 20; i++) {
+                    double x = (Math.random() - 0.5) * 1.5;
+                    double y = Math.random() * 1.5;
+                    double z = (Math.random() - 0.5) * 1.5;
+                    Particle.ENTITY_EFFECT.builder().location(center.clone().add(x, y, z)).count(1).color(Color.YELLOW).allPlayers().spawn();
+                }
+            }
+
+            if(usingActiveSong == 0) {
+                player.setAllowFlight(false);
+                player.getScoreboardTags().remove("UsedMobiliwings");
+            }
+        }
+
         //--BLUE SONGS--//
 
         //PROTEHEAL
@@ -368,7 +484,7 @@ public class SongPlugTick {
                 Score cooldownScore = scoreType(player, "blueEnergyCooldown");
                 cooldownScore.setScore(200);
 
-                Location center = player.getLocation().add(0, 1, 0); // chest height
+                Location center = player.getLocation().add(0, 1, 0);
                 for (int i = 0; i < 20; i++) {
                     double x = (Math.random() - 0.5) * 1.5;
                     double y = Math.random() * 1.5;

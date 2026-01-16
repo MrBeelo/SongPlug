@@ -226,7 +226,7 @@ public class SongPlugHelper {
         player.getScoreboardTags().add("Used" + song);
 
         switch(song) {
-            case "Supporolift", "Supporokenisis", "Aggrobeam":
+            case "Supporolift", "Supporokenisis", "Aggrobeam", "Mobiliwings":
                 Score activeScore = scoreType(player, "UsingActiveSong");
                 activeScore.setScore(230);
                 break;
@@ -234,7 +234,7 @@ public class SongPlugHelper {
                 Score activeScore40 = scoreType(player, "UsingActiveSong");
                 activeScore40.setScore(70);
                 break;
-            case "Aggrosphere", "Proteheal", "Mobilileap", "Mobiliflash", "Aggroquake", "Mobiliburst":
+            case "Aggrosphere", "Proteheal", "Mobilileap", "Mobiliflash", "Aggroquake", "Mobiliburst", "Supporoform":
                 Score passiveScore = scoreType(player, "Using" + song);
                 passiveScore.setScore(230);
                 break;
