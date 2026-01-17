@@ -2,10 +2,7 @@ package net.mrbeelo.songPlug;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BarStyle;
@@ -24,6 +21,7 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class SongPlugHelper {
     public static void command(String command) {
@@ -218,6 +216,40 @@ public class SongPlugHelper {
         return max;
     }
 
+    public static void playSoundToNearby(Location location, double distance, Sound sound, SoundCategory category, float volume, float pitch) {
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            if(location.distance(player.getLocation()) <= distance) {
+                player.playSound(player.getLocation(), sound, category, volume, pitch);
+            }
+        }
+    }
+
+    public static List<Entity> getNearbyEntities(Location location, double distance) {
+        List<Entity> list = new java.util.ArrayList<>();
+        for(Entity entity : location.getWorld().getEntities()) if(location.distance(entity.getLocation()) <= distance) list.add(entity);
+        return list;
+    }
+
+    public static Vector distanceVector(Entity source, Entity target) {
+        return target.getLocation().toVector().subtract(source.getLocation().toVector()).normalize();
+    }
+
+    public static boolean isInLightOfSight(Player player, Entity entity) {
+        Location eye = player.getEyeLocation();
+        Vector toEntity = entity.getLocation()
+                .add(0, entity.getHeight() / 2, 0)
+                .toVector()
+                .subtract(eye.toVector())
+                .normalize();
+
+        Vector direction = eye.getDirection().normalize();
+
+        double dot = direction.dot(toEntity);
+        double threshold = Math.cos(Math.toRadians(45));
+
+        return dot > threshold;
+    }
+
     public static void triggerSong(Player player, String song) {
         if(songIn(song, redSongs)) for(String sng : redSongs) player.getScoreboardTags().remove("Used" + sng);
         if(songIn(song, blueSongs)) for(String sng : blueSongs) player.getScoreboardTags().remove("Used" + sng);
@@ -226,17 +258,17 @@ public class SongPlugHelper {
         player.getScoreboardTags().add("Used" + song);
 
         switch(song) {
-            case "Supporolift", "Supporokenisis", "Aggrobeam", "Mobiliwings", "Mobilibounce":
+            case "Supporolift", "Supporokenisis", "Aggrobeam", "Mobiliwings", "Mobilibounce", "Mobiliglide":
                 Score activeScore = scoreType(player, "UsingActiveSong");
                 activeScore.setScore(230);
+                break;
+            case "Aggrosphere", "Proteheal", "Mobilileap", "Mobiliflash", "Aggroquake", "Mobiliburst", "Supporoform", "Aggroblast", "Aggrovortex":
+                Score passiveScore = scoreType(player, "Using" + song);
+                passiveScore.setScore(230);
                 break;
             case "Protearmor":
                 Score activeScore40 = scoreType(player, "UsingActiveSong");
                 activeScore40.setScore(70);
-                break;
-            case "Aggrosphere", "Proteheal", "Mobilileap", "Mobiliflash", "Aggroquake", "Mobiliburst", "Supporoform":
-                Score passiveScore = scoreType(player, "Using" + song);
-                passiveScore.setScore(230);
                 break;
             default: break;
         }
