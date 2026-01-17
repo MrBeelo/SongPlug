@@ -4,6 +4,7 @@ import com.destroystokyo.paper.ParticleBuilder;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.block.Block;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
@@ -24,7 +25,7 @@ public class SongPlugTick {
 
     public static void updateRegen(Player player, Score energyScore) {
         if(player.getScoreboardTags().contains("ArdoniClass")) {
-            Score energyRegenScore = scoreType(player, "songEnergyRegen");
+            Score energyRegenScore = scoreType(player, "SongEnergyRegen");
             int songEnergyRegen = energyRegenScore.getScore();
 
             if(energyScore.getScore() < 5) {
@@ -41,10 +42,10 @@ public class SongPlugTick {
 
     public static void updateCooldowns(Player player) {
         if(player.getScoreboardTags().contains("ArdoniClass")) {
-            Score redCooldownScore = scoreType(player, "redEnergyCooldown");
-            Score blueCooldownScore = scoreType(player, "blueEnergyCooldown");
-            Score yellowCooldownScore = scoreType(player, "yellowEnergyCooldown");
-            Score greenCooldownScore = scoreType(player, "greenEnergyCooldown");
+            Score redCooldownScore = scoreType(player, "RedEnergyCooldown");
+            Score blueCooldownScore = scoreType(player, "BlueEnergyCooldown");
+            Score yellowCooldownScore = scoreType(player, "YellowEnergyCooldown");
+            Score greenCooldownScore = scoreType(player, "GreenEnergyCooldown");
             Score infuseCooldownScore = scoreType(player, "InfuseCooldown");
 
             int redEnergyCooldown = redCooldownScore.getScore();
@@ -111,7 +112,7 @@ public class SongPlugTick {
                             entity.teleport(loc);
                         }
 
-                        Score cooldownScore = scoreType(player, "greenEnergyCooldown");
+                        Score cooldownScore = scoreType(player, "GreenEnergyCooldown");
                         cooldownScore.setScore(200);
 
                         if(player.isSneaking()) {
@@ -175,7 +176,7 @@ public class SongPlugTick {
                             entity.teleport(loc);
                         }
 
-                        Score cooldownScore = scoreType(player, "greenEnergyCooldown");
+                        Score cooldownScore = scoreType(player, "GreenEnergyCooldown");
                         cooldownScore.setScore(200);
 
                         if(player.isSneaking()) {
@@ -404,13 +405,100 @@ public class SongPlugTick {
                     Particle.ENTITY_EFFECT.builder().location(center.clone().add(x, y, z)).count(1).color(Color.YELLOW).allPlayers().spawn();
                 }
 
-                Score cooldownScore =  scoreType(player, "yellowEnergyCooldown");
+                Score cooldownScore =  scoreType(player, "YellowEnergyCooldown");
                 cooldownScore.setScore(200);
             }
 
             if(usingActiveSong == 0) {
                 player.setAllowFlight(false);
                 player.getScoreboardTags().remove("UsedMobiliwings");
+            }
+        }
+
+        //MOBILIBOUNCE
+        if(player.getScoreboardTags().contains("UsedMobilibounce")) {
+            Score mobilibounceDelayScore = scoreType(player, "MobilibouncePlatformDelay");
+            int mobilibounceDelay = mobilibounceDelayScore.getScore();
+            if(mobilibounceDelay > 0) mobilibounceDelayScore.setScore(mobilibounceDelay - 1);
+
+            if(usingActiveSong == 229) {
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 10) {
+                        player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
+                    }
+                }
+            }
+
+            if(usingActiveSong == 211) {
+                player.setAllowFlight(true);
+                player.setVelocity(new Vector(player.getVelocity().getX(), 0.6, player.getVelocity().getZ()));
+
+                for(Player player2 : Bukkit.getOnlinePlayers()) {
+                    if(locationDistance(player, player2) <= 10) {
+                        player2.playSound(player2.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
+                    }
+                }
+            }
+
+            if(usingActiveSong == 201) {
+                Location location = player.getLocation().add(0, -1, 0);
+                Block targetBlock = location.getBlock();
+                if(targetBlock.isEmpty()) {
+                    targetBlock.setType(Material.BAMBOO_MOSAIC_SLAB);
+                    Entity entity = player.getWorld().spawnEntity(location.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.INTERACTION);
+                    entity.getScoreboardTags().add("Mobilibounce" + player.getName());
+                }
+            }
+
+            if(usingActiveSong > 0 && usingActiveSong <= 200) {
+                Material standingBlock = player.getLocation().add(0, -0.1, 0).getBlock().getType();
+                if(!standingBlock.equals(Material.AIR) && !standingBlock.equals(Material.BAMBOO_MOSAIC_SLAB)) {
+                    for(Entity entity : player.getWorld().getEntities()) {
+                        if(entity.getScoreboardTags().contains("Mobilibounce" + player.getName())) {
+                            if(entity.getLocation().getBlock().getType().equals(Material.BAMBOO_MOSAIC_SLAB)) entity.getLocation().getBlock().setType(Material.AIR);
+                            entity.remove();
+                            usingActiveSongScore.setScore(0);
+                        }
+                    }
+                }
+
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity.getScoreboardTags().contains("Mobilibounce" + player.getName())) {
+                        Location location = entity.getLocation().add(0, 0, 0);
+                        for (int i = 0; i < 10; i++) {
+                            double x = (Math.random() - 0.5) * 1.5;
+                            double y = Math.random() * 0.5;
+                            double z = (Math.random() - 0.5) * 1.5;
+                            Particle.DUST.builder().location(location.clone().add(x, y, z)).count(1).color(Color.YELLOW).allPlayers().spawn();
+                        }
+                    }
+                }
+
+                if(mobilibounceDelay == 1) {
+                    player.setVelocity(new Vector(0, 0, 0));
+                    Location location = player.getLocation().add(0, -0.1, 0);
+                    Block targetBlock = location.getBlock();
+                    if(targetBlock.isEmpty()) {
+                        targetBlock.setType(Material.BAMBOO_MOSAIC_SLAB);
+                        Entity entity = player.getWorld().spawnEntity(location.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.INTERACTION);
+                        entity.getScoreboardTags().add("Mobilibounce" + player.getName());
+                    }
+                    player.teleport(targetBlock.getLocation().add(0.5, 1, 0.5).setRotation(player.getYaw(), player.getPitch()));
+                }
+
+                Score cooldownScore =  scoreType(player, "YellowEnergyCooldown");
+                cooldownScore.setScore(200);
+            }
+
+            if(usingActiveSong == 0) {
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity.getScoreboardTags().contains("Mobilibounce" + player.getName())) {
+                        if(entity.getLocation().getBlock().getType().equals(Material.BAMBOO_MOSAIC_SLAB)) entity.getLocation().getBlock().setType(Material.AIR);
+                        entity.remove();
+                    }
+                }
+
+                player.getScoreboardTags().remove("UsedMobilibounce");
             }
         }
 
@@ -477,7 +565,7 @@ public class SongPlugTick {
             }
 
             if(usingActiveSong <= 40 && usingActiveSong > 0) {
-                Score cooldownScore = scoreType(player, "blueEnergyCooldown");
+                Score cooldownScore = scoreType(player, "BlueEnergyCooldown");
                 cooldownScore.setScore(200);
 
                 Location center = player.getLocation().add(0, 1, 0);
@@ -609,7 +697,7 @@ public class SongPlugTick {
                     Particle.DUST.builder().color(Color.RED).location(location.add(0, 1.5, 0)).count(0).allPlayers().spawn();
                 }
 
-                Score cooldownScore = scoreType(player, "redEnergyCooldown");
+                Score cooldownScore = scoreType(player, "RedEnergyCooldown");
                 cooldownScore.setScore(200);
 
                 if(player.isSneaking()) {

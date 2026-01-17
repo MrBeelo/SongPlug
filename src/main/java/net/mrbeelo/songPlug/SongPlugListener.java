@@ -1,11 +1,13 @@
 package net.mrbeelo.songPlug;
 
+import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -40,7 +42,7 @@ public class SongPlugListener implements Listener {
     @EventHandler
     public void scrolled(PlayerItemHeldEvent event) {
         Player player = event.getPlayer();
-        Score score = scoreType(player, "fCycle");
+        Score score = scoreType(player, "FCycle");
         score.setScore(0);
     }
 
@@ -50,7 +52,7 @@ public class SongPlugListener implements Listener {
 
         if(!player.getScoreboardTags().contains("ArdoniClass")) return;
 
-        Score score = scoreType(player, "fCycle");
+        Score score = scoreType(player, "FCycle");
         int playerScore = score.getScore();
 
         if(playerScore == 0) {
@@ -96,8 +98,8 @@ public class SongPlugListener implements Listener {
                 return;
             }
 
-            Score energyScore = scoreType(player, "songEnergy");
-            Score energyRegenScore = scoreType(player, "songEnergyRegen");
+            Score energyScore = scoreType(player, "SongEnergy");
+            Score energyRegenScore = scoreType(player, "SongEnergyRegen");
 
             int songEnergy = energyScore.getScore();
 
@@ -132,7 +134,7 @@ public class SongPlugListener implements Listener {
                 default -> "ERROR";
             };
 
-            Score songEnergyCooldownScore = scoreType(player, songColor.toLowerCase() + "EnergyCooldown");
+            Score songEnergyCooldownScore = scoreType(player, songColor + "EnergyCooldown");
             int songEnergyCooldown = songEnergyCooldownScore.getScore();
 
             if(!player.getScoreboardTags().contains("Has" + songColor + "Song")) {
@@ -419,6 +421,24 @@ public class SongPlugListener implements Listener {
                 if(passiveScore.getScore() >= 195 && passiveScore.getScore() <= 205) {
                     player.setVelocity(new Vector(0, 0, 0));
                     event.setCancelled(true);
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerJump(PlayerJumpEvent event) {
+        Player player = event.getPlayer();
+        if(player.getLocation().getBlock().getType().equals(Material.BAMBOO_MOSAIC_SLAB)) {
+            for(Entity interaction : player.getWorld().getEntities()) {
+                if(interaction.getScoreboardTags().contains("Mobilibounce" + player.getName()) &&
+                        player.getBoundingBox().overlaps(interaction.getBoundingBox())) {
+                    player.setVelocity(player.getLocation().getDirection());
+                    interaction.remove();
+                    player.getLocation().getBlock().setType(Material.AIR);
+
+                    Score mobilibounceDelayScore = scoreType(player, "MobilibouncePlatformDelay");
+                    mobilibounceDelayScore.setScore(11);
                 }
             }
         }

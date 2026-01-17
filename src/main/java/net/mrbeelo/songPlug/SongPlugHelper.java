@@ -226,7 +226,7 @@ public class SongPlugHelper {
         player.getScoreboardTags().add("Used" + song);
 
         switch(song) {
-            case "Supporolift", "Supporokenisis", "Aggrobeam", "Mobiliwings":
+            case "Supporolift", "Supporokenisis", "Aggrobeam", "Mobiliwings", "Mobilibounce":
                 Score activeScore = scoreType(player, "UsingActiveSong");
                 activeScore.setScore(230);
                 break;
