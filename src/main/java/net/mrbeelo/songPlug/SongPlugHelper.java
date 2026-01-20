@@ -140,10 +140,13 @@ public class SongPlugHelper {
         energyCooldownScore.setScore(200);
     }
 
-    public static Location getLocationInFrontOfEntity(Entity entity, float blocks) {
-        Location loc = entity.getLocation();
+    public static Location getLocationInFrontOfLoc(Location loc, float blocks) {
         Vector direction = loc.getDirection().normalize();
         return loc.clone().add(direction.multiply(blocks));
+    }
+
+    public static Location getLocationInFrontOfEntity(Entity entity, float blocks) {
+        return getLocationInFrontOfLoc(entity.getLocation(), blocks);
     }
 
     public static double locationDistance(Entity e1, Entity e2) {
@@ -262,11 +265,12 @@ public class SongPlugHelper {
                 Score activeScore = scoreType(player, "UsingActiveSong");
                 activeScore.setScore(230);
                 break;
-            case "Aggrosphere", "Proteheal", "Mobilileap", "Mobiliflash", "Aggroquake", "Mobiliburst", "Supporoform", "Aggroblast", "Aggrovortex":
+            case "Aggrosphere", "Proteheal", "Mobilileap", "Mobiliflash", "Aggroquake", "Mobiliburst", "Supporoform", "Aggroblast", "Aggrovortex",
+                 "Aggroshard", "Aggrodetonate":
                 Score passiveScore = scoreType(player, "Using" + song);
                 passiveScore.setScore(230);
                 break;
-            case "Protearmor":
+            case "Protearmor", "Protesphere":
                 Score activeScore40 = scoreType(player, "UsingActiveSong");
                 activeScore40.setScore(70);
                 break;

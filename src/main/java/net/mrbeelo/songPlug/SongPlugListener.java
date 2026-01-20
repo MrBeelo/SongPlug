@@ -284,7 +284,7 @@ public class SongPlugListener implements Listener {
                         player.getScoreboardTags().add(name);
                         player.getScoreboardTags().add("Has" + songColor + "Song");
                         player.getInventory().getItemInMainHand().setAmount(player.getInventory().getItemInMainHand().getAmount() - 1);
-                        player.sendMessage("You have been infused with " + name + " (" + songType + ")!");
+                        player.sendMessage("You have been infused with " + name + "!");
                     } else {
                         player.sendMessage("You already have a " + songType + " Song!");
                     }
@@ -422,6 +422,9 @@ public class SongPlugListener implements Listener {
                     player.setVelocity(new Vector(0, 0, 0));
                     event.setCancelled(true);
                 }
+            } else if(player.getScoreboardTags().contains("UsedProtesphere")) {
+                Score activeScore = scoreType(player, "UsingActiveSong");
+                if(activeScore.getScore() > 0 && activeScore.getScore() <= 40) event.setCancelled(true);
             }
         }
     }

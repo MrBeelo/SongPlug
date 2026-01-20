@@ -619,6 +619,29 @@ public class SongPlugTick {
             }
         }
 
+        //PROTESPHERE
+        if(player.getScoreboardTags().contains("UsedProtesphere")) {
+            if(usingActiveSong == 69) {
+                playSoundToNearby(player.getLocation(), 7, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
+            }
+
+            if(usingActiveSong > 0 && usingActiveSong <= 40) {
+                double radius = 1.2;
+                for (int i = 0; i < 20; i++) {
+                    double theta = Math.random() * Math.PI * 2;
+                    double phi = Math.acos(2 * Math.random() - 1);
+                    double x = radius * Math.sin(phi) * Math.cos(theta);
+                    double y = radius * Math.sin(phi) * Math.sin(theta);
+                    double z = radius * Math.cos(phi);
+                    Particle.DUST.builder().location(player.getLocation().clone().add(x, y + 1, z)).count(0).allPlayers().color(Color.BLUE).spawn();
+                }
+            }
+
+            if(usingActiveSong == 0) {
+                player.getScoreboardTags().remove("UsedProtesphere");
+            }
+        }
+
         //--RED SONGS--//
 
         //AGGROSPHERE
@@ -825,6 +848,131 @@ public class SongPlugTick {
                 for(Entity entity : player.getWorld().getEntities()) {
                     if(entity.getScoreboardTags().contains("Aggrovortex" + player.getName())) entity.remove();
                     player.getScoreboardTags().remove("UsedAggrovortex");
+                }
+            }
+        }
+
+        //AGGROSHARD
+        if(player.getScoreboardTags().contains("UsedAggroshard")) {
+            Score usingPassiveSongScore = scoreType(player, "UsingAggroshard");
+            int usingPassiveSong = usingPassiveSongScore.getScore();
+            if (usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
+
+            if(usingPassiveSong <= 201 && usingPassiveSong >= 183 && usingPassiveSong % 3 == 0) {
+                int random = Random.from(RandomGenerator.getDefault()).nextInt(-10, 10);
+                Location location = player.getLocation();
+                if(usingPassiveSong != 201) location.setRotation(player.getYaw() + random, player.getPitch() + (float) random / 4);
+                ArmorStand stand = player.getWorld().spawn(location, ArmorStand.class);
+                stand.setGravity(false);
+                stand.setVisibleByDefault(false);
+                stand.getScoreboardTags().add("Aggroshard" + player.getName());
+                playSoundToNearby(player.getLocation(), 10, Sound.ITEM_CROSSBOW_SHOOT, SoundCategory.MASTER, 100f, 0.35f);
+            }
+
+            if(usingPassiveSong > 0 && usingPassiveSong <= 200) {
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if (entity.getScoreboardTags().contains("Aggroshard" + player.getName())) {
+                        entity.teleport(getLocationInFrontOfEntity(entity, 1.4f));
+                        Location centerLocation = entity.getLocation().add(0, 1, 0);
+
+                        Entity collidedEntity = null;
+                        for(Entity entity2 : player.getWorld().getEntities()) {
+                            if(entity.getBoundingBox().overlaps(entity2.getBoundingBox()) && entity2 != entity && entity2 != player) {
+                                collidedEntity = entity2;
+                            }
+                        }
+
+                        if((collidedEntity != null) || centerLocation.getBlock().isSolid()) {
+                            if(collidedEntity instanceof LivingEntity living) {
+                                living.damage(40, entity);
+                                if(collidedEntity instanceof Player player2 && player2.getActiveItem().getType() == Material.SHIELD) {
+                                    ItemStack stack = player2.getActiveItem();
+                                    stack.damage(9999, living);
+                                }
+                            }
+
+                            for(Player player2 : Bukkit.getOnlinePlayers()) {
+                                if(entity.getScoreboardTags().contains("GotSupporokenisiedBy" + player2.getName())) {
+                                    Score supporokenisisPlayerActiveScore = scoreType(player2, "UsingActiveSong");
+                                    supporokenisisPlayerActiveScore.setScore(0);
+                                }
+                            }
+                        }
+
+                        Particle.DUST_COLOR_TRANSITION.builder().location(centerLocation.clone()).count(0).allPlayers().colorTransition(Color.RED, Color.fromARGB(0, 255, 0, 0)).spawn();
+                    }
+                }
+            }
+
+            if(usingPassiveSong == 0) {
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity.getScoreboardTags().contains("Aggroshard" + player.getName())) entity.remove();
+                    player.getScoreboardTags().remove("UsedAggroshard");
+                }
+            }
+        }
+
+        //AGGRODETONATE
+        if(player.getScoreboardTags().contains("UsedAggrodetonate")) {
+            Score usingPassiveSongScore = scoreType(player, "UsingAggrodetonate");
+            int usingPassiveSong = usingPassiveSongScore.getScore();
+            if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
+
+            if(usingPassiveSong == 201) {
+                Location location = player.getLocation();
+                Entity entity = player.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
+                entity.setGravity(false);
+                entity.setVisibleByDefault(false);
+                entity.getScoreboardTags().add("Aggrodetonate" + player.getName());
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
+            }
+
+            if(usingPassiveSong <= 200 && usingPassiveSong > 0) {
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if (entity.getScoreboardTags().contains("Aggrodetonate" + player.getName())) {
+                        entity.teleport(getLocationInFrontOfEntity(entity, 0.8f));
+                        Location centerLocation = entity.getLocation().add(0, 1, 0);
+
+                        Entity collidedEntity = null;
+                        for(Entity entity2 : player.getWorld().getEntities()) {
+                            if(entity.getBoundingBox().overlaps(entity2.getBoundingBox()) && entity2 != entity && entity2 != player) {
+                                collidedEntity = entity2;
+                            }
+                        }
+
+                        if((collidedEntity != null) || centerLocation.getBlock().isSolid()) {
+                            if(collidedEntity instanceof LivingEntity living) {
+                                living.damage(30, entity);
+                                if(collidedEntity instanceof Player player2 && player2.getActiveItem().getType() == Material.SHIELD) {
+                                    ItemStack stack = player2.getActiveItem();
+                                    stack.damage(9999, living);
+                                }
+                            }
+
+                            player.getWorld().createExplosion(centerLocation, 5, false, false);
+
+                            for(Player player2 : Bukkit.getOnlinePlayers()) {
+                                if(entity.getScoreboardTags().contains("GotSupporokenisiedBy" + player2.getName())) {
+                                    Score supporokenisisPlayerActiveScore = scoreType(player2, "UsingActiveSong");
+                                    supporokenisisPlayerActiveScore.setScore(0);
+                                }
+                            }
+
+                            usingPassiveSongScore.setScore(0);
+                        }
+
+                        for(int i = 0; i < 10; i++) {
+                            Location location = getLocationInFrontOfLoc(centerLocation, (float) -i / 2);
+                            Particle.ENTITY_EFFECT.builder().location(location.clone()).count(2).allPlayers().color(Color.RED).spawn();
+                        }
+                    }
+                }
+            }
+
+            if(usingPassiveSong == 0) {
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity.getScoreboardTags().contains("Aggrodetonate" + player.getName())) entity.remove();
+                    player.getScoreboardTags().remove("UsedAggrodetonate");
                 }
             }
         }

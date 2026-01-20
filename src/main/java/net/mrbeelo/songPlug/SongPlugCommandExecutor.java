@@ -7,16 +7,21 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scoreboard.Score;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
-public class SongPlugCommandExecutor implements CommandExecutor {
+public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] strings) {
         String name = command.getName();
@@ -27,8 +32,7 @@ public class SongPlugCommandExecutor implements CommandExecutor {
                 commandSender.sendMessage("I don't think you are a player...");
             }
         } else if(name.equals("givesong")) {
-            Player target = Bukkit.getPlayer(strings[0]);
-            giveSong(target, strings[1]);
+            if(commandSender instanceof Player player) giveSong(player, strings[0]);
         } else if(name.equals("getblock")) {
             if(commandSender instanceof Entity entity) {
                 Material standingBlock = entity.getLocation().add(0, -0.1, 0).getBlock().getType();
@@ -49,5 +53,19 @@ public class SongPlugCommandExecutor implements CommandExecutor {
         }
 
         return false;
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
+        String name = command.getName();
+        if(name.equals("givesong") && args.length == 1) {
+            List<String> songs = new ArrayList<>();
+            songs.addAll(List.of(redSongs));
+            songs.addAll(List.of(blueSongs));
+            songs.addAll(List.of(yellowSongs));
+            songs.addAll(List.of(greenSongs));
+            return songs;
+        }
+        return List.of();
     }
 }
