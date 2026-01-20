@@ -6,8 +6,10 @@ commands:
   class:
     description: Opens a menu for the player to change their class
   givesong:
-    description: Gives the player a song
+    description: Gives the player the specified song
   getblock:
     description: Gets the block the entity is standing on
   resetcooldowns:
     description: Resets all ardoni song cooldowns
+  energy:
+    description: Sets the ardoni song energy amount

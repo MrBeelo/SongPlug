@@ -421,6 +421,10 @@ public class SongPlugTick {
             int mobilibounceDelay = mobilibounceDelayScore.getScore();
             if(mobilibounceDelay > 0) mobilibounceDelayScore.setScore(mobilibounceDelay - 1);
 
+            Score mobilibounceLaunchDelayScore = scoreType(player, "MobilibounceLaunchDelay");
+            int mobilibounceLaunchDelay = mobilibounceLaunchDelayScore.getScore();
+            if(mobilibounceLaunchDelay > 0) mobilibounceLaunchDelayScore.setScore(mobilibounceLaunchDelay - 1);
+
             if(usingActiveSong == 229) {
                 for(Player player2 : Bukkit.getOnlinePlayers()) {
                     if(locationDistance(player, player2) <= 10) {
@@ -445,8 +449,8 @@ public class SongPlugTick {
                 Block targetBlock = location.getBlock();
                 if(targetBlock.isEmpty()) {
                     targetBlock.setType(Material.BAMBOO_MOSAIC_SLAB);
-                    Entity entity = player.getWorld().spawnEntity(location.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.INTERACTION);
-                    entity.getScoreboardTags().add("Mobilibounce" + player.getName());
+                    Interaction interaction = player.getWorld().spawn(location.getBlock().getLocation().add(0.5, 0, 0.5), Interaction.class);
+                    interaction.getScoreboardTags().add("Mobilibounce" + player.getName());
                 }
             }
 
@@ -480,14 +484,20 @@ public class SongPlugTick {
                     Block targetBlock = location.getBlock();
                     if(targetBlock.isEmpty()) {
                         targetBlock.setType(Material.BAMBOO_MOSAIC_SLAB);
-                        Entity entity = player.getWorld().spawnEntity(location.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.INTERACTION);
-                        entity.getScoreboardTags().add("Mobilibounce" + player.getName());
+                        Interaction interaction = player.getWorld().spawn(location.getBlock().getLocation().add(0.5, 0, 0.5), Interaction.class);
+                        interaction.getScoreboardTags().add("Mobilibounce" + player.getName());
                     }
                     player.teleport(targetBlock.getLocation().add(0.5, 1, 0.5).setRotation(player.getYaw(), player.getPitch()));
                 }
 
+                if(mobilibounceLaunchDelay == 1) {
+                    player.setVelocity(player.getLocation().getDirection());
+                }
+
                 Score cooldownScore =  scoreType(player, "YellowEnergyCooldown");
                 cooldownScore.setScore(200);
+
+                if(player.isSneaking()) usingActiveSongScore.setScore(0);
             }
 
             if(usingActiveSong == 0) {
@@ -527,6 +537,8 @@ public class SongPlugTick {
 
                 Score cooldownScore =  scoreType(player, "YellowEnergyCooldown");
                 cooldownScore.setScore(200);
+
+                if(player.isSneaking()) usingActiveSongScore.setScore(0);
             }
 
             if(usingActiveSong == 0) {
@@ -621,11 +633,11 @@ public class SongPlugTick {
 
         //PROTESPHERE
         if(player.getScoreboardTags().contains("UsedProtesphere")) {
-            if(usingActiveSong == 69) {
+            if(usingActiveSong == 229) {
                 playSoundToNearby(player.getLocation(), 7, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
             }
 
-            if(usingActiveSong > 0 && usingActiveSong <= 40) {
+            if(usingActiveSong > 0 && usingActiveSong <= 200) {
                 double radius = 1.2;
                 for (int i = 0; i < 20; i++) {
                     double theta = Math.random() * Math.PI * 2;
@@ -634,6 +646,11 @@ public class SongPlugTick {
                     double y = radius * Math.sin(phi) * Math.sin(theta);
                     double z = radius * Math.cos(phi);
                     Particle.DUST.builder().location(player.getLocation().clone().add(x, y + 1, z)).count(0).allPlayers().color(Color.BLUE).spawn();
+                }
+
+                if(player.isSneaking()) usingActiveSongScore.setScore(0);
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(player.getLocation().distance(entity.getLocation()) <= 1.5f && entity instanceof Arrow arrow) arrow.remove();
                 }
             }
 

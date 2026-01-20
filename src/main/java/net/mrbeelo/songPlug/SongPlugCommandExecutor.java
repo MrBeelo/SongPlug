@@ -50,6 +50,16 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
                 yellowCooldownScore.setScore(0);
                 greenCooldownScore.setScore(0);
             }
+        } else if(name.equals("energy")) {
+            if(commandSender instanceof Player player) {
+                Score songEnergyScore = scoreType(player, "SongEnergy");
+                int amount = Integer.parseInt(strings[0]);
+                if(amount >= 0 && amount <= 5) {
+                    songEnergyScore.setScore(amount);
+                } else {
+                    player.sendMessage("Amount out of bounds!");
+                }
+            }
         }
 
         return false;
@@ -65,6 +75,8 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
             songs.addAll(List.of(yellowSongs));
             songs.addAll(List.of(greenSongs));
             return songs;
+        } else if(name.equals("energy") && args.length == 1) {
+            return List.of("0", "1", "2", "3", "4", "5");
         }
         return List.of();
     }

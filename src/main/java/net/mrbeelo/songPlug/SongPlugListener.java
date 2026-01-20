@@ -402,6 +402,9 @@ public class SongPlugListener implements Listener {
 
                 event.setCancelled(true);
             }
+        } else if(damager.getScoreboardTags().contains("UsedProtesphere") && damager instanceof Player player) {
+            Score activeScore = scoreType(player, "UsingActiveSong");
+            if(activeScore.getScore() > 0 && activeScore.getScore() <= 200) event.setCancelled(true);
         }
     }
 
@@ -436,7 +439,14 @@ public class SongPlugListener implements Listener {
             for(Entity interaction : player.getWorld().getEntities()) {
                 if(interaction.getScoreboardTags().contains("Mobilibounce" + player.getName()) &&
                         player.getBoundingBox().overlaps(interaction.getBoundingBox())) {
-                    player.setVelocity(player.getLocation().getDirection());
+                    if(player.getPitch() > 0) {
+                        event.setCancelled(true);
+                        Score mobilibounceLaunchDelayScore = scoreType(player, "MobilibounceLaunchDelay");
+                        mobilibounceLaunchDelayScore.setScore(1);
+                    } else {
+                        player.setVelocity(player.getLocation().getDirection());
+                    }
+
                     interaction.remove();
                     player.getLocation().getBlock().setType(Material.AIR);
 
@@ -444,6 +454,7 @@ public class SongPlugListener implements Listener {
                     mobilibounceDelayScore.setScore(11);
                 }
             }
+
         }
     }
 }
