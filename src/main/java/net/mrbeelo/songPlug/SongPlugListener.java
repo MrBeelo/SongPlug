@@ -220,7 +220,6 @@ public class SongPlugListener implements Listener {
     public void pressedLeftClick(PlayerInteractEvent event) {
         if(event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
             Player player = event.getPlayer();
-
             Block downBlock = player.getLocation().subtract(0, 1, 0).getBlock();
 
             if(downBlock.getType() == Material.STRUCTURE_BLOCK && player.isSneaking()) {
@@ -233,62 +232,12 @@ public class SongPlugListener implements Listener {
                 infuseCooldownScore.setScore(5);
 
                 if(meta == null && itemStack.isEmpty()) {
-                    player.sendMessage("Clearing Songs!");
-
-                    String[] songColors = {"Red", "Blue", "Yellow", "Green"};
-
-                    for(String songColor : songColors) {
-                        String[] songs = switch (songColor) {
-                            case "Red" -> redSongs;
-                            case "Blue" -> blueSongs;
-                            case "Yellow" -> yellowSongs;
-                            case "Green" -> greenSongs;
-                            default -> redSongs;
-                        };
-
-                        if(player.getScoreboardTags().contains("Has" + songColor + "Song")) {
-                            player.getScoreboardTags().remove("Has" + songColor + "Song");
-                            for(String song : songs) {
-                                if(player.getScoreboardTags().contains(song)) {
-                                    player.getScoreboardTags().remove(song);
-                                    giveSong(player, song);
-                                }
-                            }
-                        }
-                    }
-
+                    clearSongs(player, true);
                     return;
                 }
 
                 String name = meta.getItemName();
-
-                String songType = "ERROR";
-                String songColor = "ERROR";
-
-                if(songIn(name, greenSongs)) {
-                    songType = "Supporium";
-                    songColor = "Green";
-                } else if(songIn(name, yellowSongs)) {
-                    songType = "Mobilium";
-                    songColor = "Yellow";
-                } else if(songIn(name, blueSongs)) {
-                    songType = "Protisium";
-                    songColor = "Blue";
-                } else if(songIn(name, redSongs)) {
-                    songType = "Aggressium";
-                    songColor = "Red";
-                }
-
-                if(songIn(name, redSongs) || songIn(name, blueSongs) || songIn(name, yellowSongs) || songIn(name, greenSongs)) {
-                    if(!player.getScoreboardTags().contains("Has" + songColor + "Song")) {
-                        player.getScoreboardTags().add(name);
-                        player.getScoreboardTags().add("Has" + songColor + "Song");
-                        player.getInventory().getItemInMainHand().setAmount(player.getInventory().getItemInMainHand().getAmount() - 1);
-                        player.sendMessage("You have been infused with " + name + "!");
-                    } else {
-                        player.sendMessage("You already have a " + songType + " Song!");
-                    }
-                }
+                infuseSong(player, name, true);
             }
         }
     }
@@ -405,6 +354,15 @@ public class SongPlugListener implements Listener {
         } else if(damager.getScoreboardTags().contains("UsedProtesphere") && damager instanceof Player player) {
             Score activeScore = scoreType(player, "UsingActiveSong");
             if(activeScore.getScore() > 0 && activeScore.getScore() <= 200) event.setCancelled(true);
+        } else if(entity.getScoreboardTags().contains("UsedProtepoint") && entity instanceof Player player) {
+            Score activeScore = scoreType(player, "UsingActiveSong");
+            if(activeScore.getScore() > 0 && activeScore.getScore() <= 200) {
+                for(Entity interaction : player.getWorld().getEntities()) {
+                    if(interaction.getScoreboardTags().contains("ProtepointInteraction" + player.getName())) {
+                        if(interaction.getBoundingBox().overlaps(damager.getBoundingBox())) event.setCancelled(true);
+                    }
+                }
+            }
         }
     }
 
@@ -427,7 +385,7 @@ public class SongPlugListener implements Listener {
                 }
             } else if(player.getScoreboardTags().contains("UsedProtesphere")) {
                 Score activeScore = scoreType(player, "UsingActiveSong");
-                if(activeScore.getScore() > 0 && activeScore.getScore() <= 40) event.setCancelled(true);
+                if(activeScore.getScore() > 0 && activeScore.getScore() <= 200) event.setCancelled(true);
             }
         }
     }
@@ -435,26 +393,23 @@ public class SongPlugListener implements Listener {
     @EventHandler
     public void onPlayerJump(PlayerJumpEvent event) {
         Player player = event.getPlayer();
-        if(player.getLocation().getBlock().getType().equals(Material.BAMBOO_MOSAIC_SLAB)) {
-            for(Entity interaction : player.getWorld().getEntities()) {
-                if(interaction.getScoreboardTags().contains("Mobilibounce" + player.getName()) &&
-                        player.getBoundingBox().overlaps(interaction.getBoundingBox())) {
-                    if(player.getPitch() > 0) {
-                        event.setCancelled(true);
-                        Score mobilibounceLaunchDelayScore = scoreType(player, "MobilibounceLaunchDelay");
-                        mobilibounceLaunchDelayScore.setScore(1);
-                    } else {
-                        player.setVelocity(player.getLocation().getDirection());
-                    }
-
-                    interaction.remove();
-                    player.getLocation().getBlock().setType(Material.AIR);
-
-                    Score mobilibounceDelayScore = scoreType(player, "MobilibouncePlatformDelay");
-                    mobilibounceDelayScore.setScore(11);
+        for(Entity interaction : player.getWorld().getEntities()) {
+            if(interaction.getScoreboardTags().contains("Mobilibounce" + player.getName()) &&
+                    player.getBoundingBox().overlaps(interaction.getBoundingBox())) {
+                if(player.getPitch() > 0) {
+                    event.setCancelled(true);
+                    Score mobilibounceLaunchDelayScore = scoreType(player, "MobilibounceLaunchDelay");
+                    mobilibounceLaunchDelayScore.setScore(1);
+                } else {
+                    player.setVelocity(player.getLocation().getDirection());
                 }
-            }
 
+                interaction.remove();
+                player.getLocation().getBlock().setType(Material.AIR);
+
+                Score mobilibounceDelayScore = scoreType(player, "MobilibouncePlatformDelay");
+                mobilibounceDelayScore.setScore(11);
+            }
         }
     }
 }

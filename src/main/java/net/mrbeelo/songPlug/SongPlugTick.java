@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Score;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -263,6 +264,48 @@ public class SongPlugTick {
             }
         }
 
+        //SUPPOROSPIKE
+        if(player.getScoreboardTags().contains("UsedSupporospike")) {
+            Score usingPassiveSongScore = scoreType(player, "UsingSupporospike");
+            int usingPassiveSong = usingPassiveSongScore.getScore();
+            if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
+
+            if(usingPassiveSong == 201) {
+                Block targetBlock = player.getTargetBlock(null, 7);
+                if(targetBlock.isEmpty()) return;
+                Interaction interaction = player.getWorld().spawn(targetBlock.getLocation(), Interaction.class);
+                interaction.getScoreboardTags().add("Supporospike" + player.getName());
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity != player && !isAnEntityItem(entity) && entity.getLocation().distance(interaction.getLocation().add(0, 1, 0)) <= 1.5) {
+                        entity.setVelocity(new Vector(entity.getVelocity().getX(), 2, entity.getVelocity().getZ()));
+                    }
+                }
+            }
+
+            if(usingPassiveSong <= 200 && usingPassiveSong >= 195) {
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity.getScoreboardTags().contains("Supporospike" + player.getName())) {
+                        int i = 201 - usingPassiveSong;
+                        Block block = entity.getLocation().add(0, i, 0).getBlock();
+                        if(block.isEmpty()) block.setType(Material.BEDROCK);
+                    }
+                }
+            }
+
+            if(usingPassiveSong == 0) {
+                player.getScoreboardTags().remove("UsedSupporospike");
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity.getScoreboardTags().contains("Supporospike" + player.getName())) {
+                        entity.remove();
+                        for(int i = 1; i < 7; i++) {
+                            Block block = entity.getLocation().add(0, i, 0).getBlock();
+                            if(block.getType().equals(Material.BEDROCK)) block.setType(Material.AIR);
+                        }
+                    }
+                }
+            }
+        }
+
         //--YELLOW SONGS--//
 
         //MOBILILEAP
@@ -449,7 +492,7 @@ public class SongPlugTick {
                 Block targetBlock = location.getBlock();
                 if(targetBlock.isEmpty()) {
                     targetBlock.setType(Material.BAMBOO_MOSAIC_SLAB);
-                    Interaction interaction = player.getWorld().spawn(location.getBlock().getLocation().add(0.5, 0, 0.5), Interaction.class);
+                    Interaction interaction = player.getWorld().spawn(location.getBlock().getLocation().add(0.5, 0.1, 0.5), Interaction.class);
                     interaction.getScoreboardTags().add("Mobilibounce" + player.getName());
                 }
             }
@@ -460,8 +503,7 @@ public class SongPlugTick {
                     for(Entity entity : player.getWorld().getEntities()) {
                         if(entity.getScoreboardTags().contains("Mobilibounce" + player.getName())) {
                             if(entity.getLocation().getBlock().getType().equals(Material.BAMBOO_MOSAIC_SLAB)) entity.getLocation().getBlock().setType(Material.AIR);
-                            entity.remove();
-                            usingActiveSongScore.setScore(0);
+                            entity.teleport(player.getLocation().add(0.5, 0.1, 0.5));
                         }
                     }
                 }
@@ -482,11 +524,11 @@ public class SongPlugTick {
                     player.setVelocity(new Vector(0, 0, 0));
                     Location location = player.getLocation().add(0, -0.1, 0);
                     Block targetBlock = location.getBlock();
-                    if(targetBlock.isEmpty()) {
-                        targetBlock.setType(Material.BAMBOO_MOSAIC_SLAB);
-                        Interaction interaction = player.getWorld().spawn(location.getBlock().getLocation().add(0.5, 0, 0.5), Interaction.class);
-                        interaction.getScoreboardTags().add("Mobilibounce" + player.getName());
-                    }
+                    if(targetBlock.isEmpty()) targetBlock.setType(Material.BAMBOO_MOSAIC_SLAB);
+
+                    Interaction interaction = player.getWorld().spawn(location.getBlock().getLocation().add(0.5, 0.1, 0.5), Interaction.class);
+                    interaction.getScoreboardTags().add("Mobilibounce" + player.getName());
+
                     player.teleport(targetBlock.getLocation().add(0.5, 1, 0.5).setRotation(player.getYaw(), player.getPitch()));
                 }
 
@@ -656,6 +698,56 @@ public class SongPlugTick {
 
             if(usingActiveSong == 0) {
                 player.getScoreboardTags().remove("UsedProtesphere");
+            }
+        }
+
+        //PROTEPOINT
+        if(player.getScoreboardTags().contains("UsedProtepoint")) {
+            if(usingActiveSong == 229) {
+                playSoundToNearby(player.getLocation(), 7, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
+            }
+
+            if(usingActiveSong == 201) {
+                Location location = player.getLocation();
+                Marker marker = player.getWorld().spawn(getLocationInFrontOfLoc(location.add(0, 1.5f, 0), 1.5f), Marker.class);
+                marker.setRotation(location.getYaw(), 0);
+                marker.getScoreboardTags().add("ProtepointMarker" + player.getName());
+                Interaction interaction = player.getWorld().spawn(marker.getLocation().add(0, -0.5, 0), Interaction.class);
+                interaction.getScoreboardTags().add("ProtepointInteraction" + player.getName());
+            }
+
+            if(usingActiveSong > 0 && usingActiveSong <= 200) {
+                for(Entity marker : player.getWorld().getEntities()) {
+                    if(marker.getScoreboardTags().contains("ProtepointMarker" + player.getName())) {
+                        Location loc = player.getLocation().add(0, 1.5f, 0);
+                        loc.setRotation(marker.getYaw(), 0);
+                        marker.teleport(getLocationInFrontOfLoc(loc, 1.5f));
+                        for(Entity interaction : player.getWorld().getEntities()) {
+                            if(interaction.getScoreboardTags().contains("ProtepointInteraction" + player.getName())) {
+                                interaction.teleport(marker.getLocation().add(0, -0.5, 0));
+                                for(Entity entity3 : player.getWorld().getEntities()) {
+                                    if(!entity3.getScoreboardTags().contains("ProtepointMarker" + player.getName()) &&
+                                            !entity3.getScoreboardTags().contains("ProtepointInteraction" + player.getName())) {
+                                        if(entity3.getBoundingBox().overlaps(interaction.getBoundingBox()) && isAnEntityItem(entity3)) entity3.remove();
+                                    }
+                                }
+                            }
+                        }
+
+                        //TEMPORARY PARTICLES
+                        Particle.DUST.builder().location(marker.getLocation()).count(0).allPlayers().color(Color.BLUE).spawn();
+                    }
+                }
+
+                if(player.isSneaking()) usingActiveSongScore.setScore(0);
+            }
+
+            if(usingActiveSong == 0) {
+                player.getScoreboardTags().remove("UsedProtepoint");
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity.getScoreboardTags().contains("ProtepointMarker" + player.getName())) entity.remove();
+                    if(entity.getScoreboardTags().contains("ProtepointInteraction" + player.getName())) entity.remove();
+                }
             }
         }
 

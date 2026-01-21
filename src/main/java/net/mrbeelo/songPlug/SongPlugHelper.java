@@ -122,6 +122,62 @@ public class SongPlugHelper {
         dropCustomItemName(player, material, name);
     }
 
+    public static void infuseSong(Player player, String name, boolean includeStacks) {
+        String songType = "ERROR";
+        String songColor = "ERROR";
+
+        if(songIn(name, greenSongs)) {
+            songType = "Supporium";
+            songColor = "Green";
+        } else if(songIn(name, yellowSongs)) {
+            songType = "Mobilium";
+            songColor = "Yellow";
+        } else if(songIn(name, blueSongs)) {
+            songType = "Protisium";
+            songColor = "Blue";
+        } else if(songIn(name, redSongs)) {
+            songType = "Aggressium";
+            songColor = "Red";
+        }
+
+        if(songIn(name, redSongs) || songIn(name, blueSongs) || songIn(name, yellowSongs) || songIn(name, greenSongs)) {
+            if(!player.getScoreboardTags().contains("Has" + songColor + "Song")) {
+                player.getScoreboardTags().add(name);
+                player.getScoreboardTags().add("Has" + songColor + "Song");
+                if(includeStacks) player.getInventory().getItemInMainHand().setAmount(player.getInventory().getItemInMainHand().getAmount() - 1);
+                player.sendMessage("You have been infused with " + name + "!");
+            } else {
+                player.sendMessage("You already have a " + songType + " Song!");
+            }
+        }
+    }
+
+    public static void clearSongs(Player player, boolean includeStacks) {
+        player.sendMessage("Clearing Songs!");
+
+        String[] songColors = {"Red", "Blue", "Yellow", "Green"};
+
+        for(String songColor : songColors) {
+            String[] songs = switch (songColor) {
+                case "Red" -> redSongs;
+                case "Blue" -> blueSongs;
+                case "Yellow" -> yellowSongs;
+                case "Green" -> greenSongs;
+                default -> redSongs;
+            };
+
+            if(player.getScoreboardTags().contains("Has" + songColor + "Song")) {
+                player.getScoreboardTags().remove("Has" + songColor + "Song");
+                for(String song : songs) {
+                    if(player.getScoreboardTags().contains(song)) {
+                        player.getScoreboardTags().remove(song);
+                        if(includeStacks) giveSong(player, song);
+                    }
+                }
+            }
+        }
+    }
+
     public static Score scoreType(Player player, String scoreboardName) {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         Objective objective = getNotNullObjective(scoreboard, scoreboardName);
@@ -261,12 +317,12 @@ public class SongPlugHelper {
         player.getScoreboardTags().add("Used" + song);
 
         switch(song) {
-            case "Supporolift", "Supporokenisis", "Aggrobeam", "Mobiliwings", "Mobilibounce", "Mobiliglide", "Protesphere":
+            case "Supporolift", "Supporokenisis", "Aggrobeam", "Mobiliwings", "Mobilibounce", "Mobiliglide", "Protesphere", "Protepoint":
                 Score activeScore = scoreType(player, "UsingActiveSong");
                 activeScore.setScore(230);
                 break;
             case "Aggrosphere", "Proteheal", "Mobilileap", "Mobiliflash", "Aggroquake", "Mobiliburst", "Supporoform", "Aggroblast", "Aggrovortex",
-                 "Aggroshard", "Aggrodetonate":
+                 "Aggroshard", "Aggrodetonate", "Supporospike":
                 Score passiveScore = scoreType(player, "Using" + song);
                 passiveScore.setScore(230);
                 break;

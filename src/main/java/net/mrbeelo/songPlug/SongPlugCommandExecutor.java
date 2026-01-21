@@ -26,11 +26,7 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] strings) {
         String name = command.getName();
         if(name.equals("class")) {
-            if(commandSender instanceof Player player) {
-                openClassMenu(player);
-            } else {
-                commandSender.sendMessage("I don't think you are a player...");
-            }
+            if(commandSender instanceof Player player) openClassMenu(player);
         } else if(name.equals("givesong")) {
             if(commandSender instanceof Player player) giveSong(player, strings[0]);
         } else if(name.equals("getblock")) {
@@ -60,6 +56,10 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
                     player.sendMessage("Amount out of bounds!");
                 }
             }
+        } else if(name.equals("infusesong")) {
+            if(commandSender instanceof Player player) infuseSong(player, strings[0], false);
+        } else if(name.equals("clearsongs")) {
+            if(commandSender instanceof Player player) clearSongs(player, false);
         }
 
         return false;
@@ -68,7 +68,7 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
         String name = command.getName();
-        if(name.equals("givesong") && args.length == 1) {
+        if((name.equals("givesong") || name.equals("infusesong"))&& args.length == 1) {
             List<String> songs = new ArrayList<>();
             songs.addAll(List.of(redSongs));
             songs.addAll(List.of(blueSongs));

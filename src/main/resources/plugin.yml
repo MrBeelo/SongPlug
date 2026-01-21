@@ -13,3 +13,7 @@ commands:
     description: Resets all ardoni song cooldowns
   energy:
     description: Sets the ardoni song energy amount
+  infusesong:
+    description: Infuses the specified song onto the player
+  clearsongs:
+    description: Clears the player's songs
