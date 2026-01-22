@@ -22,6 +22,7 @@ import org.bukkit.util.Vector;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class SongPlugHelper {
     public static void command(String command) {
@@ -309,6 +310,32 @@ public class SongPlugHelper {
         return dot > threshold;
     }
 
+    public static Entity getClosestEntity(Entity entity, double radius, String doesntContainTag) {
+        Entity closestEntity = null;
+        double closestDistance = 9999;
+
+        for (Entity entity2 : entity.getWorld().getNearbyEntities(entity.getLocation(), radius, radius, radius)) {
+            if (entity2 == entity) continue;
+            if(doesntContainTag != null && entity2.getScoreboardTags().contains(doesntContainTag)) continue;
+            double distance = entity.getLocation().distance(entity2.getLocation());
+            if(distance < closestDistance) {
+                closestEntity = entity2;
+                closestDistance = distance;
+            }
+
+        }
+
+        return closestEntity;
+    }
+
+
+    public static Location perspectiveOffset(Player player, Location base, double distance) {
+        Vector forward = player.getLocation().getDirection().normalize();
+        Vector up = new Vector(0, 1, 0);
+        Vector offset = forward.clone().crossProduct(up).normalize();
+        return base.clone().add(offset.multiply(distance));
+    }
+
     public static void triggerSong(Player player, String song) {
         if(songIn(song, redSongs)) for(String sng : redSongs) player.getScoreboardTags().remove("Used" + sng);
         if(songIn(song, blueSongs)) for(String sng : blueSongs) player.getScoreboardTags().remove("Used" + sng);
@@ -317,12 +344,13 @@ public class SongPlugHelper {
         player.getScoreboardTags().add("Used" + song);
 
         switch(song) {
-            case "Supporolift", "Supporokenisis", "Aggrobeam", "Mobiliwings", "Mobilibounce", "Mobiliglide", "Protesphere", "Protepoint":
+            case "Supporolift", "Supporokenisis", "Aggrobeam", "Mobiliwings", "Mobilibounce", "Mobiliglide", "Protesphere", "Protepoint",
+                 "Aggrostorm":
                 Score activeScore = scoreType(player, "UsingActiveSong");
                 activeScore.setScore(230);
                 break;
             case "Aggrosphere", "Proteheal", "Mobilileap", "Mobiliflash", "Aggroquake", "Mobiliburst", "Supporoform", "Aggroblast", "Aggrovortex",
-                 "Aggroshard", "Aggrodetonate", "Supporospike":
+                 "Aggroshard", "Aggrodetonate", "Supporospike", "Proteclone", "Protebarrier", "Aggroshock":
                 Score passiveScore = scoreType(player, "Using" + song);
                 passiveScore.setScore(230);
                 break;

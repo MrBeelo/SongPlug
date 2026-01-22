@@ -1,12 +1,10 @@
 package net.mrbeelo.songPlug;
 
-import com.destroystokyo.paper.ParticleBuilder;
+import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
-import org.bukkit.damage.DamageSource;
-import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -16,8 +14,8 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.random.RandomGenerator;
 
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
@@ -272,7 +270,10 @@ public class SongPlugTick {
 
             if(usingPassiveSong == 201) {
                 Block targetBlock = player.getTargetBlock(null, 7);
-                if(targetBlock.isEmpty()) return;
+                if(targetBlock.isEmpty()) {
+                    usingPassiveSongScore.setScore(0);
+                    return;
+                }
                 Interaction interaction = player.getWorld().spawn(targetBlock.getLocation(), Interaction.class);
                 interaction.getScoreboardTags().add("Supporospike" + player.getName());
                 for(Entity entity : player.getWorld().getEntities()) {
@@ -751,6 +752,100 @@ public class SongPlugTick {
             }
         }
 
+        //PROTECLONE
+        if(player.getScoreboardTags().contains("UsedProteclone")) {
+            Score usingPassiveSongScore = scoreType(player, "UsingProteclone");
+            int usingPassiveSong = usingPassiveSongScore.getScore();
+            if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
+
+            if(usingPassiveSong == 229) {
+                playSoundToNearby(player.getLocation(), 7, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
+            }
+
+            if(usingPassiveSong == 201) {
+                Mannequin mannequin = player.getWorld().spawn(player.getLocation(), Mannequin.class);
+                mannequin.getScoreboardTags().add("Proteclone" + player.getName());
+                mannequin.setProfile(ResolvableProfile.resolvableProfile().uuid(player.getUniqueId()).build());
+                mannequin.setImmovable(true);
+                mannequin.setCollidable(false);
+
+                player.setVelocity(player.getLocation().getDirection().multiply(-1).setY(0.4));
+            }
+
+            if(usingPassiveSong == 161) {
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity.getScoreboardTags().contains("Proteclone" + player.getName())) entity.remove();
+                }
+            }
+
+            if(usingPassiveSong == 0) {
+                player.getScoreboardTags().remove("UsedProteclone");
+            }
+        }
+
+        //PROTEBARRIER
+        if(player.getScoreboardTags().contains("UsedProtebarrier")) {
+            Score usingPassiveSongScore = scoreType(player, "UsingProtebarrier");
+            int usingPassiveSong = usingPassiveSongScore.getScore();
+            if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
+
+            if(usingPassiveSong == 229) {
+                playSoundToNearby(player.getLocation(), 7, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
+            }
+
+            if(usingPassiveSong == 201) {
+                Block targetBlock = player.getTargetBlock(null, 10);
+                if(targetBlock.isEmpty()) {
+                    usingPassiveSongScore.setScore(0);
+                    return;
+                }
+                for(int i = 0; i <= 8; i++) {
+                    Location location = perspectiveOffset(player, targetBlock.getLocation(), i - 4);
+                    Interaction interaction = player.getWorld().spawn(location, Interaction.class);
+                    interaction.getScoreboardTags().add("Protebarrier" + player.getName());
+                    interaction.setInteractionHeight(7);
+                }
+            }
+
+            if(usingPassiveSong > 0 && usingPassiveSong <= 200) {
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity.getScoreboardTags().contains("Protebarrier" + player.getName())) {
+                        BoundingBox box = entity.getBoundingBox();
+                        ThreadLocalRandom random = ThreadLocalRandom.current();
+                        for(int i = 0; i < 30; i++) {
+                            Location loc = new Location(player.getWorld(), random.nextDouble(box.getMinX(), box.getMaxX()),
+                                    random.nextDouble(box.getMinY(), box.getMaxY()), random.nextDouble(box.getMinZ(), box.getMaxZ()));
+                            Particle.DUST.builder().location(loc).count(0).allPlayers().color(Color.BLUE).spawn();
+                        }
+
+                        for(Entity entity2 : player.getWorld().getEntities()) {
+                            if(!entity2.getScoreboardTags().contains("Protebarrier" + player.getName()) && box.overlaps(entity2.getBoundingBox())) {
+                                if(isAnEntityItem(entity2)) {
+                                    entity2.remove();
+                                } else if(entity2 instanceof LivingEntity living) {
+                                    living.setVelocity(distanceVector(entity, entity2).setY(0.6));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if(player.isSneaking()) {
+                    usingPassiveSongScore.setScore(0);
+                    for(Entity entity : player.getWorld().getEntities()) {
+                        if(entity.getScoreboardTags().contains("Protebarrier" + player.getName())) entity.remove();
+                    }
+                }
+            }
+
+            if(usingPassiveSong == 0) {
+                player.getScoreboardTags().remove("UsedProtebarrier");
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity.getScoreboardTags().contains("Protebarrier" + player.getName())) entity.remove();
+                }
+            }
+        }
+
         //--RED SONGS--//
 
         //AGGROSPHERE
@@ -1082,6 +1177,143 @@ public class SongPlugTick {
                 for(Entity entity : player.getWorld().getEntities()) {
                     if(entity.getScoreboardTags().contains("Aggrodetonate" + player.getName())) entity.remove();
                     player.getScoreboardTags().remove("UsedAggrodetonate");
+                }
+            }
+        }
+
+        //AGGROSTORM
+        if(player.getScoreboardTags().contains("UsedAggrostorm")) {
+            if(usingActiveSong == 201) {
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
+            }
+
+            if(usingActiveSong > 0 && usingActiveSong <= 200) {
+                for(Entity entity : getNearbyEntities(player.getLocation(), 9)) {
+                    if(entity instanceof LivingEntity living && living != player) {
+                        living.setVelocity(living.getVelocity().add(distanceVector(player, entity).multiply(-0.05)));
+                        double distance = player.getLocation().distance(living.getLocation());
+                        if(7 - distance > 0) living.damage(7 - distance);
+                    }
+                }
+
+                //TEMPORARY PARTICLES
+                Location center = player.getLocation().add(0, 1, 0);
+                for (int i = 0; i < 20; i++) {
+                    double x = (Math.random() - 0.5) * 1.5;
+                    double y = Math.random() * 1.5;
+                    double z = (Math.random() - 0.5) * 1.5;
+                    Particle.ENTITY_EFFECT.builder().location(center.clone().add(x, y, z)).count(1).color(Color.RED).allPlayers().spawn();
+                }
+
+                if(player.isSneaking()) usingActiveSongScore.setScore(0);
+            }
+
+            if(usingActiveSong == 0) {
+                player.getScoreboardTags().remove("UsedAggrostorm");
+            }
+        }
+
+        //AGGROSHOCK
+        if(player.getScoreboardTags().contains("UsedAggroshock")) {
+            Score usingPassiveSongScore = scoreType(player, "UsingAggroshock");
+            int usingPassiveSong = usingPassiveSongScore.getScore();
+            if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
+
+            if(usingPassiveSong == 201) {
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
+
+                Location location = player.getLocation();
+                Entity entity = player.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
+                entity.setGravity(false);
+                entity.setVisibleByDefault(false);
+                entity.getScoreboardTags().add("AggroshockProjectile" + player.getName());
+            }
+
+            if(usingPassiveSong > 0 && usingPassiveSong <= 200) {
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity.getScoreboardTags().contains("AggroshockProjectile" + player.getName())) {
+                        entity.teleport(getLocationInFrontOfEntity(entity, 1));
+                        for(Entity entity2 : player.getWorld().getEntities()) {
+                            if(entity2 != entity && entity2 != player && entity2 instanceof LivingEntity) {
+                                if(entity.getBoundingBox().overlaps(entity2.getBoundingBox())) {
+                                    entity.remove();
+                                    playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
+                                    entity2.getScoreboardTags().add("Aggroshock" + player.getName());
+                                    entity2.getScoreboardTags().add("AggroshockVictim1");
+                                }
+                            }
+                        }
+
+                        double radius = 0.5;
+                        for (int i = 0; i < 20; i++) {
+                            double theta = Math.random() * Math.PI * 2;
+                            double phi = Math.acos(2 * Math.random() - 1);
+                            double x = radius * Math.sin(phi) * Math.cos(theta);
+                            double y = radius * Math.sin(phi) * Math.sin(theta);
+                            double z = radius * Math.cos(phi);
+                            Particle.DUST.builder().location(entity.getLocation().clone().add(x, y + 1, z)).count(0).allPlayers().color(Color.RED).spawn();
+                        }
+                    }
+
+
+
+                    if(entity.getScoreboardTags().contains("Aggroshock" + player.getName()) && entity != player && entity instanceof LivingEntity living) {
+                        BoundingBox box = entity.getBoundingBox();
+                        ThreadLocalRandom random = ThreadLocalRandom.current();
+                        for(int i = 0; i < 10; i++) {
+                            Location loc = new Location(player.getWorld(), random.nextDouble(box.getMinX(), box.getMaxX()),
+                                    random.nextDouble(box.getMinY(), box.getMaxY()), random.nextDouble(box.getMinZ(), box.getMaxZ()));
+                            Particle.FLAME.builder().location(loc).count(0).allPlayers().spawn();
+                        }
+
+                        living.damage(2);
+
+                        if(entity.getScoreboardTags().contains("AggroshockVictim1") && !entity.getScoreboardTags().contains("AggroshockTransfered")) {
+                            entity.getScoreboardTags().add("AggroshockTransfered");
+                            Entity entity2 = getClosestEntity(entity, 3, null);
+                            if(entity2 instanceof LivingEntity && entity2 != player) {
+                                entity2.getScoreboardTags().add("Aggroshock" + player.getName());
+                                entity2.getScoreboardTags().add("AggroshockVictim2");
+                                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
+
+                                Location location = entity.getLocation().clone().add(0, 1, 0).setDirection(distanceVector(entity, entity2));
+                                double distance = entity.getLocation().distance(entity2.getLocation());
+                                for(int i = 0; i < distance * 5; i++) {
+                                    Particle.DUST.builder().location(getLocationInFrontOfLoc(location, (float) i / 5)).count(2).allPlayers().color(Color.RED).spawn();
+                                }
+                            }
+                        }
+
+                        if(entity.getScoreboardTags().contains("AggroshockVictim2") && !entity.getScoreboardTags().contains("AggroshockTransfered")) {
+                            entity.getScoreboardTags().add("AggroshockTransfered");
+                            Entity entity2 = getClosestEntity(entity, 3, "AggroshockVictim1");
+                            if(entity2 instanceof LivingEntity && entity2 != player) {
+                                entity2.getScoreboardTags().add("Aggroshock" + player.getName());
+                                entity2.getScoreboardTags().add("AggroshockVictim3");
+                                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
+
+                                Location location = entity.getLocation().clone().add(0, 1, 0).setDirection(distanceVector(entity, entity2));
+                                double distance = entity.getLocation().distance(entity2.getLocation());
+                                for(int i = 0; i < distance * 5; i++) {
+                                    Particle.DUST.builder().location(getLocationInFrontOfLoc(location, (float) i / 5)).count(2).allPlayers().color(Color.RED).spawn();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(usingPassiveSong == 0) {
+                player.getScoreboardTags().remove("UsedAggroshock");
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity.getScoreboardTags().contains("Aggroshock" + player.getName())) {
+                        entity.getScoreboardTags().remove("Aggroshock" + player.getName());
+                        entity.getScoreboardTags().remove("AggroshockVictim1");
+                        entity.getScoreboardTags().remove("AggroshockVictim2");
+                        entity.getScoreboardTags().remove("AggroshockVictim3");
+                        entity.getScoreboardTags().remove("AggroshockTransfered");
+                    }
+                    if(entity.getScoreboardTags().contains("AggroshockProjectile" + player.getName())) entity.remove();
                 }
             }
         }

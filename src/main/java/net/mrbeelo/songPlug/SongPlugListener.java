@@ -363,6 +363,10 @@ public class SongPlugListener implements Listener {
                     }
                 }
             }
+        } else {
+            for(Player player : Bukkit.getOnlinePlayers()) {
+                if(entity.getScoreboardTags().contains("Proteclone" + player.getName())) entity.remove();
+            }
         }
     }
 
