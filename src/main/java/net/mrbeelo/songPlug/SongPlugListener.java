@@ -237,7 +237,7 @@ public class SongPlugListener implements Listener {
                 }
 
                 String name = meta.getItemName();
-                infuseSong(player, name, true);
+                infuseSong(player, name, true, false);
             }
         }
     }
@@ -338,7 +338,7 @@ public class SongPlugListener implements Listener {
 
         if(entity instanceof Player player && player.getScoreboardTags().contains("UsedProtearmor")) {
             Score activeScore = scoreType(player, "UsingActiveSong");
-            if(activeScore.getScore() > 0 && activeScore.getScore() <= 40) {
+            if(activeScore.getScore() > 0 && activeScore.getScore() <= 200) {
                 Vector vec = damager.getLocation().getDirection();
                 damager.setVelocity(new Vector(vec.getX() * -1, 0, vec.getZ() * -1));
                 activeScore.setScore(0);
@@ -348,6 +348,9 @@ public class SongPlugListener implements Listener {
                     living.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 2));
                     living.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 40, 2));
                 }
+
+                Score damagerActiveScore = scoreType(damager, "UsingActiveSong");
+                damagerActiveScore.setScore(0);
 
                 event.setCancelled(true);
             }
@@ -390,6 +393,12 @@ public class SongPlugListener implements Listener {
             } else if(player.getScoreboardTags().contains("UsedProtesphere")) {
                 Score activeScore = scoreType(player, "UsingActiveSong");
                 if(activeScore.getScore() > 0 && activeScore.getScore() <= 200) event.setCancelled(true);
+            } else if(player.getScoreboardTags().contains("UsedProtearmor")) {
+                Score activeScore = scoreType(player, "UsingActiveSong");
+                if(activeScore.getScore() > 0 && activeScore.getScore() <= 200) {
+                    EntityDamageEvent.DamageCause cause = event.getCause();
+                    if(!cause.equals(EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) event.setCancelled(true);
+                }
             }
         }
     }

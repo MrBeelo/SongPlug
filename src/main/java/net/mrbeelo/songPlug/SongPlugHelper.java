@@ -123,7 +123,7 @@ public class SongPlugHelper {
         dropCustomItemName(player, material, name);
     }
 
-    public static void infuseSong(Player player, String name, boolean includeStacks) {
+    public static void infuseSong(Player player, String name, boolean includeStacks, boolean force) {
         String songType = "ERROR";
         String songColor = "ERROR";
 
@@ -142,7 +142,13 @@ public class SongPlugHelper {
         }
 
         if(songIn(name, redSongs) || songIn(name, blueSongs) || songIn(name, yellowSongs) || songIn(name, greenSongs)) {
-            if(!player.getScoreboardTags().contains("Has" + songColor + "Song")) {
+            if(!player.getScoreboardTags().contains("Has" + songColor + "Song") || force) {
+                if(force) {
+                    if(songIn(name, redSongs)) for(String name2 : redSongs) player.getScoreboardTags().remove(name2);
+                    if(songIn(name, blueSongs)) for(String name2 : blueSongs) player.getScoreboardTags().remove(name2);
+                    if(songIn(name, yellowSongs)) for(String name2 : yellowSongs) player.getScoreboardTags().remove(name2);
+                    if(songIn(name, greenSongs)) for(String name2 : greenSongs) player.getScoreboardTags().remove(name2);
+                }
                 player.getScoreboardTags().add(name);
                 player.getScoreboardTags().add("Has" + songColor + "Song");
                 if(includeStacks) player.getInventory().getItemInMainHand().setAmount(player.getInventory().getItemInMainHand().getAmount() - 1);
@@ -179,14 +185,14 @@ public class SongPlugHelper {
         }
     }
 
-    public static Score scoreType(Player player, String scoreboardName) {
+    public static Score scoreType(Entity entity, String scoreboardName) {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         Objective objective = getNotNullObjective(scoreboard, scoreboardName);
-        return objective.getScore(player.getName());
+        return objective.getScore(entity.getScoreboardEntryName());
     }
 
-    public static int scoreValue(Player player, String scoreboardName) {
-        Score score = scoreType(player, scoreboardName);
+    public static int scoreValue(Entity entity, String scoreboardName) {
+        Score score = scoreType(entity, scoreboardName);
         return score.getScore();
     }
 
@@ -294,20 +300,12 @@ public class SongPlugHelper {
         return target.getLocation().toVector().subtract(source.getLocation().toVector()).normalize();
     }
 
-    public static boolean isInLightOfSight(Player player, Entity entity) {
-        Location eye = player.getEyeLocation();
-        Vector toEntity = entity.getLocation()
-                .add(0, entity.getHeight() / 2, 0)
-                .toVector()
-                .subtract(eye.toVector())
-                .normalize();
-
-        Vector direction = eye.getDirection().normalize();
-
-        double dot = direction.dot(toEntity);
-        double threshold = Math.cos(Math.toRadians(45));
-
-        return dot > threshold;
+    public static boolean isInLineOfSight(Player player, LivingEntity entity) {
+        if(entity == player) return false;
+        Vector playerVector = player.getLocation().getDirection().normalize();
+        Vector entityVector = distanceVector(player, entity).normalize();
+        double angle = Math.toDegrees(playerVector.angle(entityVector));
+        return angle < 17.5f;
     }
 
     public static Entity getClosestEntity(Entity entity, double radius, String doesntContainTag) {
@@ -345,7 +343,7 @@ public class SongPlugHelper {
 
         switch(song) {
             case "Supporolift", "Supporokenisis", "Aggrobeam", "Mobiliwings", "Mobilibounce", "Mobiliglide", "Protesphere", "Protepoint",
-                 "Aggrostorm":
+                 "Aggrostorm", "Protearmor":
                 Score activeScore = scoreType(player, "UsingActiveSong");
                 activeScore.setScore(230);
                 break;
@@ -353,10 +351,6 @@ public class SongPlugHelper {
                  "Aggroshard", "Aggrodetonate", "Supporospike", "Proteclone", "Protebarrier", "Aggroshock":
                 Score passiveScore = scoreType(player, "Using" + song);
                 passiveScore.setScore(230);
-                break;
-            case "Protearmor":
-                Score activeScore40 = scoreType(player, "UsingActiveSong");
-                activeScore40.setScore(70);
                 break;
             default: break;
         }
