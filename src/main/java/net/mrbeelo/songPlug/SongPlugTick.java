@@ -12,7 +12,10 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.Objects;
 import java.util.Random;
@@ -933,6 +936,13 @@ public class SongPlugTick {
                 entity.setVisibleByDefault(false);
                 entity.getScoreboardTags().add("Aggrosphere" + player.getName());
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
+
+                BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(location, EntityType.BLOCK_DISPLAY);
+                display.getScoreboardTags().add("AggrosphereDisplay" + player.getName());
+                display.setBlock(Bukkit.createBlockData(Material.MAGMA_BLOCK));
+                BlockDisplay display2 = (BlockDisplay) player.getWorld().spawnEntity(location, EntityType.BLOCK_DISPLAY);
+                display2.getScoreboardTags().add("AggrosphereDisplay2" + player.getName());
+                display2.setBlock(Bukkit.createBlockData(Material.RED_STAINED_GLASS));
             }
 
             if(usingPassiveSong <= 200 && usingPassiveSong > 0) {
@@ -943,7 +953,8 @@ public class SongPlugTick {
 
                         Entity collidedEntity = null;
                         for(Entity entity2 : player.getWorld().getEntities()) {
-                            if(entity.getBoundingBox().overlaps(entity2.getBoundingBox()) && entity2 != entity && entity2 != player) {
+                            if(entity.getBoundingBox().overlaps(entity2.getBoundingBox()) && entity2 != entity && entity2 != player &&
+                                    !(entity2 instanceof BlockDisplay)) {
                                 collidedEntity = entity2;
                             }
                         }
@@ -969,14 +980,33 @@ public class SongPlugTick {
                             usingPassiveSongScore.setScore(0);
                         }
 
-                        double radius = 0.2;
-                        for (int i = 0; i < 30; i++) {
-                            double theta = Math.random() * Math.PI * 2;
-                            double phi = Math.acos(2 * Math.random() - 1);
-                            double x = radius * Math.sin(phi) * Math.cos(theta);
-                            double y = radius * Math.sin(phi) * Math.sin(theta);
-                            double z = radius * Math.cos(phi);
-                            Particle.DUST_COLOR_TRANSITION.builder().location(centerLocation.clone().add(x, y, z)).count(0).allPlayers().colorTransition(Color.RED, Color.fromARGB(0, 255, 0, 0)).spawn();
+                        for(Entity entity2 : player.getWorld().getEntities()) {
+                            if((entity2.getScoreboardTags().contains("AggrosphereDisplay" + player.getName()) || entity2.getScoreboardTags().contains("AggrosphereDisplay2" + player.getName())) && entity2 instanceof BlockDisplay display) {
+                                float turningSpeed = entity2.getScoreboardTags().contains("AggrosphereDisplay" + player.getName()) ? 3.6f : 1.2f;
+                                float size = entity2.getScoreboardTags().contains("AggrosphereDisplay" + player.getName()) ? 0.45f : 0.7f;
+
+                                Location pivot = entity.getBoundingBox().getCenter().toLocation(player.getWorld());
+                                display.teleport(pivot);
+
+                                Quaternionf rotation = new Quaternionf().rotateXYZ((float) Math.toRadians(usingPassiveSong) * turningSpeed, (float) Math.toRadians(usingPassiveSong) * turningSpeed, (float) Math.toRadians(usingPassiveSong) * turningSpeed);
+                                Vector3f centerOffset = new Vector3f(-0.5f * size, -0.5f * size, -0.5f * size);
+
+                                rotation.transform(centerOffset);
+                                display.setTransformation(new Transformation(centerOffset, new Quaternionf(), new Vector3f(size, size, size), rotation));
+
+                                if(entity2.getScoreboardTags().contains("AggrosphereDisplay2" + player.getName())) {
+                                    BoundingBox box = entity2.getBoundingBox();
+                                    ThreadLocalRandom random = ThreadLocalRandom.current();
+                                    float offset = 0.5f;
+
+                                    for(int i = 0; i < 10; i++) {
+                                        Location loc = new Location(player.getWorld(), random.nextDouble(box.getMinX() - offset, box.getMaxX() + offset),
+                                                random.nextDouble(box.getMinY() - offset, box.getMaxY() + offset), random.nextDouble(box.getMinZ() - offset, box.getMaxZ() + offset));
+                                        Particle.DUST.builder().location(loc).count(0).allPlayers().color(i % 2 == 0 ? Color.RED : Color.ORANGE).spawn();
+                                    }
+
+                                }
+                            }
                         }
                     }
                 }
@@ -985,6 +1015,8 @@ public class SongPlugTick {
             if(usingPassiveSong == 0) {
                 for(Entity entity : player.getWorld().getEntities()) {
                     if(entity.getScoreboardTags().contains("Aggrosphere" + player.getName())) entity.remove();
+                    if(entity.getScoreboardTags().contains("AggrosphereDisplay" + player.getName())) entity.remove();
+                    if(entity.getScoreboardTags().contains("AggrosphereDisplay2" + player.getName())) entity.remove();
                     player.getScoreboardTags().remove("UsedAggrosphere");
                 }
             }
@@ -1069,10 +1101,10 @@ public class SongPlugTick {
             if(usingPassiveSong == 201) {
                 speed.setBaseValue(0.1);
                 jump.setBaseValue(0.42);
-                double distanceFromBarrier = 10;
+                double distanceFromBarrier = 9999;
                 for(Entity entity : getNearbyEntities(player.getLocation(), 5)) {
                     for(String tag : entity.getScoreboardTags()) {
-                        if((tag.startsWith("Protebarrier") || tag.startsWith("Protepoint")) && player.getLocation().distance(entity.getLocation()) <= 4) {
+                        if((tag.startsWith("Protebarrier") || tag.startsWith("Protepoint")) && tag.length() > 12 && player.getLocation().distance(entity.getLocation()) <= 4) {
                             double d = player.getLocation().distance(entity.getLocation());
                             if(d < distanceFromBarrier) distanceFromBarrier = d;
                         }
@@ -1080,7 +1112,7 @@ public class SongPlugTick {
                 }
 
                 for(Entity entity : getNearbyEntities(player.getLocation(), 5)) {
-                    if(entity instanceof LivingEntity living && isInLineOfSight(player, living) && player.hasLineOfSight(entity)
+                    if (entity instanceof LivingEntity living && isInLineOfSight(player, living) && player.hasLineOfSight(entity)
                             && living != player && player.getLocation().distance(entity.getLocation()) < distanceFromBarrier) {
                         double distance = player.getLocation().distance(living.getLocation());
                         living.setVelocity(distanceVector(player, entity).multiply(0.75 + distance / 4));
