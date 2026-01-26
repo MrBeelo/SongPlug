@@ -2,6 +2,7 @@ package net.mrbeelo.songPlug;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.*;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarFlag;
@@ -20,6 +21,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -291,7 +293,7 @@ public class SongPlugHelper {
     }
 
     public static List<Entity> getNearbyEntities(Location location, double distance) {
-        List<Entity> list = new java.util.ArrayList<>();
+        List<Entity> list = new ArrayList<>();
         for(Entity entity : location.getWorld().getEntities()) if(location.distance(entity.getLocation()) <= distance) list.add(entity);
         return list;
     }
@@ -333,6 +335,57 @@ public class SongPlugHelper {
         Vector up = new Vector(0, 1, 0);
         Vector offset = forward.clone().crossProduct(up).normalize();
         return base.clone().add(offset.multiply(distance));
+    }
+
+    public static Pair<Float, Boolean> aggrovortexHelper(int index) {
+        float size;
+        boolean red;
+
+        size = switch(index) {
+            case 0, 3 -> 0.7f;
+            case 1, 2 -> 1f;
+            case 4,5,6,8 -> 0.3f;
+            case 7 -> 0.5f;
+            default -> 1.0f;
+        };
+
+        red = switch(index) {
+            case 0,1,2,3,7 -> true;
+            default -> false;
+        };
+
+        return new Pair<>() {
+            @Override
+            public Boolean setValue(Boolean aBoolean) {
+                return null;
+            }
+
+            @Override
+            public Float getLeft() {
+                return size;
+            }
+
+            @Override
+            public Boolean getRight() {
+                return red;
+            }
+        };
+    }
+
+    public static int pseudorandom(int value) {
+        return switch (value % 10) {
+            case 0 -> 5;
+            case 1 -> 3;
+            case 2 -> 6;
+            case 3 -> 1;
+            case 4 -> 2;
+            case 5 -> 8;
+            case 6 -> 9;
+            case 7 -> 7;
+            case 8 -> 0;
+            case 9 -> 4;
+            default -> 0;
+        };
     }
 
     public static void triggerSong(Player player, String song) {

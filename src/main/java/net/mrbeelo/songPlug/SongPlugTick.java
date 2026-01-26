@@ -1188,12 +1188,22 @@ public class SongPlugTick {
                 entity.setVisibleByDefault(false);
                 entity.getScoreboardTags().add("Aggrovortex" + player.getName());
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
+
+                for(int i = 0; i < 9; i++) {
+                    BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(getLocationInFrontOfEntity(player, i), EntityType.BLOCK_DISPLAY);
+                    display.getScoreboardTags().add("AggrovortexDisplay" + i + player.getName());
+                    display.setBlock(Bukkit.createBlockData(Material.MAGMA_BLOCK));
+
+                    BlockDisplay display2 = (BlockDisplay) player.getWorld().spawnEntity(getLocationInFrontOfEntity(player, i), EntityType.BLOCK_DISPLAY);
+                    display2.getScoreboardTags().add("AggrovortexDisplayOut" + i + player.getName());
+                    display2.setBlock(Bukkit.createBlockData(aggrovortexHelper(i).getRight() ? Material.RED_STAINED_GLASS : Material.ORANGE_STAINED_GLASS));
+                }
             }
 
             if(usingPassiveSong <= 200 && usingPassiveSong > 80) {
                 for(Entity entity : player.getWorld().getEntities()) {
                     if (entity.getScoreboardTags().contains("Aggrovortex" + player.getName())) {
-                        entity.teleport(getLocationInFrontOfEntity(entity, 1));
+                        entity.teleport(getLocationInFrontOfEntity(entity, 0.5f));
                         Location centerLocation = entity.getLocation().add(0, 1, 0);
 
                         Entity collidedEntity = null;
@@ -1216,8 +1226,6 @@ public class SongPlugTick {
                                 player.getWorld().createExplosion(centerLocation, 0.5f, false, false);
                             }
 
-
-
                             for(Player player2 : Bukkit.getOnlinePlayers()) {
                                 if(entity.getScoreboardTags().contains("GotSupporokenisiedBy" + player2.getName())) {
                                     Score supporokenisisPlayerActiveScore = scoreType(player2, "UsingActiveSong");
@@ -1228,24 +1236,49 @@ public class SongPlugTick {
                             usingPassiveSongScore.setScore(0);
                         }
 
-                        //TEMPORARY PARTICLES
-                        double radius = 0.6;
-                        for (int i = 0; i < 30; i++) {
-                            double theta = Math.random() * Math.PI * 2;
-                            double phi = Math.acos(2 * Math.random() - 1);
-                            double x = radius * Math.sin(phi) * Math.cos(theta);
-                            double y = radius * Math.sin(phi) * Math.sin(theta);
-                            double z = radius * Math.cos(phi);
-                            Particle.DUST_COLOR_TRANSITION.builder().location(centerLocation.clone().add(x, y, z)).count(0).allPlayers().colorTransition(Color.RED, Color.fromARGB(0, 255, 0, 0)).spawn();
+                        for(Entity entity2 : player.getWorld().getEntities()) {
+                            if (!(entity2 instanceof BlockDisplay display)) continue;
+                            for (String tag : entity2.getScoreboardTags()) {
+                                if (tag.startsWith("AggrovortexDisplay") && tag.endsWith(player.getName())) {
+                                    int index;
+                                    boolean outer = false;
+
+                                    String tempTag = tag;
+                                    tempTag = tempTag.substring("AggrovortexDisplay".length(), tag.length() - player.getName().length());
+                                    if (tempTag.startsWith("Out")) {
+                                        tempTag = tempTag.substring("Out".length());
+                                        outer = true;
+                                    }
+
+                                    index = Integer.parseInt(tempTag);
+
+                                    float turningSpeed = 1.5f + pseudorandom(index) / 2f;
+                                    float size = aggrovortexHelper(index).getLeft();
+                                    if (outer) size += 0.25f;
+
+                                    Location pivot = getLocationInFrontOfEntity(entity, -index / 2f).add(0, 1, 0);
+                                    display.teleport(pivot);
+
+                                    Quaternionf rotation = new Quaternionf().rotateZ((float) Math.toRadians(usingPassiveSong) * turningSpeed);
+                                    Vector3f centerOffset = new Vector3f(-0.5f * size, -0.5f * size, -0.5f * size);
+
+                                    rotation.transform(centerOffset);
+                                    display.setTransformation(new Transformation(centerOffset, new Quaternionf(), new Vector3f(size, size, outer ? 0.4f : 0.2f), rotation));
+                                }
+                            }
                         }
                     }
                 }
             }
 
             if(usingPassiveSong >= 0 && usingPassiveSong <= 80) {
+                player.getScoreboardTags().remove("UsedAggrovortex");
+                if(usingPassiveSong > 0) usingPassiveSongScore.setScore(0);
                 for(Entity entity : player.getWorld().getEntities()) {
                     if(entity.getScoreboardTags().contains("Aggrovortex" + player.getName())) entity.remove();
-                    player.getScoreboardTags().remove("UsedAggrovortex");
+                    for(String tag : entity.getScoreboardTags()) {
+                        if(tag.startsWith("AggrovortexDisplay") && tag.endsWith(player.getName())) entity.remove();
+                    }
                 }
             }
         }
