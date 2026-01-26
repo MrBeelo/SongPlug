@@ -1002,7 +1002,7 @@ public class SongPlugTick {
                                     for(int i = 0; i < 10; i++) {
                                         Location loc = new Location(player.getWorld(), random.nextDouble(box.getMinX() - offset, box.getMaxX() + offset),
                                                 random.nextDouble(box.getMinY() - offset, box.getMaxY() + offset), random.nextDouble(box.getMinZ() - offset, box.getMaxZ() + offset));
-                                        Particle.DUST.builder().location(loc).count(0).allPlayers().color(i % 2 == 0 ? Color.RED : Color.ORANGE).spawn();
+                                        Particle.DUST.builder().location(getLocationInFrontOfLoc(loc.setDirection(entity.getLocation().getDirection()), 1)).count(0).allPlayers().color(i % 2 == 0 ? Color.RED : Color.ORANGE).spawn();
                                     }
                                 }
                             }
@@ -1049,11 +1049,6 @@ public class SongPlugTick {
                 if(target instanceof LivingEntity living && !isAnEntityItem(living)) {
                     living.damage(5, player);
                 }
-
-                /*for(int i = 0; i < getMaxDistanceInFrontOfPlayer(player, 18, true) * 5 + 5; i++) {
-                    Location location = getLocationInFrontOfEntity(player, (float) i / 5);
-                    player.getWorld().spawnParticle(Particle.DUST, location.add(0, 1, 0), 1, new Particle.DustOptions(Color.RED, 0.4f));
-                }*/
 
                 Score cooldownScore = scoreType(player, "RedEnergyCooldown");
                 cooldownScore.setScore(200);
@@ -1346,6 +1341,14 @@ public class SongPlugTick {
                 entity.setVisibleByDefault(false);
                 entity.getScoreboardTags().add("Aggrodetonate" + player.getName());
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
+
+                Location pivot = player.getBoundingBox().getCenter().toLocation(player.getWorld());
+                BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(pivot, EntityType.BLOCK_DISPLAY);
+                display.getScoreboardTags().add("AggrodetonateDisplay" + player.getName());
+                display.setBlock(Bukkit.createBlockData(Material.MAGMA_BLOCK));
+                BlockDisplay display2 = (BlockDisplay) player.getWorld().spawnEntity(pivot, EntityType.BLOCK_DISPLAY);
+                display2.getScoreboardTags().add("AggrodetonateDisplay2" + player.getName());
+                display2.setBlock(Bukkit.createBlockData(Material.RED_STAINED_GLASS));
             }
 
             if(usingPassiveSong <= 200 && usingPassiveSong > 0) {
@@ -1355,9 +1358,32 @@ public class SongPlugTick {
                         entity.teleport(getLocationInFrontOfEntity(entity, 0.8f));
                         Location centerLocation = entity.getLocation().add(0, 1, 0);
 
+                        for(Entity entity2 : player.getWorld().getEntities()) {
+                            if((entity2.getScoreboardTags().contains("AggrodetonateDisplay" + player.getName()) || entity2.getScoreboardTags().contains("AggrodetonateDisplay2" + player.getName())) && entity2 instanceof BlockDisplay display) {
+                                Location pivot = entity.getBoundingBox().getCenter().toLocation(player.getWorld());
+                                float blockSize = entity2.getScoreboardTags().contains("AggrodetonateDisplay" + player.getName()) ? 0.25f : 0.3f;
+                                Vector3f size = new Vector3f(blockSize, blockSize, 2f);
+                                Vector3f translation = new Vector3f(-0.5f * size.x, -0.5f * size.y, -0.5f * size.z);
+                                display.teleport(pivot.setDirection(entity.getLocation().getDirection()));
+                                display.setTransformation(new Transformation(translation, new Quaternionf(), size, new Quaternionf()));
+
+                                if(entity2.getScoreboardTags().contains("AggrodetonateDisplay2" + player.getName())) {
+                                    BoundingBox box = entity2.getBoundingBox();
+                                    ThreadLocalRandom random = ThreadLocalRandom.current();
+                                    float offset = 0.5f;
+                                    for(int i = 0; i < 10; i++) {
+                                        Location loc = new Location(player.getWorld(), random.nextDouble(box.getMinX() - offset, box.getMaxX() + offset),
+                                                random.nextDouble(box.getMinY() - offset, box.getMaxY() + offset), random.nextDouble(box.getMinZ() - offset, box.getMaxZ() + offset));
+                                        Particle.DUST.builder().location(getLocationInFrontOfLoc(loc.setDirection(entity.getLocation().getDirection()), 1)).count(0).allPlayers().color(i % 2 == 0 ? Color.RED : Color.ORANGE).spawn();
+                                    }
+                                }
+                            }
+                        }
+
                         Entity collidedEntity = null;
                         for(Entity entity2 : player.getWorld().getEntities()) {
-                            if(entity.getBoundingBox().overlaps(entity2.getBoundingBox()) && entity2 != entity && entity2 != player) {
+                            if(entity.getBoundingBox().overlaps(entity2.getBoundingBox()) && entity2 != entity && entity2 != player &&
+                                    !(entity2 instanceof BlockDisplay)) {
                                 collidedEntity = entity2;
                             }
                         }
@@ -1384,8 +1410,6 @@ public class SongPlugTick {
 
                             usingPassiveSongScore.setScore(0);
                         }
-
-                        Particle.ENTITY_EFFECT.builder().location(centerLocation.clone()).count(10).allPlayers().color(Color.RED).spawn();
                     }
                 }
             }
@@ -1393,6 +1417,8 @@ public class SongPlugTick {
             if(usingPassiveSong == 0) {
                 for(Entity entity : player.getWorld().getEntities()) {
                     if(entity.getScoreboardTags().contains("Aggrodetonate" + player.getName())) entity.remove();
+                    if(entity.getScoreboardTags().contains("AggrodetonateDisplay" + player.getName())) entity.remove();
+                    if(entity.getScoreboardTags().contains("AggrodetonateDisplay2" + player.getName())) entity.remove();
                     player.getScoreboardTags().remove("UsedAggrodetonate");
                 }
             }
