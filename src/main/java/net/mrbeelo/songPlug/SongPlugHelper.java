@@ -302,9 +302,10 @@ public class SongPlugHelper {
 
     public static boolean isInLineOfSight(Player player, LivingEntity entity) {
         if(entity == player) return false;
-        Vector playerVector = player.getLocation().getDirection().normalize();
+        Vector playerVector = player.getLocation().getDirection().normalize().setY(player.getLocation().getDirection().normalize().getY() / 3);
         Vector entityVector = distanceVector(player, entity).normalize();
         double angle = Math.toDegrees(playerVector.angle(entityVector));
+        player.sendMessage("Angle for " + entity.getName() + ": " + angle + " deg.");
         return angle < 17.5f;
     }
 
