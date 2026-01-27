@@ -722,15 +722,75 @@ public class SongPlugTick {
                 playSoundToNearby(player.getLocation(), 7, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
             }
 
+            if(usingActiveSong == 201) {
+                BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(player.getLocation(), EntityType.BLOCK_DISPLAY);
+                display.getScoreboardTags().add("ProtespheresphereDisplay" + player.getName());
+                display.setBlock(Bukkit.createBlockData(Material.BLUE_STAINED_GLASS));
+
+                for(int i = 0; i <= 5; i++) {
+                    BlockDisplay display2 = (BlockDisplay) player.getWorld().spawnEntity(player.getLocation(), EntityType.BLOCK_DISPLAY);
+                    display2.getScoreboardTags().add("ProtespheresphereDisplay" + i + player.getName());
+                    display2.setBlock(Bukkit.createBlockData(Material.BLUE_STAINED_GLASS));
+                }
+            }
+
             if(usingActiveSong > 0 && usingActiveSong <= 200) {
-                double radius = 1.2;
-                for (int i = 0; i < 20; i++) {
-                    double theta = Math.random() * Math.PI * 2;
-                    double phi = Math.acos(2 * Math.random() - 1);
-                    double x = radius * Math.sin(phi) * Math.cos(theta);
-                    double y = radius * Math.sin(phi) * Math.sin(theta);
-                    double z = radius * Math.cos(phi);
-                    Particle.DUST.builder().location(player.getLocation().clone().add(x, y + 1, z)).count(0).allPlayers().color(Color.BLUE).spawn();
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity.getScoreboardTags().contains("ProtespheresphereDisplay" + player.getName()) && entity instanceof BlockDisplay display) {
+                        float size = 1.7f;
+                        Location pivot = player.getBoundingBox().getCenter().toLocation(player.getWorld());
+                        display.teleport(pivot);
+                        Vector3f centerOffset = new Vector3f(-0.5f * size, -0.5f * size, -0.5f * size);
+                        display.setTransformation(new Transformation(centerOffset, new Quaternionf(), new Vector3f(size, size, size), new Quaternionf()));
+                    } else {
+                        for(String tag : entity.getScoreboardTags()) {
+                            if(tag.startsWith("ProtespheresphereDisplay") && tag.endsWith(player.getName()) && entity instanceof BlockDisplay display) {
+                                tag = tag.substring("ProtespheresphereDisplay".length(), tag.length() - player.getName().length());
+                                int index = Integer.parseInt(tag);
+
+                                int yaw = switch (index) {
+                                    case 1 -> 90;
+                                    case 2 -> 180;
+                                    case 3 -> -90;
+                                    default -> 0;
+                                };
+
+                                int pitch = switch (index) {
+                                    case 4 -> -90;
+                                    case 5 -> 90;
+                                    default -> 0;
+                                };
+
+                                float bigBubbleSize = 1.7f;
+                                Vector3f size = new Vector3f(1f, 1f, 0.3f);
+
+                                Location center = player.getBoundingBox().getCenter().toLocation(player.getWorld());
+                                float offset = bigBubbleSize / 2f + size.z / 2f;
+
+                                Location pivot = switch (index) {
+                                    case 0 -> center.clone().add(0, 0, offset);
+                                    case 1 -> center.clone().add(offset, 0, 0);
+                                    case 2 -> center.clone().add(0, 0, -offset);
+                                    case 3 -> center.clone().add(-offset, 0, 0);
+                                    case 4 -> center.clone().add(0, offset, 0);   // TOP
+                                    case 5 -> center.clone().add(0, -offset, 0);  // BOTTOM
+                                    default -> center;
+                                };
+
+                                pivot.setRotation(yaw, pitch);
+
+                                display.teleport(pivot);
+                                Vector3f centerOffset = new Vector3f(size.x * -0.5f, size.y * -0.5f, size.z * -0.5f);
+                                display.setTransformation(new Transformation(centerOffset, new Quaternionf(), size, new Quaternionf()));
+                            }
+                        }
+                    }
+                }
+
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(!(entity instanceof BlockDisplay) && player.getBoundingBox().overlaps(entity.getBoundingBox())) {
+                        if(entity instanceof LivingEntity living && entity != player) living.setVelocity(distanceVector(player, entity).setY(0.6));
+                    }
                 }
 
                 Score cooldownScore = scoreType(player, "BlueEnergyCooldown");
@@ -744,6 +804,11 @@ public class SongPlugTick {
 
             if(usingActiveSong == 0) {
                 player.getScoreboardTags().remove("UsedProtesphere");
+                for(Entity entity : player.getWorld().getEntities()) {
+                    for(String tag : entity.getScoreboardTags()) {
+                        if(tag.startsWith("ProtespheresphereDisplay") && tag.endsWith(player.getName())) entity.remove();
+                    }
+                }
             }
         }
 
