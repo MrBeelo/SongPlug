@@ -121,6 +121,16 @@ public class SongPlugTick {
                             entity.teleport(loc);
                         }
 
+                        float offset = 0.4f;
+                        BoundingBox box = entity.getBoundingBox();
+                        ThreadLocalRandom random = ThreadLocalRandom.current();
+                        for(int i = 0; i < 13; i++) {
+                            Location loc = new Location(player.getWorld(), random.nextDouble(box.getMinX() - offset, box.getMaxX() + offset),
+                                    random.nextDouble(box.getMinY() - offset, box.getMaxY() + offset), random.nextDouble(box.getMinZ() - offset, box.getMaxZ() + offset));
+                            Color color = (i % 2 == 0) ? Color.fromRGB(165, 255, 161) : Color.LIME;
+                            Particle.DUST.builder().location(loc).count(0).allPlayers().color(color).spawn();
+                        }
+
                         Score cooldownScore = scoreType(player, "GreenEnergyCooldown");
                         cooldownScore.setScore(200);
 
@@ -183,6 +193,16 @@ public class SongPlugTick {
                             Location loc = result.getHitPosition().toLocation(player.getWorld());
                             loc.setRotation(player.getLocation().getRotation());
                             entity.teleport(loc);
+                        }
+
+                        float offset = 0.4f;
+                        BoundingBox box = entity.getBoundingBox();
+                        ThreadLocalRandom random = ThreadLocalRandom.current();
+                        for(int i = 0; i < 13; i++) {
+                            Location loc = new Location(player.getWorld(), random.nextDouble(box.getMinX() - offset, box.getMaxX() + offset),
+                                    random.nextDouble(box.getMinY() - offset, box.getMaxY() + offset), random.nextDouble(box.getMinZ() - offset, box.getMaxZ() + offset));
+                            Color color = (i % 2 == 0) ? Color.fromRGB(165, 255, 161) : Color.LIME;
+                            Particle.DUST.builder().location(loc).count(0).allPlayers().color(color).spawn();
                         }
 
                         Score cooldownScore = scoreType(player, "GreenEnergyCooldown");
@@ -691,18 +711,24 @@ public class SongPlugTick {
                 attack.setBaseValue(0);
                 armor.setBaseValue(999);
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 100f, 0.8f);
+
+                BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(player.getLocation(), EntityType.BLOCK_DISPLAY);
+                display.getScoreboardTags().add("ProtearmorDisplay" + player.getName());
+                display.setBlock(Bukkit.createBlockData(Material.BLUE_STAINED_GLASS));
             }
 
             if(usingActiveSong <= 200 && usingActiveSong > 0) {
                 Score cooldownScore = scoreType(player, "BlueEnergyCooldown");
                 cooldownScore.setScore(200);
 
-                Location center = player.getLocation().add(0, 1, 0);
-                for (int i = 0; i < 20; i++) {
-                    double x = (Math.random() - 0.5) * 1.5;
-                    double y = Math.random() * 1.5;
-                    double z = (Math.random() - 0.5) * 1.5;
-                    Particle.ENTITY_EFFECT.builder().location(center.clone().add(x, y, z)).count(1).color(Color.BLUE).allPlayers().spawn();
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity.getScoreboardTags().contains("ProtearmorDisplay" + player.getName()) && entity instanceof BlockDisplay display) {
+                        Vector3f size = new Vector3f(1.1f, 2.2f, 1.1f);
+                        Location pivot = player.getBoundingBox().getCenter().toLocation(player.getWorld());
+                        display.teleport(pivot);
+                        Vector3f centerOffset = new Vector3f(-0.5f * size.x, -0.5f * size.y, -0.5f * size.z);
+                        display.setTransformation(new Transformation(centerOffset, new Quaternionf(), size, new Quaternionf()));
+                    }
                 }
 
                 if(player.isSneaking()) usingActiveSongScore.setScore(0);
@@ -714,6 +740,9 @@ public class SongPlugTick {
                 attack.setBaseValue(1);
                 armor.setBaseValue(0);
                 player.getScoreboardTags().remove("UsedProtearmor");
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity.getScoreboardTags().contains("ProtearmorDisplay" + player.getName())) entity.remove();
+                }
             }
         }
 
