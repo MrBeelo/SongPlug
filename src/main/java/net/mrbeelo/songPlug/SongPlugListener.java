@@ -5,10 +5,7 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -32,9 +29,11 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import java.util.Arrays;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
@@ -368,7 +367,16 @@ public class SongPlugListener implements Listener {
             }
         } else {
             for(Player player : Bukkit.getOnlinePlayers()) {
-                if(entity.getScoreboardTags().contains("Proteclone" + player.getName())) entity.remove();
+                if(entity.getScoreboardTags().contains("Proteclone" + player.getName())) {
+                    BoundingBox box = entity.getBoundingBox();
+                    ThreadLocalRandom random = ThreadLocalRandom.current();
+                    for(int i = 0; i < 30; i++) {
+                        Location loc = new Location(player.getWorld(), random.nextDouble(box.getMinX(), box.getMaxX()),
+                                random.nextDouble(box.getMinY(), box.getMaxY()), random.nextDouble(box.getMinZ(), box.getMaxZ()));
+                        Particle.DUST.builder().location(loc).count(0).allPlayers().color(Color.BLUE).spawn();
+                    }
+                    entity.remove();
+                }
             }
         }
     }

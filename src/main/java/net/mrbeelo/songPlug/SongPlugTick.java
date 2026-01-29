@@ -5,6 +5,7 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -724,19 +725,19 @@ public class SongPlugTick {
 
             if(usingActiveSong == 201) {
                 BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(player.getLocation(), EntityType.BLOCK_DISPLAY);
-                display.getScoreboardTags().add("ProtespheresphereDisplay" + player.getName());
+                display.getScoreboardTags().add("ProtesphereDisplay" + player.getName());
                 display.setBlock(Bukkit.createBlockData(Material.BLUE_STAINED_GLASS));
 
                 for(int i = 0; i <= 5; i++) {
                     BlockDisplay display2 = (BlockDisplay) player.getWorld().spawnEntity(player.getLocation(), EntityType.BLOCK_DISPLAY);
-                    display2.getScoreboardTags().add("ProtespheresphereDisplay" + i + player.getName());
+                    display2.getScoreboardTags().add("ProtesphereDisplay" + i + player.getName());
                     display2.setBlock(Bukkit.createBlockData(Material.BLUE_STAINED_GLASS));
                 }
             }
 
             if(usingActiveSong > 0 && usingActiveSong <= 200) {
                 for(Entity entity : player.getWorld().getEntities()) {
-                    if(entity.getScoreboardTags().contains("ProtespheresphereDisplay" + player.getName()) && entity instanceof BlockDisplay display) {
+                    if(entity.getScoreboardTags().contains("ProtesphereDisplay" + player.getName()) && entity instanceof BlockDisplay display) {
                         float size = 1.7f;
                         Location pivot = player.getBoundingBox().getCenter().toLocation(player.getWorld());
                         display.teleport(pivot);
@@ -744,8 +745,8 @@ public class SongPlugTick {
                         display.setTransformation(new Transformation(centerOffset, new Quaternionf(), new Vector3f(size, size, size), new Quaternionf()));
                     } else {
                         for(String tag : entity.getScoreboardTags()) {
-                            if(tag.startsWith("ProtespheresphereDisplay") && tag.endsWith(player.getName()) && entity instanceof BlockDisplay display) {
-                                tag = tag.substring("ProtespheresphereDisplay".length(), tag.length() - player.getName().length());
+                            if(tag.startsWith("ProtesphereDisplay") && tag.endsWith(player.getName()) && entity instanceof BlockDisplay display) {
+                                tag = tag.substring("ProtesphereDisplay".length(), tag.length() - player.getName().length());
                                 int index = Integer.parseInt(tag);
 
                                 int yaw = switch (index) {
@@ -806,7 +807,7 @@ public class SongPlugTick {
                 player.getScoreboardTags().remove("UsedProtesphere");
                 for(Entity entity : player.getWorld().getEntities()) {
                     for(String tag : entity.getScoreboardTags()) {
-                        if(tag.startsWith("ProtespheresphereDisplay") && tag.endsWith(player.getName())) entity.remove();
+                        if(tag.startsWith("ProtesphereDisplay") && tag.endsWith(player.getName())) entity.remove();
                     }
                 }
             }
@@ -825,6 +826,13 @@ public class SongPlugTick {
                 marker.getScoreboardTags().add("ProtepointMarker" + player.getName());
                 Interaction interaction = player.getWorld().spawn(marker.getLocation().add(0, -0.5, 0), Interaction.class);
                 interaction.getScoreboardTags().add("ProtepointInteraction" + player.getName());
+                BlockDisplay display = player.getWorld().spawn(location, BlockDisplay.class);
+                display.setBlock(Bukkit.createBlockData(Material.BLUE_STAINED_GLASS));
+                display.getScoreboardTags().add("ProtepointDisplay" + player.getName());
+                display.setBrightness(new Display.Brightness(15, 15));
+                display.teleport(marker.getLocation().setDirection(player.getLocation().getDirection()));
+                display.setTransformation(new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(1, 1, 0.4f), new Quaternionf()));
+                display.setRotation(display.getYaw(), 0);
             }
 
             if(usingActiveSong > 0 && usingActiveSong <= 200) {
@@ -845,8 +853,14 @@ public class SongPlugTick {
                             }
                         }
 
-                        //TEMPORARY PARTICLES
-                        Particle.DUST.builder().location(marker.getLocation()).count(0).allPlayers().color(Color.BLUE).spawn();
+                        for(Entity entity : player.getWorld().getEntities()) {
+                            if(entity.getScoreboardTags().contains("ProtepointDisplay" + player.getName()) && entity instanceof BlockDisplay display) {
+                                display.teleport(marker.getLocation().setDirection(display.getLocation().getDirection()));
+                                Vector3f size = new Vector3f(1, 1, 0.4f);
+                                Vector3f offset = new Vector3f(size.x * -0.5f, size.y * -0.5f, size.z * -0.5f);
+                                display.setTransformation(new Transformation(offset, new Quaternionf(), size, new Quaternionf()));
+                            }
+                        }
                     }
                 }
 
@@ -861,6 +875,7 @@ public class SongPlugTick {
                 for(Entity entity : player.getWorld().getEntities()) {
                     if(entity.getScoreboardTags().contains("ProtepointMarker" + player.getName())) entity.remove();
                     if(entity.getScoreboardTags().contains("ProtepointInteraction" + player.getName())) entity.remove();
+                    if(entity.getScoreboardTags().contains("ProtepointDisplay" + player.getName())) entity.remove();
                 }
             }
         }
@@ -910,7 +925,6 @@ public class SongPlugTick {
                 Location spawnLocation = null;
                 if(targetBlock.isEmpty()) {
                     Location location = targetBlock.getLocation();
-
                     for(int i = 1; i < 5; i++) {
                         if(location.add(0, -i, 0).getBlock().isSolid()) {
                             spawnLocation = location.add(0, -i + 1, 0);
@@ -935,6 +949,11 @@ public class SongPlugTick {
                         Interaction interaction = player.getWorld().spawn(location, Interaction.class);
                         interaction.getScoreboardTags().add("Protebarrier" + player.getName());
                         interaction.setInteractionHeight(7);
+                        BlockDisplay display = player.getWorld().spawn(location, BlockDisplay.class);
+                        display.setBlock(Bukkit.createBlockData(Material.BLUE_STAINED_GLASS));
+                        display.getScoreboardTags().add("ProtebarrierDisplay" + player.getName());
+                        display.setBrightness(new Display.Brightness(15, 15));
+                        display.setTransformation(new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(1, 7, 1), new Quaternionf()));
                     }
                 }
             }
@@ -942,16 +961,8 @@ public class SongPlugTick {
             if(usingPassiveSong > 0 && usingPassiveSong <= 200) {
                 for(Entity entity : player.getWorld().getEntities()) {
                     if(entity.getScoreboardTags().contains("Protebarrier" + player.getName())) {
-                        BoundingBox box = entity.getBoundingBox();
-                        ThreadLocalRandom random = ThreadLocalRandom.current();
-                        for(int i = 0; i < 30; i++) {
-                            Location loc = new Location(player.getWorld(), random.nextDouble(box.getMinX(), box.getMaxX()),
-                                    random.nextDouble(box.getMinY(), box.getMaxY()), random.nextDouble(box.getMinZ(), box.getMaxZ()));
-                            Particle.DUST.builder().location(loc).count(0).allPlayers().color(Color.BLUE).spawn();
-                        }
-
                         for(Entity entity2 : player.getWorld().getEntities()) {
-                            if(!entity2.getScoreboardTags().contains("Protebarrier" + player.getName()) && box.overlaps(entity2.getBoundingBox())) {
+                            if(!entity2.getScoreboardTags().contains("Protebarrier" + player.getName()) && entity.getBoundingBox().overlaps(entity2.getBoundingBox())) {
                                 if(isAnEntityItem(entity2)) {
                                     entity2.remove();
                                 } else if(entity2 instanceof LivingEntity living) {
@@ -974,6 +985,7 @@ public class SongPlugTick {
                 player.getScoreboardTags().remove("UsedProtebarrier");
                 for(Entity entity : player.getWorld().getEntities()) {
                     if(entity.getScoreboardTags().contains("Protebarrier" + player.getName())) entity.remove();
+                    if(entity.getScoreboardTags().contains("ProtebarrierDisplay" + player.getName())) entity.remove();
                 }
             }
         }
