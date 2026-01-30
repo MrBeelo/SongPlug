@@ -81,7 +81,7 @@ public class SongPlugHelper {
         Material material = Material.BARRIER;
 
         if(songIn(name, redSongs)) material = Material.RED_STAINED_GLASS;
-        if(songIn(name, blueSongs)) material = Material.BLUE_STAINED_GLASS;
+        if(songIn(name, blueSongs)) material = Material.CYAN_STAINED_GLASS;
         if(songIn(name, yellowSongs)) material = Material.YELLOW_STAINED_GLASS;
         if(songIn(name, greenSongs)) material = Material.LIME_STAINED_GLASS;
 
@@ -100,7 +100,7 @@ public class SongPlugHelper {
         Material material = Material.BARRIER;
 
         if(songIn(name, redSongs)) material = Material.RED_STAINED_GLASS;
-        if(songIn(name, blueSongs)) material = Material.BLUE_STAINED_GLASS;
+        if(songIn(name, blueSongs)) material = Material.CYAN_STAINED_GLASS;
         if(songIn(name, yellowSongs)) material = Material.YELLOW_STAINED_GLASS;
         if(songIn(name, greenSongs)) material = Material.LIME_STAINED_GLASS;
 
@@ -224,7 +224,7 @@ public class SongPlugHelper {
     public static void openSongMenu(Player player) {
         Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST, Component.text("Song Selection"));
         menu.setItem(4, customNameItemStack(Material.RED_STAINED_GLASS, Component.text("Aggressium").color(NamedTextColor.RED)));
-        menu.setItem(12, customNameItemStack(Material.BLUE_STAINED_GLASS, Component.text("Protisium").color(NamedTextColor.BLUE)));
+        menu.setItem(12, customNameItemStack(Material.CYAN_STAINED_GLASS, Component.text("Protisium").color(NamedTextColor.BLUE)));
         menu.setItem(13, customNameItemStack(Material.BARRIER, Component.text("Cancel").color(NamedTextColor.GRAY)));
         menu.setItem(14, customNameItemStack(Material.YELLOW_STAINED_GLASS, Component.text("Mobilium").color(NamedTextColor.YELLOW)));
         menu.setItem(22, customNameItemStack(Material.LIME_STAINED_GLASS, Component.text("Supporium").color(NamedTextColor.GREEN)));
