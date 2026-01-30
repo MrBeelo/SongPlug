@@ -1,13 +1,11 @@
 package net.mrbeelo.songPlug;
 
-import com.destroystokyo.paper.profile.ProfileProperty;
 import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import net.kyori.adventure.key.Key;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -18,12 +16,9 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.joml.Quaternionf;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.w3c.dom.Attr;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.random.RandomGenerator;
@@ -646,15 +641,6 @@ public class SongPlugTick {
             }
 
             if(usingActiveSong > 0 && usingActiveSong <= 200) {
-                //TEMPORARY PARTICLES
-                /*Location center = player.getLocation().add(0, 1, 0);
-                for (int i = 0; i < 20; i++) {
-                    double x = (Math.random() - 0.5) * 1.5;
-                    double y = Math.random() * 1.5;
-                    double z = (Math.random() - 0.5) * 1.5;
-                    Particle.ENTITY_EFFECT.builder().location(center.clone().add(x, y, z)).count(1).color(Color.YELLOW).allPlayers().spawn();
-                }*/
-
                 for(Entity entity : player.getWorld().getEntities()) {
                     if(entity.getScoreboardTags().contains("Mobiliwings" + player.getName())) entity.teleport(player.getLocation());
                 }
@@ -876,10 +862,6 @@ public class SongPlugTick {
                 armor.setBaseValue(999);
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 100f, 0.8f);
 
-                //BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(player.getLocation(), EntityType.BLOCK_DISPLAY);
-                //display.getScoreboardTags().add("ProtearmorDisplay" + player.getName());
-                //display.setBlock(Bukkit.createBlockData(Material.CYAN_STAINED_GLASS));
-
                 Mannequin mannequin = player.getWorld().spawn(player.getLocation(), Mannequin.class);
                 mannequin.getScoreboardTags().add("Protearmor" + player.getName());
                 mannequin.setImmovable(true);
@@ -897,16 +879,6 @@ public class SongPlugTick {
             if(usingActiveSong <= 200 && usingActiveSong > 0) {
                 Score cooldownScore = scoreType(player, "BlueEnergyCooldown");
                 cooldownScore.setScore(200);
-
-                /*for(Entity entity : player.getWorld().getEntities()) {
-                    if(entity.getScoreboardTags().contains("ProtearmorDisplay" + player.getName()) && entity instanceof BlockDisplay display) {
-                        Vector3f size = new Vector3f(1.1f, 2.2f, 1.1f);
-                        Location pivot = player.getBoundingBox().getCenter().toLocation(player.getWorld());
-                        display.teleport(pivot);
-                        Vector3f centerOffset = new Vector3f(-0.5f * size.x, -0.5f * size.y, -0.5f * size.z);
-                        display.setTransformation(new Transformation(centerOffset, new Quaternionf(), size, new Quaternionf()));
-                    }
-                }*/
 
                 if(player.isSneaking()) usingActiveSongScore.setScore(0);
             }
