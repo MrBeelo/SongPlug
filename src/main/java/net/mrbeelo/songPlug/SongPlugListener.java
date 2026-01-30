@@ -414,9 +414,9 @@ public class SongPlugListener implements Listener {
     @EventHandler
     public void onPlayerJump(PlayerJumpEvent event) {
         Player player = event.getPlayer();
-        for(Entity interaction : player.getWorld().getEntities()) {
-            if(interaction.getScoreboardTags().contains("Mobilibounce" + player.getName()) &&
-                    player.getBoundingBox().overlaps(interaction.getBoundingBox())) {
+        for(Entity entity : player.getWorld().getEntities()) {
+            if(entity.getScoreboardTags().contains("Mobilibounce" + player.getName()) &&
+                    player.getBoundingBox().overlaps(entity.getBoundingBox())) {
                 if(player.getPitch() > 0) {
                     event.setCancelled(true);
                     Score mobilibounceLaunchDelayScore = scoreType(player, "MobilibounceLaunchDelay");
@@ -425,12 +425,14 @@ public class SongPlugListener implements Listener {
                     player.setVelocity(player.getLocation().getDirection());
                 }
 
-                interaction.remove();
-                player.getLocation().getBlock().setType(Material.AIR);
+                entity.remove();
+                if(entity.getLocation().getBlock().getType().equals(Material.BARRIER)) entity.getLocation().getBlock().setType(Material.AIR);
 
                 Score mobilibounceDelayScore = scoreType(player, "MobilibouncePlatformDelay");
                 mobilibounceDelayScore.setScore(11);
             }
+
+            if(entity.getScoreboardTags().contains("MobilibounceDisplay" + player.getName())) entity.remove();
         }
     }
 }

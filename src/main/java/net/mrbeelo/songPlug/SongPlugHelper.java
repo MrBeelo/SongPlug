@@ -37,24 +37,6 @@ public class SongPlugHelper {
     static String[] redSongs = {"Aggrobeam", "Aggroblast", "Aggrostorm", "Aggrosphere", "Aggroquake", "Aggroshock",
             "Aggrovortex", "Aggroshard", "Aggrodetonate"};
 
-    public static void increaseSongCycle(Score score) {
-        int playerScore = score.getScore();
-        if(playerScore >= 4) {
-            score.setScore(1);
-        } else {
-            score.setScore(playerScore + 1);
-        }
-    }
-
-    public static void decreaseSongCycle(Score score) {
-        int playerScore = score.getScore();
-        if(playerScore <= 1) {
-            score.setScore(4);
-        } else {
-            score.setScore(playerScore - 1);
-        }
-    }
-
     public static Objective getNotNullObjective(Scoreboard scoreboard, String name) {
         Objective objective = scoreboard.getObjective(name);
 
@@ -212,6 +194,14 @@ public class SongPlugHelper {
 
     public static Location getLocationInFrontOfEntity(Entity entity, float blocks) {
         return getLocationInFrontOfLoc(entity.getLocation(), blocks);
+    }
+
+    public static Location getRelativeLocationFromLoc(Location loc, float x, float y, float z) {
+        Vector forward = loc.getDirection().normalize();
+        Vector up = new Vector(0, 1, 0);
+        Vector right = forward.clone().crossProduct(up).normalize();
+        up = right.clone().crossProduct(forward).normalize();
+        return loc.clone().add(right.multiply(x).add(up.multiply(y)).add(forward.multiply(z)));
     }
 
     public static double locationDistance(Entity e1, Entity e2) {

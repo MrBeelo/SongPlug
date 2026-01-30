@@ -283,6 +283,20 @@ public class SongPlugTick {
                             player2.playSound(player2.getLocation(), Sound.ENTITY_WITHER_HURT, SoundCategory.MASTER, 100f, 1.85f);
                         }
                     }
+
+                    BoundingBox box = player.getBoundingBox();
+                    Location location = getRelativeLocationFromLoc(box.getCenter().toLocation(player.getWorld()).setRotation(player.getYaw(), player.getPitch()),
+                            0.5f, 0.4f, 0.6f);
+
+                    float boxSize = 0.2f;
+                    BoundingBox box2 = new BoundingBox(location.getX() - boxSize, location.getY() - boxSize, location.getZ() - boxSize,
+                            location.getX() + boxSize, location.getY() + boxSize, location.getZ() + boxSize);
+                    ThreadLocalRandom threadRandom = ThreadLocalRandom.current();
+                    for(int i = 0; i < 30; i++) {
+                        Location loc = new Location(player.getWorld(), threadRandom.nextDouble(box2.getMinX(), box2.getMaxX()),
+                                threadRandom.nextDouble(box2.getMinY(), box2.getMaxY()), threadRandom.nextDouble(box2.getMinZ(), box2.getMaxZ()));
+                        Particle.DUST.builder().location(loc).count(0).allPlayers().color(Color.LIME).spawn();
+                    }
                 }
 
             }
@@ -333,24 +347,35 @@ public class SongPlugTick {
                 }
             }
 
-            if(usingPassiveSong <= 200 && usingPassiveSong >= 195) {
+            if(usingPassiveSong <= 200 && usingPassiveSong >= 197) {
                 for(Entity entity : player.getWorld().getEntities()) {
                     if(entity.getScoreboardTags().contains("Supporospike" + player.getName())) {
                         int i = 201 - usingPassiveSong;
                         Block block = entity.getLocation().add(0, i, 0).getBlock();
-                        if(block.isEmpty()) block.setType(Material.BEDROCK);
+                        Material type = switch(i) {
+                            case 1 -> Material.COBBLESTONE;
+                            case 2 -> Material.STONE;
+                            case 3 -> Material.ANDESITE;
+                            case 4 -> Material.ANDESITE_STAIRS;
+                            default -> Material.BEDROCK;
+                        };
+
+                        if(block.isEmpty()) {
+                            block.setType(type);
+                            Interaction interaction = player.getWorld().spawn(block.getLocation(), Interaction.class);
+                            interaction.getScoreboardTags().add("SupporospikeCheck" + player.getName());
+                        }
                     }
                 }
             }
 
             if(usingPassiveSong == 40) {
                 for(Entity entity : player.getWorld().getEntities()) {
-                    if(entity.getScoreboardTags().contains("Supporospike" + player.getName())) {
+                    if(entity.getScoreboardTags().contains("Supporospike" + player.getName())) entity.remove();
+                    if(entity.getScoreboardTags().contains("SupporospikeCheck" + player.getName())) {
                         entity.remove();
-                        for(int i = 1; i < 7; i++) {
-                            Block block = entity.getLocation().add(0, i, 0).getBlock();
-                            if(block.getType().equals(Material.BEDROCK)) block.setType(Material.AIR);
-                        }
+                        Block block = entity.getLocation().getBlock();
+                        block.setType(Material.AIR);
                     }
                 }
             }
@@ -410,6 +435,17 @@ public class SongPlugTick {
 
             if(usingMobiliflash == 201) {
                 int power = 18;
+
+                Location pivot = getLocationInFrontOfEntity(player, 0.3f).add(0, 1.3f, 0);
+                BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(pivot, EntityType.BLOCK_DISPLAY);
+                display.getScoreboardTags().add("MobiliflashDisplay" + player.getName());
+                display.setBlock(Bukkit.createBlockData(Material.YELLOW_STAINED_GLASS));
+
+                float blockSize = 0.3f;
+                Vector3f size = new Vector3f(blockSize, blockSize, (float) getMaxDistanceInFrontOfPlayer(player, power, true));
+                Vector3f translation = new Vector3f(-0.5f * size.x, -0.5f * size.y, 0);
+                display.setTransformation(new Transformation(translation, new Quaternionf(), size, new Quaternionf()));
+
                 RayTraceResult result = player.getWorld().rayTraceBlocks(
                         player.getEyeLocation(),
                         player.getEyeLocation().getDirection(),
@@ -428,6 +464,22 @@ public class SongPlugTick {
                     if(locationDistance(player, player2) <= 10) {
                         player2.playSound(player2.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
                     }
+                }
+            }
+
+            if(usingMobiliflash == 198) {
+                BoundingBox box = player.getBoundingBox();
+                ThreadLocalRandom random = ThreadLocalRandom.current();
+                float offset = 0.5f;
+
+                for(int i = 0; i < 20; i++) {
+                    Location loc = new Location(player.getWorld(), random.nextDouble(box.getMinX() - offset, box.getMaxX() + offset),
+                            random.nextDouble(box.getMinY() - offset, box.getMaxY() + offset), random.nextDouble(box.getMinZ() - offset, box.getMaxZ() + offset));
+                    Particle.DUST.builder().location(loc).count(0).allPlayers().color(Color.YELLOW).spawn();
+                }
+
+                for(Entity entity : player.getWorld().getEntities()) {
+                    if(entity.getScoreboardTags().contains("MobiliflashDisplay" + player.getName())) entity.remove();
                 }
             }
 
@@ -475,6 +527,18 @@ public class SongPlugTick {
                     if(locationDistance(player, player2) <= 10) {
                         player2.playSound(player2.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
                     }
+                }
+            }
+
+            if(usingMobiliburst >= 198 && usingMobiliburst <= 201) {
+                BoundingBox box = player.getBoundingBox();
+                ThreadLocalRandom random = ThreadLocalRandom.current();
+                float offset = 0.5f;
+
+                for(int i = 0; i < 20; i++) {
+                    Location loc = new Location(player.getWorld(), random.nextDouble(box.getMinX() - offset, box.getMaxX() + offset),
+                            random.nextDouble(box.getMinY() - offset, box.getMaxY() + offset), random.nextDouble(box.getMinZ() - offset, box.getMaxZ() + offset));
+                    Particle.DUST.builder().location(loc).count(0).allPlayers().color(Color.YELLOW).spawn();
                 }
             }
 
@@ -558,27 +622,34 @@ public class SongPlugTick {
                 Location location = player.getLocation().add(0, -1, 0);
                 Block targetBlock = location.getBlock();
                 if(targetBlock.isEmpty()) {
-                    targetBlock.setType(Material.BAMBOO_MOSAIC_SLAB);
+                    targetBlock.setType(Material.BARRIER);
                     Interaction interaction = player.getWorld().spawn(location.getBlock().getLocation().add(0.5, 0.1, 0.5), Interaction.class);
                     interaction.getScoreboardTags().add("Mobilibounce" + player.getName());
+
+                    BlockDisplay display = player.getWorld().spawn(location.getBlock().getLocation().add(0, 0.5f, 0), BlockDisplay.class);
+                    display.getScoreboardTags().add("MobilibounceDisplay" + player.getName());
+                    display.setTransformation(new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(1, 0.5f, 1), new Quaternionf()));
+                    display.setBlock(Bukkit.createBlockData(Material.YELLOW_STAINED_GLASS));
                 }
             }
 
             if(usingActiveSong > 0 && usingActiveSong <= 200) {
                 Material standingBlock = player.getLocation().add(0, -0.1, 0).getBlock().getType();
-                if(!standingBlock.equals(Material.AIR) && !standingBlock.equals(Material.BAMBOO_MOSAIC_SLAB)) {
+                if(!standingBlock.equals(Material.AIR) && !standingBlock.equals(Material.BARRIER)) {
                     for(Entity entity : player.getWorld().getEntities()) {
                         if(entity.getScoreboardTags().contains("Mobilibounce" + player.getName())) {
-                            if(entity.getLocation().getBlock().getType().equals(Material.BAMBOO_MOSAIC_SLAB)) entity.getLocation().getBlock().setType(Material.AIR);
+                            if(entity.getLocation().getBlock().getType().equals(Material.BARRIER)) entity.getLocation().getBlock().setType(Material.AIR);
                             entity.teleport(player.getLocation().add(0.5, 0.1, 0.5));
                         }
+
+                        if(entity.getScoreboardTags().contains("MobilibounceDisplay" + player.getName())) entity.remove();
                     }
                 }
 
                 for(Entity entity : player.getWorld().getEntities()) {
                     if(entity.getScoreboardTags().contains("Mobilibounce" + player.getName())) {
-                        Location location = entity.getLocation().add(0, 0, 0);
-                        for (int i = 0; i < 10; i++) {
+                        Location location = entity.getLocation().add(0, 0.5f, 0);
+                        for (int i = 0; i < 3; i++) {
                             double x = (Math.random() - 0.5) * 1.5;
                             double y = Math.random() * 0.5;
                             double z = (Math.random() - 0.5) * 1.5;
@@ -591,10 +662,15 @@ public class SongPlugTick {
                     player.setVelocity(new Vector(0, 0, 0));
                     Location location = player.getLocation().add(0, -0.1, 0);
                     Block targetBlock = location.getBlock();
-                    if(targetBlock.isEmpty()) targetBlock.setType(Material.BAMBOO_MOSAIC_SLAB);
+                    if(targetBlock.isEmpty()) targetBlock.setType(Material.BARRIER);
 
                     Interaction interaction = player.getWorld().spawn(location.getBlock().getLocation().add(0.5, 0.1, 0.5), Interaction.class);
                     interaction.getScoreboardTags().add("Mobilibounce" + player.getName());
+
+                    BlockDisplay display = player.getWorld().spawn(location.getBlock().getLocation().add(0, 0.5f, 0), BlockDisplay.class);
+                    display.getScoreboardTags().add("MobilibounceDisplay" + player.getName());
+                    display.setTransformation(new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(1, 0.5f, 1), new Quaternionf()));
+                    display.setBlock(Bukkit.createBlockData(Material.YELLOW_STAINED_GLASS));
 
                     player.teleport(targetBlock.getLocation().add(0.5, 1, 0.5).setRotation(player.getYaw(), player.getPitch()));
                 }
@@ -612,9 +688,10 @@ public class SongPlugTick {
             if(usingActiveSong == 0) {
                 for(Entity entity : player.getWorld().getEntities()) {
                     if(entity.getScoreboardTags().contains("Mobilibounce" + player.getName())) {
-                        if(entity.getLocation().getBlock().getType().equals(Material.BAMBOO_MOSAIC_SLAB)) entity.getLocation().getBlock().setType(Material.AIR);
+                        if(entity.getLocation().getBlock().getType().equals(Material.BARRIER)) entity.getLocation().getBlock().setType(Material.AIR);
                         entity.remove();
                     }
+                    if(entity.getScoreboardTags().contains("MobilibounceDisplay" + player.getName())) entity.remove();
                 }
 
                 player.getScoreboardTags().remove("UsedMobilibounce");
