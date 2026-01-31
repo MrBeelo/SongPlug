@@ -1,5 +1,7 @@
 package net.mrbeelo.songPlug;
 
+import io.papermc.paper.datacomponent.item.ResolvableProfile;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.lang3.tuple.Pair;
@@ -389,6 +391,37 @@ public class SongPlugHelper {
 
     public static Location getCenter(Entity entity) {
         return entity.getBoundingBox().getCenter().toLocation(entity.getWorld());
+    }
+
+    public static ResolvableProfile playerPatchedCapeProfile(Player player, String capeKey) {
+        ResolvableProfile.SkinPatch patch = ResolvableProfile.SkinPatch.skinPatch().cape(Key.key(capeKey)).build();
+        return ResolvableProfile.resolvableProfile().skinPatch(patch).name(player.getName()).build();
+    }
+
+    public static ResolvableProfile patchedPlayerProfile(String playerPatch) {
+        ResolvableProfile.SkinPatch patch = ResolvableProfile.SkinPatch.skinPatch().body(Key.key("block/gold_block")).build();
+        return ResolvableProfile.resolvableProfile().skinPatch(patch).build();
+    }
+
+    public static BlockDisplay summonDisplay(Location location, String tag, Material block) {
+        BlockDisplay display = location.getWorld().spawn(location, BlockDisplay.class);
+        display.setBlock(Bukkit.createBlockData(Material.CYAN_STAINED_GLASS));
+        display.getScoreboardTags().add(tag);
+        display.setBlock(Bukkit.createBlockData(block));
+        return display;
+    }
+
+    public static void setNonCollidable(Entity entity, boolean b) {
+        Team noCollTeam = getTeam("NoCollisions");
+        if(b) {
+            noCollTeam.addEntity(entity);
+        } else {
+            noCollTeam.removeEntity(entity);
+        }
+    }
+
+    public static void setNonCollidable(Entity entity) {
+        setNonCollidable(entity, true);
     }
 
     public static void triggerSong(Player player, String song) {

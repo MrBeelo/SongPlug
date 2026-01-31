@@ -396,9 +396,7 @@ public class SongPlugTick {
 
                 BoundingBox box = player.getBoundingBox();
                 Location location = new Location(player.getWorld(), box.getCenterX(), box.getMinY(), box.getCenterZ());
-                BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(location, EntityType.BLOCK_DISPLAY);
-                display.getScoreboardTags().add("MobilileapDisplay" + player.getName());
-                display.setBlock(Bukkit.createBlockData(Material.YELLOW_STAINED_GLASS));
+                BlockDisplay display = summonDisplay(location, "MobilileapDisplay" + player.getName(), Material.YELLOW_STAINED_GLASS);
 
                 Vector3f size = new Vector3f(1.5f, 0.4f, 1.5f);
                 Vector3f translation = new Vector3f(-0.5f * size.x, -0.5f * size.y, -0.5f * size.z);
@@ -454,20 +452,14 @@ public class SongPlugTick {
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
             if(usingPassiveSong == 229) {
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(entityDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
-                    }
-                }
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
             }
 
             if(usingPassiveSong == 201) {
                 int power = 18;
 
                 Location pivot = getLocationInFrontOfLoc(player.getLocation(), 0.3f).add(0, 1.3f, 0);
-                BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(pivot, EntityType.BLOCK_DISPLAY);
-                display.getScoreboardTags().add("MobiliflashDisplay" + player.getName());
-                display.setBlock(Bukkit.createBlockData(Material.YELLOW_STAINED_GLASS));
+                BlockDisplay display = summonDisplay(pivot, "MobiliflashDisplay" + player.getName(), Material.YELLOW_STAINED_GLASS);
 
                 float blockSize = 0.3f;
                 Vector3f size = new Vector3f(blockSize, blockSize, (float) getMaxDistanceInFrontOfPlayer(player, power, true));
@@ -488,11 +480,7 @@ public class SongPlugTick {
                     player.teleport(loc);
                 }
 
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(entityDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
-                    }
-                }
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
             }
 
             if(usingPassiveSong == 198) {
@@ -523,11 +511,7 @@ public class SongPlugTick {
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
             if(usingPassiveSong == 229) {
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(entityDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
-                    }
-                }
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
             }
 
             if(usingPassiveSong == 201) {
@@ -566,11 +550,7 @@ public class SongPlugTick {
                     }
                 }
 
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(entityDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
-                    }
-                }
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
             }
 
             if(usingPassiveSong == 0) {
@@ -581,22 +561,14 @@ public class SongPlugTick {
         //MOBILIWINGS
         if(player.getScoreboardTags().contains("UsedMobiliwings")) {
             if(usingActiveSong == 229) {
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(entityDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
-                    }
-                }
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
             }
 
             if(usingActiveSong == 201) {
                 player.setAllowFlight(true);
                 player.setVelocity(new Vector(player.getVelocity().getX(), 1.3, player.getVelocity().getZ()));
 
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(entityDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
-                    }
-                }
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
 
                 player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 200, 1, true, false, false));
 
@@ -604,12 +576,7 @@ public class SongPlugTick {
                 mannequin.getScoreboardTags().add("Mobiliwings" + player.getName());
                 mannequin.setPose(Pose.FALL_FLYING);
                 mannequin.getEquipment().setChestplate(new ItemStack(Material.ELYTRA));
-
-                ResolvableProfile profile = ResolvableProfile.resolvableProfile().skinPatch(
-                        ResolvableProfile.SkinPatch.skinPatch().cape(Key.key("block/gold_block")).build())
-                        .name(player.getName()).build();
-
-                mannequin.setProfile(profile);
+                mannequin.setProfile(playerPatchedCapeProfile(player, "block/gold_block"));
             }
 
             if(usingActiveSong > 0 && usingActiveSong <= 200) {
@@ -644,21 +611,13 @@ public class SongPlugTick {
             if(mobilibounceLaunchDelay > 0) mobilibounceLaunchDelayScore.setScore(mobilibounceLaunchDelay - 1);
 
             if(usingActiveSong == 229) {
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(entityDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
-                    }
-                }
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
             }
 
             if(usingActiveSong == 211) {
                 player.setVelocity(new Vector(player.getVelocity().getX(), 0.6, player.getVelocity().getZ()));
 
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(entityDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
-                    }
-                }
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
             }
 
             if(usingActiveSong == 201) {
@@ -669,10 +628,9 @@ public class SongPlugTick {
                     Interaction interaction = player.getWorld().spawn(location.getBlock().getLocation().add(0.5, 0.1, 0.5), Interaction.class);
                     interaction.getScoreboardTags().add("Mobilibounce" + player.getName());
 
-                    BlockDisplay display = player.getWorld().spawn(location.getBlock().getLocation().add(0, 0.5f, 0), BlockDisplay.class);
-                    display.getScoreboardTags().add("MobilibounceDisplay" + player.getName());
+                    BlockDisplay display = summonDisplay(location.getBlock().getLocation().add(0, 0.5f, 0), "MobilibounceDisplay" + player.getName(),
+                            Material.YELLOW_STAINED_GLASS);
                     display.setTransformation(new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(1, 0.5f, 1), new Quaternionf()));
-                    display.setBlock(Bukkit.createBlockData(Material.YELLOW_STAINED_GLASS));
                 }
             }
 
@@ -710,10 +668,9 @@ public class SongPlugTick {
                     Interaction interaction = player.getWorld().spawn(location.getBlock().getLocation().add(0.5, 0.1, 0.5), Interaction.class);
                     interaction.getScoreboardTags().add("Mobilibounce" + player.getName());
 
-                    BlockDisplay display = player.getWorld().spawn(location.getBlock().getLocation().add(0, 0.5f, 0), BlockDisplay.class);
-                    display.getScoreboardTags().add("MobilibounceDisplay" + player.getName());
+                    BlockDisplay display = summonDisplay(location.getBlock().getLocation().add(0, 0.5f, 0), "MobilibounceDisplay" + player.getName(),
+                            Material.YELLOW_STAINED_GLASS);
                     display.setTransformation(new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(1, 0.5f, 1), new Quaternionf()));
-                    display.setBlock(Bukkit.createBlockData(Material.YELLOW_STAINED_GLASS));
 
                     player.teleport(targetBlock.getLocation().add(0.5, 1, 0.5).setRotation(player.getYaw(), player.getPitch()));
                 }
@@ -756,12 +713,8 @@ public class SongPlugTick {
                     Mannequin mannequin = player.getWorld().spawn(player.getLocation(), Mannequin.class);
                     mannequin.getScoreboardTags().add("Mobiliglide" + i + player.getName());
                     mannequin.setCollidable(false);
-                    ResolvableProfile.SkinPatch patch = ResolvableProfile.SkinPatch.skinPatch().body(Key.key("block/gold_block")).build();
-                    ResolvableProfile profile = ResolvableProfile.resolvableProfile().skinPatch(patch).build();
-                    mannequin.setProfile(profile);
-
-                    Team noCollTeam = getTeam("NoCollisions");
-                    noCollTeam.addEntity(mannequin);
+                    mannequin.setProfile(patchedPlayerProfile("block/gold_block"));
+                    setNonCollidable(mannequin);
                 }
             }
 
@@ -818,11 +771,7 @@ public class SongPlugTick {
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
             if(usingPassiveSong == 229) {
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(entityDistance(player, player2) <= 7) {
-                        player2.playSound(player2.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
-                    }
-                }
+                playSoundToNearby(player.getLocation(), 10, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
             }
 
             if(usingPassiveSong == 201) {
@@ -853,11 +802,7 @@ public class SongPlugTick {
             assert speed != null;
 
             if(usingActiveSong == 229) {
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(entityDistance(player, player2) <= 7) {
-                        player2.playSound(player2.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
-                    }
-                }
+                playSoundToNearby(player.getLocation(), 10, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
             }
 
             if(usingActiveSong == 201) {
@@ -874,9 +819,7 @@ public class SongPlugTick {
 
                 scale.setBaseValue(1.4f);
 
-                ResolvableProfile.SkinPatch patch = ResolvableProfile.SkinPatch.skinPatch().body(Key.key("block/lapis_block")).build();
-                ResolvableProfile profile = ResolvableProfile.resolvableProfile().skinPatch(patch).build();
-                mannequin.setProfile(profile);
+                mannequin.setProfile(patchedPlayerProfile("block/lapis_block"));
 
                 player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 200, 1, true, false, false));
             }
@@ -909,14 +852,10 @@ public class SongPlugTick {
             }
 
             if(usingActiveSong == 201) {
-                BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(player.getLocation(), EntityType.BLOCK_DISPLAY);
-                display.getScoreboardTags().add("ProtesphereDisplay" + player.getName());
-                display.setBlock(Bukkit.createBlockData(Material.CYAN_STAINED_GLASS));
+                BlockDisplay display = summonDisplay(player.getLocation(), "ProtesphereDisplay" + player.getName(), Material.CYAN_STAINED_GLASS);
 
                 for(int i = 0; i <= 5; i++) {
-                    BlockDisplay display2 = (BlockDisplay) player.getWorld().spawnEntity(player.getLocation(), EntityType.BLOCK_DISPLAY);
-                    display2.getScoreboardTags().add("ProtesphereDisplay" + i + player.getName());
-                    display2.setBlock(Bukkit.createBlockData(Material.CYAN_STAINED_GLASS));
+                    BlockDisplay display2 = summonDisplay(player.getLocation(), "ProtesphereDisplay" + i + player.getName(), Material.CYAN_STAINED_GLASS);
                 }
             }
 
@@ -1011,9 +950,7 @@ public class SongPlugTick {
                 marker.getScoreboardTags().add("ProtepointMarker" + player.getName());
                 Interaction interaction = player.getWorld().spawn(marker.getLocation().add(0, -0.5, 0), Interaction.class);
                 interaction.getScoreboardTags().add("ProtepointInteraction" + player.getName());
-                BlockDisplay display = player.getWorld().spawn(location, BlockDisplay.class);
-                display.setBlock(Bukkit.createBlockData(Material.CYAN_STAINED_GLASS));
-                display.getScoreboardTags().add("ProtepointDisplay" + player.getName());
+                BlockDisplay display = summonDisplay(location, "ProtepointDisplay" + player.getName(), Material.CYAN_STAINED_GLASS);
                 display.setBrightness(new Display.Brightness(15, 15));
                 display.teleport(marker.getLocation().setDirection(player.getLocation().getDirection()));
                 display.setTransformation(new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(1, 1, 0.4f), new Quaternionf()));
@@ -1079,10 +1016,9 @@ public class SongPlugTick {
                 Mannequin mannequin = player.getWorld().spawn(player.getLocation(), Mannequin.class);
                 mannequin.getScoreboardTags().add("Proteclone" + player.getName());
                 mannequin.setImmovable(true);
+                setNonCollidable(mannequin);
 
-                ResolvableProfile.SkinPatch patch = ResolvableProfile.SkinPatch.skinPatch().body(Key.key("block/lapis_block")).build();
-                ResolvableProfile profile = ResolvableProfile.resolvableProfile().skinPatch(patch).build();
-                mannequin.setProfile(profile);
+                mannequin.setProfile(patchedPlayerProfile("block/lapis_block"));
 
                 player.setVelocity(player.getLocation().getDirection().multiply(-0.3f).setY(0.3));
             }
@@ -1143,9 +1079,7 @@ public class SongPlugTick {
                     spawnLocation.setRotation(player.getYaw(), 0);
                     spawnLocation = getLocationInFrontOfLoc(spawnLocation, -1);
 
-                    BlockDisplay display = player.getWorld().spawn(spawnLocation.add(0, -7, 0), BlockDisplay.class);
-                    display.setBlock(Bukkit.createBlockData(Material.CYAN_STAINED_GLASS));
-                    display.getScoreboardTags().add("ProtebarrierDisplay" + player.getName());
+                    BlockDisplay display = summonDisplay(spawnLocation.add(0, -7, 0), "ProtebarrierDisplay" + player.getName(), Material.CYAN_STAINED_GLASS);
                     display.setBrightness(new Display.Brightness(15, 15));
 
                     Vector3f size = new Vector3f(9, 7, 0.7f);
@@ -1210,12 +1144,9 @@ public class SongPlugTick {
                 entity.getScoreboardTags().add("Aggrosphere" + player.getName());
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
 
-                BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(location, EntityType.BLOCK_DISPLAY);
-                display.getScoreboardTags().add("AggrosphereDisplay" + player.getName());
-                display.setBlock(Bukkit.createBlockData(Material.MAGMA_BLOCK));
-                BlockDisplay display2 = (BlockDisplay) player.getWorld().spawnEntity(location, EntityType.BLOCK_DISPLAY);
-                display2.getScoreboardTags().add("AggrosphereDisplay2" + player.getName());
-                display2.setBlock(Bukkit.createBlockData(Material.RED_STAINED_GLASS));
+                BlockDisplay display = summonDisplay(location, "AggrosphereDisplay" + player.getName(), Material.MAGMA_BLOCK);
+                BlockDisplay display2 = summonDisplay(location, "AggrosphereDisplay2" + player.getName(), Material.RED_STAINED_GLASS);
+
             }
 
             if(usingPassiveSong <= 200 && usingPassiveSong > 0) {
@@ -1302,19 +1233,11 @@ public class SongPlugTick {
             }
 
             if(usingActiveSong == 201) {
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(entityDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
-                    }
-                }
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
 
                 Location pivot = player.getBoundingBox().getCenter().toLocation(player.getWorld());
-                BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(pivot, EntityType.BLOCK_DISPLAY);
-                display.getScoreboardTags().add("AggrobeamDisplay" + player.getName());
-                display.setBlock(Bukkit.createBlockData(Material.MAGMA_BLOCK));
-                BlockDisplay display2 = (BlockDisplay) player.getWorld().spawnEntity(pivot, EntityType.BLOCK_DISPLAY);
-                display2.getScoreboardTags().add("AggrobeamDisplay2" + player.getName());
-                display2.setBlock(Bukkit.createBlockData(Material.RED_STAINED_GLASS));
+                BlockDisplay display = summonDisplay(pivot, "AggrobeamDisplay" + player.getName(), Material.MAGMA_BLOCK);
+                BlockDisplay display2 = summonDisplay(pivot, "AggrobeamDisplay2" + player.getName(), Material.RED_STAINED_GLASS);
             }
 
             if(usingActiveSong <= 200 && usingActiveSong > 0) {
@@ -1373,9 +1296,7 @@ public class SongPlugTick {
 
                 BoundingBox box = player.getBoundingBox();
                 Location location = new Location(player.getWorld(), box.getCenterX(), box.getMinY(), box.getCenterZ());
-                BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(location, EntityType.BLOCK_DISPLAY);
-                display.getScoreboardTags().add("AggroquakeDisplay" + player.getName());
-                display.setBlock(Bukkit.createBlockData(Material.MAGMA_BLOCK));
+                BlockDisplay display = summonDisplay(location, "AggroquakeDisplay" + player.getName(), Material.MAGMA_BLOCK);
 
                 Vector3f size = new Vector3f(6f, 0.4f, 6f);
                 Vector3f translation = new Vector3f(-0.5f * size.x, -0.5f * size.y, -0.5f * size.z);
@@ -1506,13 +1427,10 @@ public class SongPlugTick {
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
 
                 for(int i = 0; i < 9; i++) {
-                    BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(getLocationInFrontOfLoc(player.getLocation(), i), EntityType.BLOCK_DISPLAY);
-                    display.getScoreboardTags().add("AggrovortexDisplay" + i + player.getName());
-                    display.setBlock(Bukkit.createBlockData(Material.MAGMA_BLOCK));
-
-                    BlockDisplay display2 = (BlockDisplay) player.getWorld().spawnEntity(getLocationInFrontOfLoc(player.getLocation(), i), EntityType.BLOCK_DISPLAY);
-                    display2.getScoreboardTags().add("AggrovortexDisplayOut" + i + player.getName());
-                    display2.setBlock(Bukkit.createBlockData(aggrovortexHelper(i).getRight() ? Material.RED_STAINED_GLASS : Material.ORANGE_STAINED_GLASS));
+                    BlockDisplay display = summonDisplay(getLocationInFrontOfLoc(player.getLocation(), i), "AggrovortexDisplay" + i + player.getName(),
+                            Material.MAGMA_BLOCK);
+                    BlockDisplay display2 = summonDisplay(getLocationInFrontOfLoc(player.getLocation(), i), "AggrovortexDisplayOut" + i + player.getName(),
+                            aggrovortexHelper(i).getRight() ? Material.RED_STAINED_GLASS : Material.ORANGE_STAINED_GLASS);
                 }
             }
 
@@ -1628,13 +1546,8 @@ public class SongPlugTick {
 
                 Location pivot = stand.getBoundingBox().getCenter().toLocation(player.getWorld());
 
-                BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(pivot, EntityType.BLOCK_DISPLAY);
-                display.getScoreboardTags().add("AggroshardDisplay" + player.getName());
-                display.setBlock(Bukkit.createBlockData(Material.MAGMA_BLOCK));
-
-                BlockDisplay display2 = (BlockDisplay) player.getWorld().spawnEntity(pivot, EntityType.BLOCK_DISPLAY);
-                display2.getScoreboardTags().add("AggroshardDisplay2" + player.getName());
-                display2.setBlock(Bukkit.createBlockData(Material.RED_STAINED_GLASS));
+                BlockDisplay display = summonDisplay(pivot, "AggroshardDisplay" + player.getName(), Material.MAGMA_BLOCK);
+                BlockDisplay display2 = summonDisplay(pivot, "AggroshardDisplay2" + player.getName(), Material.RED_STAINED_GLASS);
             }
 
             if(usingPassiveSong > 0 && usingPassiveSong <= 200) {
@@ -1722,12 +1635,8 @@ public class SongPlugTick {
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
 
                 Location pivot = player.getBoundingBox().getCenter().toLocation(player.getWorld());
-                BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(pivot, EntityType.BLOCK_DISPLAY);
-                display.getScoreboardTags().add("AggrodetonateDisplay" + player.getName());
-                display.setBlock(Bukkit.createBlockData(Material.MAGMA_BLOCK));
-                BlockDisplay display2 = (BlockDisplay) player.getWorld().spawnEntity(pivot, EntityType.BLOCK_DISPLAY);
-                display2.getScoreboardTags().add("AggrodetonateDisplay2" + player.getName());
-                display2.setBlock(Bukkit.createBlockData(Material.RED_STAINED_GLASS));
+                BlockDisplay display = summonDisplay(pivot, "AggrodetonateDisplay" + player.getName(), Material.MAGMA_BLOCK);
+                BlockDisplay display2 = summonDisplay(pivot, "AggrodetonateDisplay2" + player.getName(), Material.RED_STAINED_GLASS);
             }
 
             if(usingPassiveSong <= 200 && usingPassiveSong > 0) {
