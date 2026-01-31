@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Team;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Transformation;
@@ -81,11 +82,7 @@ public class SongPlugTick {
         //SUPPOROLIFT
         if(player.getScoreboardTags().contains("UsedSupporolift")) {
             if(usingActiveSong >= 224 && usingActiveSong <= 230) {
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_PARROT_IMITATE_EVOKER, SoundCategory.MASTER, 100f, 0.35f);
-                    }
-                }
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_PARROT_IMITATE_EVOKER, SoundCategory.MASTER, 100f, 0.35f);
             }
 
             if(usingActiveSong == 201) {
@@ -96,17 +93,12 @@ public class SongPlugTick {
                     usingActiveSongScore.setScore(0);
                 }
 
-
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_WITHER_HURT, SoundCategory.MASTER, 100f, 1.85f);
-                    }
-                }
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_WITHER_HURT, SoundCategory.MASTER, 100f, 1.85f);
             }
 
             if(usingActiveSong <= 200 && usingActiveSong > 0) {
-                for(Entity entity : player.getWorld().getEntities()) {
-                    if(entity.getScoreboardTags().contains("GotSupporoliftedBy" + player.getName()) && locationDistance(player, entity) <= 20 && !isAnEntityItem(entity)) {
+                for(Entity entity : getEntities(player)) {
+                    if(entity.getScoreboardTags().contains("GotSupporoliftedBy" + player.getName()) && entityDistance(player, entity) <= 20 && !isAnEntityItem(entity)) {
                         RayTraceResult result = player.getWorld().rayTraceBlocks(
                                 player.getEyeLocation(),
                                 player.getEyeLocation().getDirection(),
@@ -114,7 +106,7 @@ public class SongPlugTick {
                         );
 
                         if (result == null || result.getHitBlock() == null) {
-                            entity.teleport(getLocationInFrontOfEntity(player, 9));
+                            entity.teleport(getLocationInFrontOfLoc(player.getLocation(), 9));
                         } else {
                             Location loc = result.getHitPosition().toLocation(player.getWorld());
                             loc.setRotation(player.getLocation().getRotation());
@@ -145,7 +137,7 @@ public class SongPlugTick {
             }
 
             if(usingActiveSong == 0) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("GotSupporoliftedBy" + player.getName())) entity.getScoreboardTags().remove("GotSupporoliftedBy" + player.getName());
                     player.getScoreboardTags().remove("UsedSupporolift");
                 }
@@ -155,11 +147,7 @@ public class SongPlugTick {
         //SUPPOROKENISIS
         if(player.getScoreboardTags().contains("UsedSupporokenisis")) {
             if(usingActiveSong >= 224 && usingActiveSong <= 230) {
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_PARROT_IMITATE_EVOKER, SoundCategory.MASTER, 100f, 0.35f);
-                    }
-                }
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_PARROT_IMITATE_EVOKER, SoundCategory.MASTER, 100f, 0.35f);
             }
 
             if(usingActiveSong == 201) {
@@ -171,16 +159,12 @@ public class SongPlugTick {
                 }
 
 
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_WITHER_HURT, SoundCategory.MASTER, 100f, 1.85f);
-                    }
-                }
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_WITHER_HURT, SoundCategory.MASTER, 100f, 1.85f);
             }
 
             if(usingActiveSong <= 200 && usingActiveSong > 0) {
-                for(Entity entity : player.getWorld().getEntities()) {
-                    if(entity.getScoreboardTags().contains("GotSupporokenisiedBy" + player.getName()) && locationDistance(player, entity) <= 20 && isAnEntityItem(entity)) {
+                for(Entity entity : getEntities(player)) {
+                    if(entity.getScoreboardTags().contains("GotSupporokenisiedBy" + player.getName()) && entityDistance(player, entity) <= 20 && isAnEntityItem(entity)) {
                         RayTraceResult result = player.getWorld().rayTraceBlocks(
                                 player.getEyeLocation(),
                                 player.getEyeLocation().getDirection(),
@@ -188,7 +172,7 @@ public class SongPlugTick {
                         );
 
                         if (result == null || result.getHitBlock() == null) {
-                            entity.teleport(getLocationInFrontOfEntity(player, 9));
+                            entity.teleport(getLocationInFrontOfLoc(player.getLocation(), 9));
                         } else {
                             Location loc = result.getHitPosition().toLocation(player.getWorld());
                             loc.setRotation(player.getLocation().getRotation());
@@ -216,7 +200,7 @@ public class SongPlugTick {
             }
 
             if(usingActiveSong == 0) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("GotSupporokenisiedBy" + player.getName())) entity.getScoreboardTags().remove("GotSupporokenisiedBy" + player.getName());
                     player.getScoreboardTags().remove("UsedSupporokenisis");
                 }
@@ -226,19 +210,15 @@ public class SongPlugTick {
 
         //SUPPOROFORM
         if(player.getScoreboardTags().contains("UsedSupporoform")) {
-            Score usingSupporoformScore = scoreType(player, "UsingSupporoform");
-            int usingSupporoform = usingSupporoformScore.getScore();
-            if(usingSupporoform > 0) usingSupporoformScore.setScore(usingSupporoform - 1);
+            Score usingPassiveSongScore = scoreType(player, "UsingSupporoform");
+            int usingPassiveSong = usingPassiveSongScore.getScore();
+            if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
-            if(usingSupporoform >= 224 && usingActiveSong <= 230) {
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_PARROT_IMITATE_EVOKER, SoundCategory.MASTER, 100f, 0.35f);
-                    }
-                }
+            if(usingPassiveSong >= 224 && usingActiveSong <= 230) {
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_PARROT_IMITATE_EVOKER, SoundCategory.MASTER, 100f, 0.35f);
             }
 
-            if(usingSupporoform == 201) {
+            if(usingPassiveSong == 201) {
                 Material[] acceptableItems = {Material.COPPER_INGOT, Material.IRON_INGOT, Material.GOLD_INGOT, Material.DIAMOND};
                 ItemStack stack = player.getInventory().getItemInMainHand();
                 if(!Arrays.asList(acceptableItems).contains(stack.getType())) return;
@@ -280,11 +260,7 @@ public class SongPlugTick {
                     ItemStack newStack = new ItemStack(newStackMaterial);
                     player.getInventory().setItem(player.getInventory().getHeldItemSlot(), newStack);
 
-                    for(Player player2 : Bukkit.getOnlinePlayers()) {
-                        if(locationDistance(player, player2) <= 10) {
-                            player2.playSound(player2.getLocation(), Sound.ENTITY_WITHER_HURT, SoundCategory.MASTER, 100f, 1.85f);
-                        }
-                    }
+                    playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_WITHER_HURT, SoundCategory.MASTER, 100f, 1.85f);
 
                     BoundingBox box = player.getBoundingBox();
                     Location location = getRelativeLocationFromLoc(box.getCenter().toLocation(player.getWorld()).setRotation(player.getYaw(), player.getPitch()),
@@ -303,7 +279,7 @@ public class SongPlugTick {
 
             }
 
-            if(usingSupporoform == 0) {
+            if(usingPassiveSong == 0) {
                 player.getScoreboardTags().remove("UsedSupporoform");
             }
         }
@@ -353,7 +329,7 @@ public class SongPlugTick {
                     assert spawnLocation != null;
                     Interaction interaction = player.getWorld().spawn(spawnLocation, Interaction.class);
                     interaction.getScoreboardTags().add("Supporospike" + player.getName());
-                    for(Entity entity : player.getWorld().getEntities()) {
+                    for(Entity entity : getEntities(player)) {
                         if(entity != player && !isAnEntityItem(entity) && entity.getLocation().distance(interaction.getLocation().add(0, 1, 0)) <= 1.5) {
                             entity.setVelocity(new Vector(entity.getVelocity().getX(), 2, entity.getVelocity().getZ()));
                         }
@@ -362,7 +338,7 @@ public class SongPlugTick {
             }
 
             if(usingPassiveSong <= 200 && usingPassiveSong >= 197) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("Supporospike" + player.getName())) {
                         int i = 201 - usingPassiveSong;
                         Block block = entity.getLocation().add(0, i, 0).getBlock();
@@ -384,7 +360,7 @@ public class SongPlugTick {
             }
 
             if(usingPassiveSong == 40) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("Supporospike" + player.getName())) entity.remove();
                     if(entity.getScoreboardTags().contains("SupporospikeCheck" + player.getName())) {
                         entity.remove();
@@ -403,22 +379,18 @@ public class SongPlugTick {
 
         //MOBILILEAP
         if(player.getScoreboardTags().contains("UsedMobilileap")) {
-            Score usingMobilileapScore = scoreType(player, "UsingMobilileap");
-            int usingMobilileap = usingMobilileapScore.getScore();
-            if(usingMobilileap > 0) usingMobilileapScore.setScore(usingMobilileap - 1);
+            Score usingPassiveSongScore = scoreType(player, "UsingMobilileap");
+            int usingPassiveSong = usingPassiveSongScore.getScore();
+            if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
             AttributeInstance attribute = player.getAttribute(Attribute.SAFE_FALL_DISTANCE);
             assert attribute != null;
 
-            if(usingMobilileap == 229) {
-                for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
-                        player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
-                    }
-                }
+            if(usingPassiveSong == 229) {
+                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
             }
 
-            if(usingMobilileap == 201) {
+            if(usingPassiveSong == 201) {
                 player.setVelocity(new Vector(0, 1.9, 0));
                 attribute.setBaseValue(999);
 
@@ -440,7 +412,7 @@ public class SongPlugTick {
                 }
             }
 
-            if(usingMobilileap <= 200 && usingMobilileap >= 194) {
+            if(usingPassiveSong <= 200 && usingPassiveSong >= 194) {
                 for(int i = 1; i <= 10; i++) {
                     Location loc = player.getBoundingBox().getCenter().toLocation(player.getWorld()).add(0, -i / 10f, 0);
                     player.getWorld().spawnParticle(Particle.DUST, loc, 0, new Particle.DustOptions(Color.YELLOW, 1.3f));
@@ -459,40 +431,40 @@ public class SongPlugTick {
                 }
             }
 
-            if(usingMobilileap == 193) {
-                for(Entity entity : player.getWorld().getEntities()) {
+            if(usingPassiveSong == 193) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("MobilileapDisplay" + player.getName())) entity.remove();
                 }
             }
 
-            if(usingMobilileap <= 193 && usingMobilileap > 0 && player.isOnGround()) {
-                usingMobilileapScore.setScore(0);
+            if(usingPassiveSong <= 193 && usingPassiveSong > 0 && player.isOnGround()) {
+                usingPassiveSongScore.setScore(0);
                 attribute.setBaseValue(3);
             }
 
-            if(usingMobilileap == 0) {
+            if(usingPassiveSong == 0) {
                 player.getScoreboardTags().remove("UsedMobilileap");
             }
         }
 
         //MOBILIFLASH
         if(player.getScoreboardTags().contains("UsedMobiliflash")) {
-            Score usingMobiliflashScore = scoreType(player, "UsingMobiliflash");
-            int usingMobiliflash = usingMobiliflashScore.getScore();
-            if(usingMobiliflash > 0) usingMobiliflashScore.setScore(usingMobiliflash - 1);
+            Score usingPassiveSongScore = scoreType(player, "UsingMobilileap");
+            int usingPassiveSong = usingPassiveSongScore.getScore();
+            if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
-            if(usingMobiliflash == 229) {
+            if(usingPassiveSong == 229) {
                 for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
+                    if(entityDistance(player, player2) <= 10) {
                         player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
                     }
                 }
             }
 
-            if(usingMobiliflash == 201) {
+            if(usingPassiveSong == 201) {
                 int power = 18;
 
-                Location pivot = getLocationInFrontOfEntity(player, 0.3f).add(0, 1.3f, 0);
+                Location pivot = getLocationInFrontOfLoc(player.getLocation(), 0.3f).add(0, 1.3f, 0);
                 BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(pivot, EntityType.BLOCK_DISPLAY);
                 display.getScoreboardTags().add("MobiliflashDisplay" + player.getName());
                 display.setBlock(Bukkit.createBlockData(Material.YELLOW_STAINED_GLASS));
@@ -509,7 +481,7 @@ public class SongPlugTick {
                 );
 
                 if (result == null || result.getHitBlock() == null) {
-                    player.teleport(getLocationInFrontOfEntity(player, power));
+                    player.teleport(getLocationInFrontOfLoc(player.getLocation(), power));
                 } else {
                     Location loc = result.getHitPosition().toLocation(player.getWorld());
                     loc.setRotation(player.getLocation().getRotation());
@@ -517,13 +489,13 @@ public class SongPlugTick {
                 }
 
                 for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
+                    if(entityDistance(player, player2) <= 10) {
                         player2.playSound(player2.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
                     }
                 }
             }
 
-            if(usingMobiliflash == 198) {
+            if(usingPassiveSong == 198) {
                 BoundingBox box = player.getBoundingBox();
                 ThreadLocalRandom random = ThreadLocalRandom.current();
                 float offset = 0.5f;
@@ -534,31 +506,31 @@ public class SongPlugTick {
                     Particle.DUST.builder().location(loc).count(0).allPlayers().color(Color.YELLOW).spawn();
                 }
 
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("MobiliflashDisplay" + player.getName())) entity.remove();
                 }
             }
 
-            if(usingMobiliflash == 0) {
+            if(usingPassiveSong == 0) {
                 player.getScoreboardTags().remove("UsedMobiliflash");
             }
         }
 
         //MOBILIBURST
         if(player.getScoreboardTags().contains("UsedMobiliburst")) {
-            Score usingMobiliburstScore = scoreType(player, "UsingMobiliburst");
-            int usingMobiliburst = usingMobiliburstScore.getScore();
-            if(usingMobiliburst > 0) usingMobiliburstScore.setScore(usingMobiliburst - 1);
+            Score usingPassiveSongScore = scoreType(player, "UsingMobiliburst");
+            int usingPassiveSong = usingPassiveSongScore.getScore();
+            if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
-            if(usingMobiliburst == 229) {
+            if(usingPassiveSong == 229) {
                 for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
+                    if(entityDistance(player, player2) <= 10) {
                         player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
                     }
                 }
             }
 
-            if(usingMobiliburst == 201) {
+            if(usingPassiveSong == 201) {
                 int power = 7;
                 Entity target = player.getTargetEntity(power);
 
@@ -571,12 +543,12 @@ public class SongPlugTick {
                 Location center = player.getBoundingBox().getCenter().toLocation(player.getWorld());
                 center.setRotation(player.getYaw(), player.getPitch());
                 for(int i = 0; i < getMaxDistanceInFrontOfPlayer(player, power, true) * 5; i++) {
-                    Location loc = getLocationInFrontOfEntity(player, i / 5f);
+                    Location loc = getLocationInFrontOfLoc(player.getLocation(), i / 5f);
                     Particle.DUST.builder().location(loc.add(0, 1.2f, 0)).count(0).allPlayers().color(Color.YELLOW).spawn();
                 }
 
                 if (result == null || result.getHitBlock() == null) {
-                    player.teleport(getLocationInFrontOfEntity(player, (float) getMaxDistanceInFrontOfPlayer(player, power, true)).add(0, 0.5f, 0));
+                    player.teleport(getLocationInFrontOfLoc(player.getLocation(), (float) getMaxDistanceInFrontOfPlayer(player, power, true)).add(0, 0.5f, 0));
                 } else {
                     Location loc = result.getHitPosition().toLocation(player.getWorld());
                     loc.setRotation(player.getLocation().getRotation());
@@ -586,7 +558,7 @@ public class SongPlugTick {
                 player.getWorld().createExplosion(player.getLocation(), 1, false, false);
                 if(target != null) target.setVelocity(player.getLocation().getDirection().multiply(0.8f).setY(0.7f));
 
-                Location pivot = getLocationInFrontOfEntity(player, 0.5f).add(0, 1, 0);
+                Location pivot = getLocationInFrontOfLoc(player.getLocation(), 0.5f).add(0, 1, 0);
                 for(int i = -7; i <= 7; i++) {
                     for(int j = -12; j <= 12; j++) {
                         Location location = getRelativeLocationFromLoc(pivot, i / 10f, j / 10f, 0);
@@ -595,13 +567,13 @@ public class SongPlugTick {
                 }
 
                 for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
+                    if(entityDistance(player, player2) <= 10) {
                         player2.playSound(player2.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
                     }
                 }
             }
 
-            if(usingMobiliburst == 0) {
+            if(usingPassiveSong == 0) {
                 player.getScoreboardTags().remove("UsedMobiliburst");
             }
         }
@@ -610,7 +582,7 @@ public class SongPlugTick {
         if(player.getScoreboardTags().contains("UsedMobiliwings")) {
             if(usingActiveSong == 229) {
                 for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
+                    if(entityDistance(player, player2) <= 10) {
                         player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
                     }
                 }
@@ -621,7 +593,7 @@ public class SongPlugTick {
                 player.setVelocity(new Vector(player.getVelocity().getX(), 1.3, player.getVelocity().getZ()));
 
                 for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
+                    if(entityDistance(player, player2) <= 10) {
                         player2.playSound(player2.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
                     }
                 }
@@ -641,7 +613,7 @@ public class SongPlugTick {
             }
 
             if(usingActiveSong > 0 && usingActiveSong <= 200) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("Mobiliwings" + player.getName())) entity.teleport(player.getLocation());
                 }
 
@@ -655,7 +627,7 @@ public class SongPlugTick {
                 player.setAllowFlight(false);
                 player.removePotionEffect(PotionEffectType.INVISIBILITY);
                 player.getScoreboardTags().remove("UsedMobiliwings");
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("Mobiliwings" + player.getName())) entity.remove();
                 }
             }
@@ -673,7 +645,7 @@ public class SongPlugTick {
 
             if(usingActiveSong == 229) {
                 for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
+                    if(entityDistance(player, player2) <= 10) {
                         player2.playSound(player2.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
                     }
                 }
@@ -683,7 +655,7 @@ public class SongPlugTick {
                 player.setVelocity(new Vector(player.getVelocity().getX(), 0.6, player.getVelocity().getZ()));
 
                 for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
+                    if(entityDistance(player, player2) <= 10) {
                         player2.playSound(player2.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
                     }
                 }
@@ -707,7 +679,7 @@ public class SongPlugTick {
             if(usingActiveSong > 0 && usingActiveSong <= 200) {
                 Material standingBlock = player.getLocation().add(0, -0.1, 0).getBlock().getType();
                 if(!standingBlock.equals(Material.AIR) && !standingBlock.equals(Material.BARRIER)) {
-                    for(Entity entity : player.getWorld().getEntities()) {
+                    for(Entity entity : getEntities(player)) {
                         if(entity.getScoreboardTags().contains("Mobilibounce" + player.getName())) {
                             if(entity.getLocation().getBlock().getType().equals(Material.BARRIER)) entity.getLocation().getBlock().setType(Material.AIR);
                             entity.teleport(player.getLocation().add(0.5, 0.1, 0.5));
@@ -717,7 +689,7 @@ public class SongPlugTick {
                     }
                 }
 
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("Mobilibounce" + player.getName())) {
                         Location location = entity.getLocation().add(0, 0.5f, 0);
                         for (int i = 0; i < 3; i++) {
@@ -757,7 +729,7 @@ public class SongPlugTick {
             }
 
             if(usingActiveSong == 0) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("Mobilibounce" + player.getName())) {
                         if(entity.getLocation().getBlock().getType().equals(Material.BARRIER)) entity.getLocation().getBlock().setType(Material.AIR);
                         entity.remove();
@@ -779,14 +751,40 @@ public class SongPlugTick {
                 speed.setBaseValue(0.17);
                 player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 200, 1, true, false, false));
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.MASTER, 100f, 0.85f);
+
+                for(int i = 1; i <= 3; i++) {
+                    Mannequin mannequin = player.getWorld().spawn(player.getLocation(), Mannequin.class);
+                    mannequin.getScoreboardTags().add("Mobiliglide" + i + player.getName());
+                    mannequin.setCollidable(false);
+                    ResolvableProfile.SkinPatch patch = ResolvableProfile.SkinPatch.skinPatch().body(Key.key("block/gold_block")).build();
+                    ResolvableProfile profile = ResolvableProfile.resolvableProfile().skinPatch(patch).build();
+                    mannequin.setProfile(profile);
+
+                    Team noCollTeam = getTeam("NoCollisions");
+                    noCollTeam.addEntity(mannequin);
+                }
             }
 
             if(usingActiveSong > 0 && usingActiveSong <= 200) {
-                for (int i = 0; i < 10; i++) {
-                    double x = (Math.random() - 0.5) * 1.5;
-                    double y = Math.random() * 1.5;
-                    double z = (Math.random() - 0.5) * 1.5;
-                    Particle.DUST.builder().location(player.getLocation().clone().add(x, y, z)).count(0).color(Color.YELLOW).allPlayers().spawn();
+                for(Entity entity : getNearbyEntities(player.getLocation(), 9)) {
+                    if(entity instanceof Mannequin) {
+                        for(String tag : entity.getScoreboardTags()) {
+                            if(tag.startsWith("Mobiliglide") && tag.endsWith(player.getName())) {
+                                tag = tag.substring("Mobiliglide".length(), tag.length() - player.getName().length());
+                                int index = Integer.parseInt(tag);
+
+                                float manSpeed = switch(index) {
+                                    case 1 -> -0.40f;
+                                    case 2 -> -0.34f;
+                                    case 3 -> -0.32f;
+                                    default -> 0.0f;
+                                };
+
+                                entity.setVelocity(entityDistanceVector(player, entity).multiply(manSpeed));
+                                entity.setRotation(player.getYaw(), player.getPitch());
+                            }
+                        }
+                    }
                 }
 
                 Score cooldownScore =  scoreType(player, "YellowEnergyCooldown");
@@ -801,6 +799,13 @@ public class SongPlugTick {
             if(usingActiveSong == 0) {
                 speed.setBaseValue(0.1);
                 player.getScoreboardTags().remove("UsedMobiliglide");
+                for(Entity entity : getNearbyEntities(player.getLocation(), 9)) {
+                    if(entity instanceof Mannequin) {
+                        for(String tag : entity.getScoreboardTags()) {
+                            if(tag.startsWith("Mobiliglide") && tag.endsWith(player.getName())) entity.remove();
+                        }
+                    }
+                }
             }
         }
 
@@ -808,19 +813,19 @@ public class SongPlugTick {
 
         //PROTEHEAL
         if(player.getScoreboardTags().contains("UsedProteheal")) {
-            Score usingProtehealScore = scoreType(player, "UsingProteheal");
-            int usingProteheal = usingProtehealScore.getScore();
-            if(usingProteheal > 0) usingProtehealScore.setScore(usingProteheal - 1);
+            Score usingPassiveSongScore = scoreType(player, "UsingProteheal");
+            int usingPassiveSong = usingPassiveSongScore.getScore();
+            if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
-            if(usingProteheal == 229) {
+            if(usingPassiveSong == 229) {
                 for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 7) {
+                    if(entityDistance(player, player2) <= 7) {
                         player2.playSound(player2.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
                     }
                 }
             }
 
-            if(usingProteheal == 201) {
+            if(usingPassiveSong == 201) {
                 Entity target = player.getTargetEntity(7, false);
                 int amount = 20;
                 if(target instanceof Player player2) {
@@ -833,7 +838,7 @@ public class SongPlugTick {
 
             }
 
-            if(usingProteheal == 0) {
+            if(usingPassiveSong == 0) {
                 player.getScoreboardTags().remove("UsedProteheal");
             }
         }
@@ -849,7 +854,7 @@ public class SongPlugTick {
 
             if(usingActiveSong == 229) {
                 for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 7) {
+                    if(entityDistance(player, player2) <= 7) {
                         player2.playSound(player2.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
                     }
                 }
@@ -891,7 +896,7 @@ public class SongPlugTick {
                 scale.setBaseValue(1);
                 player.getScoreboardTags().remove("UsedProtearmor");
                 player.removePotionEffect(PotionEffectType.INVISIBILITY);
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("Protearmor" + player.getName())) entity.remove();
                 }
             }
@@ -916,7 +921,7 @@ public class SongPlugTick {
             }
 
             if(usingActiveSong > 0 && usingActiveSong <= 200) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("ProtesphereDisplay" + player.getName()) && entity instanceof BlockDisplay display) {
                         float size = 1.7f;
                         Location pivot = player.getBoundingBox().getCenter().toLocation(player.getWorld());
@@ -968,9 +973,9 @@ public class SongPlugTick {
                     }
                 }
 
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(!(entity instanceof BlockDisplay) && player.getBoundingBox().overlaps(entity.getBoundingBox())) {
-                        if(entity instanceof LivingEntity living && entity != player) living.setVelocity(distanceVector(player, entity).setY(0.6));
+                        if(entity instanceof LivingEntity living && entity != player) living.setVelocity(entityDistanceVector(player, entity).setY(0.6));
                     }
                 }
 
@@ -978,14 +983,14 @@ public class SongPlugTick {
                 cooldownScore.setScore(200);
 
                 if(player.isSneaking()) usingActiveSongScore.setScore(0);
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(player.getLocation().distance(entity.getLocation()) <= 1.5f && entity instanceof Arrow arrow) arrow.remove();
                 }
             }
 
             if(usingActiveSong == 0) {
                 player.getScoreboardTags().remove("UsedProtesphere");
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     for(String tag : entity.getScoreboardTags()) {
                         if(tag.startsWith("ProtesphereDisplay") && tag.endsWith(player.getName())) entity.remove();
                     }
@@ -1016,15 +1021,15 @@ public class SongPlugTick {
             }
 
             if(usingActiveSong > 0 && usingActiveSong <= 200) {
-                for(Entity marker : player.getWorld().getEntities()) {
+                for(Entity marker : getEntities(player)) {
                     if(marker.getScoreboardTags().contains("ProtepointMarker" + player.getName())) {
                         Location loc = player.getLocation().add(0, 1.5f, 0);
                         loc.setRotation(marker.getYaw(), 0);
                         marker.teleport(getLocationInFrontOfLoc(loc, 0.7f));
-                        for(Entity interaction : player.getWorld().getEntities()) {
+                        for(Entity interaction : getEntities(player)) {
                             if(interaction.getScoreboardTags().contains("ProtepointInteraction" + player.getName())) {
                                 interaction.teleport(marker.getLocation().add(0, -0.5, 0));
-                                for(Entity entity3 : player.getWorld().getEntities()) {
+                                for(Entity entity3 : getEntities(player)) {
                                     if(!entity3.getScoreboardTags().contains("ProtepointMarker" + player.getName()) &&
                                             !entity3.getScoreboardTags().contains("ProtepointInteraction" + player.getName())) {
                                         if(entity3.getBoundingBox().overlaps(interaction.getBoundingBox()) && isAnEntityItem(entity3)) entity3.remove();
@@ -1033,7 +1038,7 @@ public class SongPlugTick {
                             }
                         }
 
-                        for(Entity entity : player.getWorld().getEntities()) {
+                        for(Entity entity : getEntities(player)) {
                             if(entity.getScoreboardTags().contains("ProtepointDisplay" + player.getName()) && entity instanceof BlockDisplay display) {
                                 display.teleport(marker.getLocation().setDirection(display.getLocation().getDirection()));
                                 Vector3f size = new Vector3f(1, 1, 0.4f);
@@ -1052,7 +1057,7 @@ public class SongPlugTick {
 
             if(usingActiveSong == 0) {
                 player.getScoreboardTags().remove("UsedProtepoint");
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("ProtepointMarker" + player.getName())) entity.remove();
                     if(entity.getScoreboardTags().contains("ProtepointInteraction" + player.getName())) entity.remove();
                     if(entity.getScoreboardTags().contains("ProtepointDisplay" + player.getName())) entity.remove();
@@ -1083,7 +1088,7 @@ public class SongPlugTick {
             }
 
             if(usingPassiveSong == 161) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("Proteclone" + player.getName())) entity.remove();
                 }
             }
@@ -1150,14 +1155,14 @@ public class SongPlugTick {
             }
 
             if(usingPassiveSong > 0 && usingPassiveSong <= 200) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("Protebarrier" + player.getName())) {
-                        for(Entity entity2 : player.getWorld().getEntities()) {
+                        for(Entity entity2 : getEntities(player)) {
                             if(!entity2.getScoreboardTags().contains("Protebarrier" + player.getName()) && entity.getBoundingBox().overlaps(entity2.getBoundingBox())) {
                                 if(isAnEntityItem(entity2)) {
                                     entity2.remove();
                                 } else if(entity2 instanceof LivingEntity living) {
-                                    living.setVelocity(distanceVector(entity, entity2).setY(0.6));
+                                    living.setVelocity(entityDistanceVector(entity, entity2).setY(0.6));
                                 }
                             }
                         }
@@ -1166,7 +1171,7 @@ public class SongPlugTick {
 
                 if(player.isSneaking()) {
                     usingPassiveSongScore.setScore(0);
-                    for(Entity entity : player.getWorld().getEntities()) {
+                    for(Entity entity : getEntities(player)) {
                         if(entity.getScoreboardTags().contains("Protebarrier" + player.getName())) entity.remove();
                     }
                 }
@@ -1174,7 +1179,7 @@ public class SongPlugTick {
 
             if(usingPassiveSong == 0) {
                 player.getScoreboardTags().remove("UsedProtebarrier");
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("Protebarrier" + player.getName())) entity.remove();
                     if(entity.getScoreboardTags().contains("ProtebarrierDisplay" + player.getName())) entity.remove();
                 }
@@ -1214,13 +1219,13 @@ public class SongPlugTick {
             }
 
             if(usingPassiveSong <= 200 && usingPassiveSong > 0) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if (entity.getScoreboardTags().contains("Aggrosphere" + player.getName())) {
-                        entity.teleport(getLocationInFrontOfEntity(entity, 0.6f));
+                        entity.teleport(getLocationInFrontOfLoc(entity.getLocation(), 0.6f));
                         Location centerLocation = entity.getLocation().add(0, 1, 0);
 
                         Entity collidedEntity = null;
-                        for(Entity entity2 : player.getWorld().getEntities()) {
+                        for(Entity entity2 : getEntities(player)) {
                             if(entity.getBoundingBox().overlaps(entity2.getBoundingBox()) && entity2 != entity && entity2 != player &&
                                     !(entity2 instanceof BlockDisplay)) {
                                 collidedEntity = entity2;
@@ -1248,7 +1253,7 @@ public class SongPlugTick {
                             usingPassiveSongScore.setScore(0);
                         }
 
-                        for(Entity entity2 : player.getWorld().getEntities()) {
+                        for(Entity entity2 : getEntities(player)) {
                             if((entity2.getScoreboardTags().contains("AggrosphereDisplay" + player.getName()) || entity2.getScoreboardTags().contains("AggrosphereDisplay2" + player.getName())) && entity2 instanceof BlockDisplay display) {
                                 float turningSpeed = entity2.getScoreboardTags().contains("AggrosphereDisplay" + player.getName()) ? 3.6f : 1.2f;
                                 float size = entity2.getScoreboardTags().contains("AggrosphereDisplay" + player.getName()) ? 0.45f : 0.7f;
@@ -1280,7 +1285,7 @@ public class SongPlugTick {
             }
 
             if(usingPassiveSong == 0) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("Aggrosphere" + player.getName())) entity.remove();
                     if(entity.getScoreboardTags().contains("AggrosphereDisplay" + player.getName())) entity.remove();
                     if(entity.getScoreboardTags().contains("AggrosphereDisplay2" + player.getName())) entity.remove();
@@ -1298,7 +1303,7 @@ public class SongPlugTick {
 
             if(usingActiveSong == 201) {
                 for(Player player2 : Bukkit.getOnlinePlayers()) {
-                    if(locationDistance(player, player2) <= 10) {
+                    if(entityDistance(player, player2) <= 10) {
                         player2.playSound(player2.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
                     }
                 }
@@ -1327,9 +1332,9 @@ public class SongPlugTick {
                     jump.setBaseValue(0.42);
                 }
 
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if((entity.getScoreboardTags().contains("AggrobeamDisplay" + player.getName()) || entity.getScoreboardTags().contains("AggrobeamDisplay2" + player.getName())) && entity instanceof BlockDisplay display) {
-                        Location pivot = getLocationInFrontOfEntity(player, 0.3f).add(0, 1.3f, 0);
+                        Location pivot = getLocationInFrontOfLoc(player.getLocation(), 0.3f).add(0, 1.3f, 0);
                         float blockSize = entity.getScoreboardTags().contains("AggrobeamDisplay" + player.getName()) ? 0.25f : 0.3f;
                         Vector3f size = new Vector3f(blockSize, blockSize, (float) getMaxDistanceInFrontOfPlayer(player, 18, true));
                         Vector3f translation = new Vector3f(-0.5f * size.x, -0.5f * size.y, 0);
@@ -1343,7 +1348,7 @@ public class SongPlugTick {
                 player.getScoreboardTags().remove("UsedAggrobeam");
                 speed.setBaseValue(0.1);
                 jump.setBaseValue(0.42);
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("AggrobeamDisplay" + player.getName())) entity.remove();
                     if(entity.getScoreboardTags().contains("AggrobeamDisplay2" + player.getName())) entity.remove();
                 }
@@ -1365,6 +1370,49 @@ public class SongPlugTick {
                 speed.setBaseValue(0.1);
                 jump.setBaseValue(0.42);
                 player.getWorld().createExplosion(player.getLocation(), 3.8f, false, false);
+
+                BoundingBox box = player.getBoundingBox();
+                Location location = new Location(player.getWorld(), box.getCenterX(), box.getMinY(), box.getCenterZ());
+                BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(location, EntityType.BLOCK_DISPLAY);
+                display.getScoreboardTags().add("AggroquakeDisplay" + player.getName());
+                display.setBlock(Bukkit.createBlockData(Material.MAGMA_BLOCK));
+
+                Vector3f size = new Vector3f(6f, 0.4f, 6f);
+                Vector3f translation = new Vector3f(-0.5f * size.x, -0.5f * size.y, -0.5f * size.z);
+                display.setTransformation(new Transformation(translation, new Quaternionf(), size, new Quaternionf()));
+
+                for(int i = -10; i <= 10; i++) {
+                    for(int j = -10; j <= 10; j++) {
+                        Location loc = player.getBoundingBox().getCenter().toLocation(player.getWorld()).add(i / 10f * 6f, -0.7f, j / 10f * 6f);
+                        player.getWorld().spawnParticle(Particle.DUST, loc, 0, new Particle.DustOptions(Color.RED, 0.7f));
+                    }
+                }
+            }
+
+            if(usingPassiveSong >= 185 && usingPassiveSong <= 200) {
+                Location center = getCenter(player);
+                float index = (202 - usingPassiveSong) / 2f;
+                float radius = index / 2.2f;
+
+                for (int i = 0; i < index * 40; i++) {
+                    double theta = Math.random() * Math.PI * 2;
+                    double phi = Math.acos(2 * Math.random() - 1);
+
+                    double x = radius * Math.sin(phi) * Math.cos(theta);
+                    double y = radius * Math.sin(phi) * Math.sin(theta);
+                    double z = radius * Math.cos(phi);
+
+                    double topThreshold = radius * 0.4;
+                    if (y > topThreshold) continue;
+
+                    center.getWorld().spawnParticle(Particle.DUST, center.clone().add(x, y, z), 5, new Particle.DustOptions(Color.RED, 1.2f));
+                }
+            }
+
+            if(usingPassiveSong <= 155) {
+                for(Entity entity : getEntities(player)) {
+                    if(entity.getScoreboardTags().contains("AggroquakeDisplay" + player.getName())) entity.remove();
+                }
             }
 
             if(usingPassiveSong == 0) {
@@ -1397,10 +1445,10 @@ public class SongPlugTick {
                 }
 
                 for(Entity entity : getNearbyEntities(player.getLocation(), 5)) {
-                    if (entity instanceof LivingEntity living && isInLineOfSight(player, living) && player.hasLineOfSight(entity)
+                    if (entity instanceof LivingEntity living && aggroblastSightHelper(player, living) && player.hasLineOfSight(entity)
                             && living != player && player.getLocation().distance(entity.getLocation()) < distanceFromBarrier) {
                         double distance = player.getLocation().distance(living.getLocation());
-                        living.setVelocity(distanceVector(player, entity).multiply(1.4 - distance / 3));
+                        living.setVelocity(entityDistanceVector(player, entity).multiply(1.4 - distance / 3));
                         living.damage(40 - distance * 5, player);
                     }
                 }
@@ -1408,7 +1456,7 @@ public class SongPlugTick {
                 for(int j = 1; j < 4 * 4; j++) {
                     float maxDistance = (float) getMaxDistanceInFrontOfPlayer(player, j / 4f, false);
                     if(distanceFromBarrier < maxDistance) maxDistance = (float) distanceFromBarrier;
-                    Location center = getLocationInFrontOfEntity(player, maxDistance);
+                    Location center = getLocationInFrontOfLoc(player.getLocation(), maxDistance);
                     float radius = 0.4f + (j-1) / 15f;
                     int points = (j <= 5) ? 20 : j * 5;
 
@@ -1458,24 +1506,24 @@ public class SongPlugTick {
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
 
                 for(int i = 0; i < 9; i++) {
-                    BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(getLocationInFrontOfEntity(player, i), EntityType.BLOCK_DISPLAY);
+                    BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(getLocationInFrontOfLoc(player.getLocation(), i), EntityType.BLOCK_DISPLAY);
                     display.getScoreboardTags().add("AggrovortexDisplay" + i + player.getName());
                     display.setBlock(Bukkit.createBlockData(Material.MAGMA_BLOCK));
 
-                    BlockDisplay display2 = (BlockDisplay) player.getWorld().spawnEntity(getLocationInFrontOfEntity(player, i), EntityType.BLOCK_DISPLAY);
+                    BlockDisplay display2 = (BlockDisplay) player.getWorld().spawnEntity(getLocationInFrontOfLoc(player.getLocation(), i), EntityType.BLOCK_DISPLAY);
                     display2.getScoreboardTags().add("AggrovortexDisplayOut" + i + player.getName());
                     display2.setBlock(Bukkit.createBlockData(aggrovortexHelper(i).getRight() ? Material.RED_STAINED_GLASS : Material.ORANGE_STAINED_GLASS));
                 }
             }
 
             if(usingPassiveSong <= 200 && usingPassiveSong > 80) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if (entity.getScoreboardTags().contains("Aggrovortex" + player.getName())) {
-                        entity.teleport(getLocationInFrontOfEntity(entity, 0.5f));
+                        entity.teleport(getLocationInFrontOfLoc(entity.getLocation(), 0.5f));
                         Location centerLocation = entity.getLocation().add(0, 1, 0);
 
                         Entity collidedEntity = null;
-                        for(Entity entity2 : player.getWorld().getEntities()) {
+                        for(Entity entity2 : getEntities(player)) {
                             if(entity.getBoundingBox().overlaps(entity2.getBoundingBox()) && entity2 != entity && entity2 != player) {
                                 collidedEntity = entity2;
                             }
@@ -1504,7 +1552,7 @@ public class SongPlugTick {
                             usingPassiveSongScore.setScore(0);
                         }
 
-                        for(Entity entity2 : player.getWorld().getEntities()) {
+                        for(Entity entity2 : getEntities(player)) {
                             if (!(entity2 instanceof BlockDisplay display)) continue;
                             for (String tag : entity2.getScoreboardTags()) {
                                 if (tag.startsWith("AggrovortexDisplay") && tag.endsWith(player.getName())) {
@@ -1524,7 +1572,7 @@ public class SongPlugTick {
                                     float size = aggrovortexHelper(index).getLeft();
                                     if (outer) size += 0.25f;
 
-                                    Location pivot = getLocationInFrontOfEntity(entity, -index / 2f).add(0, 1, 0);
+                                    Location pivot = getLocationInFrontOfLoc(entity.getLocation(), -index / 2f).add(0, 1, 0);
                                     display.teleport(pivot);
 
                                     Quaternionf rotation = new Quaternionf().rotateZ((float) Math.toRadians(usingPassiveSong) * turningSpeed);
@@ -1542,7 +1590,7 @@ public class SongPlugTick {
             if(usingPassiveSong >= 0 && usingPassiveSong <= 80) {
                 player.getScoreboardTags().remove("UsedAggrovortex");
                 if(usingPassiveSong > 0) usingPassiveSongScore.setScore(0);
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("Aggrovortex" + player.getName())) entity.remove();
                     for(String tag : entity.getScoreboardTags()) {
                         if(tag.startsWith("AggrovortexDisplay") && tag.endsWith(player.getName())) entity.remove();
@@ -1571,22 +1619,34 @@ public class SongPlugTick {
                 int random = Random.from(RandomGenerator.getDefault()).nextInt(-10, 10);
                 Location location = player.getLocation();
                 if(usingPassiveSong != 201) location.setRotation(player.getYaw() + random, player.getPitch() + (float) random / 4);
+
                 ArmorStand stand = player.getWorld().spawn(location, ArmorStand.class);
                 stand.setGravity(false);
                 stand.setVisibleByDefault(false);
                 stand.getScoreboardTags().add("Aggroshard" + player.getName());
                 playSoundToNearby(player.getLocation(), 10, Sound.ITEM_CROSSBOW_SHOOT, SoundCategory.MASTER, 100f, 0.35f);
+
+                Location pivot = stand.getBoundingBox().getCenter().toLocation(player.getWorld());
+
+                BlockDisplay display = (BlockDisplay) player.getWorld().spawnEntity(pivot, EntityType.BLOCK_DISPLAY);
+                display.getScoreboardTags().add("AggroshardDisplay" + player.getName());
+                display.setBlock(Bukkit.createBlockData(Material.MAGMA_BLOCK));
+
+                BlockDisplay display2 = (BlockDisplay) player.getWorld().spawnEntity(pivot, EntityType.BLOCK_DISPLAY);
+                display2.getScoreboardTags().add("AggroshardDisplay2" + player.getName());
+                display2.setBlock(Bukkit.createBlockData(Material.RED_STAINED_GLASS));
             }
 
             if(usingPassiveSong > 0 && usingPassiveSong <= 200) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if (entity.getScoreboardTags().contains("Aggroshard" + player.getName())) {
-                        entity.teleport(getLocationInFrontOfEntity(entity, 1.4f));
-                        Location centerLocation = entity.getLocation().add(0, 1, 0);
+                        entity.teleport(getLocationInFrontOfLoc(entity.getLocation(), 1.4f));
+                        Location centerLocation = getCenter(entity);
 
                         Entity collidedEntity = null;
-                        for(Entity entity2 : player.getWorld().getEntities()) {
-                            if(entity.getBoundingBox().overlaps(entity2.getBoundingBox()) && entity2 != entity && entity2 != player) {
+                        for(Entity entity2 : getEntities(player)) {
+                            if(entity.getBoundingBox().overlaps(entity2.getBoundingBox()) && entity2 != entity && entity2 != player &&
+                                    (entity2 instanceof BlockDisplay)) {
                                 collidedEntity = entity2;
                             }
                         }
@@ -1609,14 +1669,32 @@ public class SongPlugTick {
                             }
                         }
 
+                        for(Entity entity2 : getEntities(player)) {
+                            if((entity2.getScoreboardTags().contains("AggroshardDisplay" + player.getName()) ||
+                                    entity2.getScoreboardTags().contains("AggroshardDisplay2" + player.getName())) &&
+                                    entity2 instanceof BlockDisplay display && getCenter(entity).distance(getCenter(entity2)) <= 1.4f) {
+
+                                Vector3f size = new Vector3f(0.2f, 0.2f, 0.4f);
+                                if(entity2.getScoreboardTags().contains("AggroshardDisplay2" + player.getName())) size = size.mul(1.4f);
+
+                                Vector3f translation = new Vector3f(size.x * -0.5f, size.y * -0.5f, size.z * -0.5f);
+
+                                display.setTransformation(new Transformation(translation, new Quaternionf(), size, new Quaternionf()));
+                                display.teleport(entity.getBoundingBox().getCenter().toLocation(player.getWorld()));
+                                display.setRotation(entity.getYaw(), entity.getPitch());
+                            }
+                        }
+
                         Particle.DUST_COLOR_TRANSITION.builder().location(centerLocation.clone()).count(0).allPlayers().colorTransition(Color.RED, Color.fromARGB(0, 255, 0, 0)).spawn();
                     }
                 }
             }
 
             if(usingPassiveSong == 0) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("Aggroshard" + player.getName())) entity.remove();
+                    if(entity.getScoreboardTags().contains("AggroshardDisplay" + player.getName())) entity.remove();
+                    if(entity.getScoreboardTags().contains("AggroshardDisplay2" + player.getName())) entity.remove();
                     player.getScoreboardTags().remove("UsedAggroshard");
                 }
             }
@@ -1653,13 +1731,13 @@ public class SongPlugTick {
             }
 
             if(usingPassiveSong <= 200 && usingPassiveSong > 0) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if (entity.getScoreboardTags().contains("Aggrodetonate" + player.getName())) {
                         entity.setRotation(entity.getLocation().getYaw(), entity.getLocation().getPitch() + 0.8f);
-                        entity.teleport(getLocationInFrontOfEntity(entity, 0.8f));
+                        entity.teleport(getLocationInFrontOfLoc(entity.getLocation(), 0.8f));
                         Location centerLocation = entity.getLocation().add(0, 1, 0);
 
-                        for(Entity entity2 : player.getWorld().getEntities()) {
+                        for(Entity entity2 : getEntities(player)) {
                             if((entity2.getScoreboardTags().contains("AggrodetonateDisplay" + player.getName()) || entity2.getScoreboardTags().contains("AggrodetonateDisplay2" + player.getName())) && entity2 instanceof BlockDisplay display) {
                                 Location pivot = entity.getBoundingBox().getCenter().toLocation(player.getWorld());
                                 float blockSize = entity2.getScoreboardTags().contains("AggrodetonateDisplay" + player.getName()) ? 0.25f : 0.3f;
@@ -1682,7 +1760,7 @@ public class SongPlugTick {
                         }
 
                         Entity collidedEntity = null;
-                        for(Entity entity2 : player.getWorld().getEntities()) {
+                        for(Entity entity2 : getEntities(player)) {
                             if(entity.getBoundingBox().overlaps(entity2.getBoundingBox()) && entity2 != entity && entity2 != player &&
                                     !(entity2 instanceof BlockDisplay)) {
                                 collidedEntity = entity2;
@@ -1716,7 +1794,7 @@ public class SongPlugTick {
             }
 
             if(usingPassiveSong == 0) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("Aggrodetonate" + player.getName())) entity.remove();
                     if(entity.getScoreboardTags().contains("AggrodetonateDisplay" + player.getName())) entity.remove();
                     if(entity.getScoreboardTags().contains("AggrodetonateDisplay2" + player.getName())) entity.remove();
@@ -1740,7 +1818,7 @@ public class SongPlugTick {
             if(usingActiveSong > 0 && usingActiveSong <= 200) {
                 for(Entity entity : getNearbyEntities(player.getLocation(), 9)) {
                     if(entity instanceof LivingEntity living && living != player) {
-                        living.setVelocity(living.getVelocity().add(distanceVector(player, entity).multiply(-0.05)));
+                        living.setVelocity(living.getVelocity().add(entityDistanceVector(player, entity).multiply(-0.05)));
                         double distance = player.getLocation().distance(living.getLocation());
                         if(7 - distance > 0) living.damage(7 - distance);
                     }
@@ -1749,13 +1827,16 @@ public class SongPlugTick {
                 Score cooldownScore = scoreType(player, "RedEnergyCooldown");
                 cooldownScore.setScore(200);
 
-                //TEMPORARY PARTICLES
-                Location center = player.getLocation().add(0, 1, 0);
-                for (int i = 0; i < 20; i++) {
-                    double x = (Math.random() - 0.5) * 1.5;
-                    double y = Math.random() * 1.5;
-                    double z = (Math.random() - 0.5) * 1.5;
-                    Particle.ENTITY_EFFECT.builder().location(center.clone().add(x, y, z)).count(1).color(Color.RED).allPlayers().spawn();
+                for(int i = 0; i < 6; i++) {
+                    float degrees = (usingActiveSong / 2f + i * 20) + ((i % 2 == 0) ? 180 : 0);
+                    float radius = pseudorandom(i) / 8f + 0.3f;
+
+                    BoundingBox box = player.getBoundingBox();
+                    Location center = new Location(player.getWorld(), box.getCenterX(), box.getMinY() + 0.3f, box.getCenterZ());
+
+                    Location loc = center.clone().add(Math.cos(degrees) * radius, i / 3f, Math.sin(degrees) * radius);
+
+                    player.getWorld().spawnParticle(Particle.DUST, loc, 3, new Particle.DustOptions(Color.RED, pseudorandom(i) / 10f));
                 }
 
                 if(player.isSneaking()) {
@@ -1796,10 +1877,10 @@ public class SongPlugTick {
             }
 
             if(usingPassiveSong > 180 && usingPassiveSong <= 200) {
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("AggroshockProjectile" + player.getName())) {
-                        entity.teleport(getLocationInFrontOfEntity(entity, 1));
-                        for(Entity entity2 : player.getWorld().getEntities()) {
+                        entity.teleport(getLocationInFrontOfLoc(entity.getLocation(), 1));
+                        for(Entity entity2 : getEntities(player)) {
                             if(entity2 != entity && entity2 != player && entity2 instanceof LivingEntity) {
                                 if(entity.getBoundingBox().overlaps(entity2.getBoundingBox())) {
                                     entity.remove();
@@ -1815,14 +1896,14 @@ public class SongPlugTick {
                             }
                         }
 
-                        double radius = 0.5;
+                        double radius = 0.4;
                         for (int i = 0; i < 20; i++) {
                             double theta = Math.random() * Math.PI * 2;
                             double phi = Math.acos(2 * Math.random() - 1);
                             double x = radius * Math.sin(phi) * Math.cos(theta);
                             double y = radius * Math.sin(phi) * Math.sin(theta);
                             double z = radius * Math.cos(phi);
-                            Particle.DUST.builder().location(entity.getLocation().clone().add(x, y + 1, z)).count(0).allPlayers().color(Color.RED).spawn();
+                            Particle.DUST.builder().location(entity.getLocation().clone().add(x, y + 1, z)).count(0).allPlayers().color((i % 2 == 0) ? Color.RED : Color.ORANGE).spawn();
                         }
                     }
 
@@ -1834,7 +1915,7 @@ public class SongPlugTick {
                         for(int i = 0; i < 10; i++) {
                             Location loc = new Location(player.getWorld(), random.nextDouble(box.getMinX(), box.getMaxX()),
                                     random.nextDouble(box.getMinY(), box.getMaxY()), random.nextDouble(box.getMinZ(), box.getMaxZ()));
-                            Particle.FLAME.builder().location(loc).count(0).allPlayers().spawn();
+                            player.getWorld().spawnParticle(Particle.DUST, loc, 0, new Particle.DustOptions((i % 2 == 0) ? Color.RED : Color.ORANGE, 0.7f));
                         }
 
                         living.damage(20);
@@ -1845,9 +1926,9 @@ public class SongPlugTick {
                             if(entity2 instanceof LivingEntity && entity2 != player) {
                                 entity2.getScoreboardTags().add("Aggroshock" + player.getName());
                                 entity2.getScoreboardTags().add("AggroshockVictim2");
-                                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
+                                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_BEE_HURT, SoundCategory.MASTER, 100f, 0.35f);
 
-                                Location location = entity.getLocation().clone().add(0, 1, 0).setDirection(distanceVector(entity, entity2));
+                                Location location = entity.getLocation().clone().add(0, 1, 0).setDirection(entityDistanceVector(entity, entity2));
                                 double distance = entity.getLocation().distance(entity2.getLocation());
                                 for(int i = 0; i < distance * 5; i++) {
                                     Particle.DUST.builder().location(getLocationInFrontOfLoc(location, (float) i / 5)).count(2).allPlayers().color(Color.RED).spawn();
@@ -1861,9 +1942,9 @@ public class SongPlugTick {
                             if(entity2 instanceof LivingEntity && entity2 != player) {
                                 entity2.getScoreboardTags().add("Aggroshock" + player.getName());
                                 entity2.getScoreboardTags().add("AggroshockVictim3");
-                                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
+                                playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_BEE_HURT, SoundCategory.MASTER, 100f, 0.35f);
 
-                                Location location = entity.getLocation().clone().add(0, 1, 0).setDirection(distanceVector(entity, entity2));
+                                Location location = entity.getLocation().clone().add(0, 1, 0).setDirection(entityDistanceVector(entity, entity2));
                                 double distance = entity.getLocation().distance(entity2.getLocation());
                                 for(int i = 0; i < distance * 5; i++) {
                                     Particle.DUST.builder().location(getLocationInFrontOfLoc(location, (float) i / 5)).count(2).allPlayers().color(Color.RED).spawn();
@@ -1876,7 +1957,7 @@ public class SongPlugTick {
 
             if(usingPassiveSong == 180) {
                 player.getScoreboardTags().remove("UsedAggroshock");
-                for(Entity entity : player.getWorld().getEntities()) {
+                for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("Aggroshock" + player.getName())) {
                         entity.getScoreboardTags().remove("Aggroshock" + player.getName());
                         entity.getScoreboardTags().remove("AggroshockVictim1");

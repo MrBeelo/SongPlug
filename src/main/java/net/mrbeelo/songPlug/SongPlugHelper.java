@@ -13,10 +13,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scoreboard.Criteria;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Score;
-import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.*;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -190,10 +187,6 @@ public class SongPlugHelper {
         return loc.clone().add(direction.multiply(blocks));
     }
 
-    public static Location getLocationInFrontOfEntity(Entity entity, float blocks) {
-        return getLocationInFrontOfLoc(entity.getLocation(), blocks);
-    }
-
     public static Location getRelativeLocationFromLoc(Location loc, float x, float y, float z) {
         Vector forward = loc.getDirection().normalize();
         Vector up = new Vector(0, 1, 0);
@@ -202,7 +195,7 @@ public class SongPlugHelper {
         return loc.clone().add(right.multiply(x).add(up.multiply(y)).add(forward.multiply(z)));
     }
 
-    public static double locationDistance(Entity e1, Entity e2) {
+    public static double entityDistance(Entity e1, Entity e2) {
         return e1.getLocation().distance(e2.getLocation());
     }
 
@@ -254,7 +247,7 @@ public class SongPlugHelper {
     public static double getMaxDistanceInFrontOfPlayer(Player player, double max, boolean includeEntities) {
         if(includeEntities) {
             Entity target = player.getTargetEntity((int) max);
-            if(target != null) return locationDistance(player, target);
+            if(target != null) return entityDistance(player, target);
         }
 
         RayTraceResult result = player.getWorld().rayTraceBlocks(
@@ -280,20 +273,26 @@ public class SongPlugHelper {
         }
     }
 
+    public static List<Entity> getEntities(Entity entity) {
+        return entity.getWorld().getEntities();
+    }
+
     public static List<Entity> getNearbyEntities(Location location, double distance) {
         List<Entity> list = new ArrayList<>();
         for(Entity entity : location.getWorld().getEntities()) if(location.distance(entity.getLocation()) <= distance) list.add(entity);
         return list;
     }
 
-    public static Vector distanceVector(Entity source, Entity target) {
-        return target.getLocation().toVector().subtract(source.getLocation().toVector()).normalize();
+    public static Vector entityDistanceVector(Entity source, Entity target) {
+        Vector vector = target.getLocation().toVector().subtract(source.getLocation().toVector());
+        if (vector.lengthSquared() < 1e-6) return new Vector(0, 0, 0);
+        return vector.normalize();
     }
 
-    public static boolean isInLineOfSight(Player player, LivingEntity entity) {
+    public static boolean aggroblastSightHelper(Player player, LivingEntity entity) {
         if(entity == player) return false;
         Vector playerVector = player.getLocation().getDirection().normalize().setY(player.getLocation().getDirection().normalize().getY() / 3);
-        Vector entityVector = distanceVector(player, entity).normalize();
+        Vector entityVector = entityDistanceVector(player, entity).normalize();
         double angle = Math.toDegrees(playerVector.angle(entityVector));
         player.sendMessage("Angle for " + entity.getName() + ": " + angle + " deg.");
         return angle < 17.5f;
@@ -374,6 +373,22 @@ public class SongPlugHelper {
             case 9 -> 4;
             default -> 0;
         };
+    }
+
+    public static Team getTeam(String name) {
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+
+        Team team = scoreboard.getTeam(name);
+        if (team == null) {
+            team = scoreboard.registerNewTeam(name);
+            if(name.equals("NoCollisions")) team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
+        }
+
+        return team;
+    }
+
+    public static Location getCenter(Entity entity) {
+        return entity.getBoundingBox().getCenter().toLocation(entity.getWorld());
     }
 
     public static void triggerSong(Player player, String song) {
