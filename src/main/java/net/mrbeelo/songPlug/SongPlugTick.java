@@ -1486,7 +1486,7 @@ public class SongPlugTick {
 
                                     index = Integer.parseInt(tempTag);
 
-                                    float turningSpeed = 1.5f + pseudorandom(index) / 2f;
+                                    float turningSpeed = 1.5f + (pseudoRandom(index) % 10) / 2f;
                                     float size = aggrovortexHelper(index).getLeft();
                                     if (outer) size += 0.25f;
 
@@ -1738,14 +1738,14 @@ public class SongPlugTick {
 
                 for(int i = 0; i < 6; i++) {
                     float degrees = (usingActiveSong / 2f + i * 20) + ((i % 2 == 0) ? 180 : 0);
-                    float radius = pseudorandom(i) / 8f + 0.3f;
+                    float radius = (pseudoRandom(i) % 10) / 8f + 0.3f;
 
                     BoundingBox box = player.getBoundingBox();
                     Location center = new Location(player.getWorld(), box.getCenterX(), box.getMinY() + 0.3f, box.getCenterZ());
 
                     Location loc = center.clone().add(Math.cos(degrees) * radius, i / 3f, Math.sin(degrees) * radius);
 
-                    player.getWorld().spawnParticle(Particle.DUST, loc, 3, new Particle.DustOptions(Color.RED, pseudorandom(i) / 10f));
+                    player.getWorld().spawnParticle(Particle.DUST, loc, 3, new Particle.DustOptions(Color.RED, (pseudoRandom(i) % 10) / 10f));
                 }
 
                 if(player.isSneaking()) {

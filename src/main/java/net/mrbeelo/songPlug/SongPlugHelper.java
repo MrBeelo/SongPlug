@@ -361,20 +361,11 @@ public class SongPlugHelper {
         };
     }
 
-    public static int pseudorandom(int value) {
-        return switch (value % 10) {
-            case 0 -> 5;
-            case 1 -> 3;
-            case 2 -> 6;
-            case 3 -> 1;
-            case 4 -> 2;
-            case 5 -> 8;
-            case 6 -> 9;
-            case 7 -> 7;
-            case 8 -> 0;
-            case 9 -> 4;
-            default -> 0;
-        };
+    public static int pseudoRandom(int seed) {
+        seed ^= (seed << 13);
+        seed ^= (seed >>> 17);
+        seed ^= (seed << 5);
+        return seed;
     }
 
     public static Team getTeam(String name) {
