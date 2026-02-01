@@ -2,16 +2,21 @@ package net.mrbeelo.songPlug;
 
 import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarFlag;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scoreboard.Score;
-import org.bukkit.scoreboard.Team;
+import org.bukkit.scoreboard.*;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Transformation;
@@ -20,6 +25,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.random.RandomGenerator;
@@ -27,6 +33,22 @@ import java.util.random.RandomGenerator;
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugTick {
+
+    public static void updateBossBar(Player player, int songEnergy) {
+        NamespacedKey key = new NamespacedKey("songplug", "song_energy_" + player.getName().toLowerCase() + "_key");
+        KeyedBossBar keyedBossBar = Bukkit.getBossBar(key);
+
+        if(keyedBossBar == null) {
+            keyedBossBar = Bukkit.createBossBar(key, "Song Energy", BarColor.YELLOW, BarStyle.SOLID, BarFlag.PLAY_BOSS_MUSIC);
+        }
+
+        if(player.getScoreboardTags().contains("ArdoniClass")) {
+            keyedBossBar.addPlayer(player);
+            keyedBossBar.setProgress((double) songEnergy / 5);
+        } else {
+            keyedBossBar.removePlayer(player);
+        }
+    }
 
     public static void updateRegen(Player player, Score energyScore) {
         if(player.getScoreboardTags().contains("ArdoniClass")) {
@@ -64,6 +86,31 @@ public class SongPlugTick {
             if(yellowEnergyCooldown > 0) yellowCooldownScore.setScore(yellowEnergyCooldown - 1);
             if(greenEnergyCooldown > 0) greenCooldownScore.setScore(greenEnergyCooldown - 1);
             if(infuseCooldown > 0) infuseCooldownScore.setScore(infuseCooldown - 1);
+        }
+    }
+
+    public static void updateSidebar(Player player) {
+        Scoreboard board = player.getScoreboard();
+        Objective sidebar = board.getObjective(DisplaySlot.SIDEBAR);
+
+        if (sidebar == null) {
+            if(board.getObjective("Stats") == null) {
+                Objective objective = board.registerNewObjective("Stats", Criteria.DUMMY, Component.text("SHITS OF WAR - STATS", NamedTextColor.GOLD));
+                objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+                player.setScoreboard(board);
+            } else {
+                Objective objective = board.getObjective("Stats");
+                assert objective != null;
+                objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+                player.setScoreboard(board);
+            }
+        } else if(sidebar.getName().equals("Stats")) {
+            for (String entry : Objects.requireNonNull(sidebar.getScoreboard()).getEntries()) sidebar.getScore(entry).resetScore();
+            sidebar.getScore("§7").setScore(5);
+            sidebar.getScore("Level: " + scoreValue(player, "Level")).setScore(4);
+            sidebar.getScore("§6").setScore(3);
+            sidebar.getScore("Class: " + getSowClass(player, true, false).content()).setScore(2);
+            sidebar.getScore("§5").setScore(1);
         }
     }
 

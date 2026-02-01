@@ -3,6 +3,7 @@ package net.mrbeelo.songPlug;
 import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.*;
@@ -28,6 +29,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static net.mrbeelo.songPlug.SongPlugTick.updateBossBar;
+
 public class SongPlugHelper {
     public static void command(String command) {
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
@@ -49,22 +52,6 @@ public class SongPlugHelper {
         }
 
         return objective;
-    }
-
-    public static void updateBossBar(Player player, int songEnergy) {
-        NamespacedKey key = new NamespacedKey("songplug", "song_energy_" + player.getName().toLowerCase() + "_key");
-        KeyedBossBar keyedBossBar = Bukkit.getBossBar(key);
-
-        if(keyedBossBar == null) {
-            keyedBossBar = Bukkit.createBossBar(key, "Song Energy", BarColor.YELLOW, BarStyle.SOLID, BarFlag.PLAY_BOSS_MUSIC);
-        }
-
-        if(player.getScoreboardTags().contains("ArdoniClass")) {
-            keyedBossBar.addPlayer(player);
-            keyedBossBar.setProgress((double) songEnergy / 5);
-        } else {
-            keyedBossBar.removePlayer(player);
-        }
     }
 
     public static boolean songIn(String song, String[] songArray) {
@@ -505,6 +492,71 @@ public class SongPlugHelper {
 
     public static void setNonCollidable(Entity entity) {
         setNonCollidable(entity, true);
+    }
+
+    public static String capitalize(String string) {
+        if(string.length() <= 1) return string.toUpperCase();
+        return string.substring(0, 1).toUpperCase() + string.substring(1).toLowerCase();
+    }
+
+    public static TextComponent getSowClass(Player player, boolean parentheses, boolean allUppercase) {
+        String className = "ERROR";
+        String raceName = "ERROR";
+        NamedTextColor classColor = NamedTextColor.WHITE;
+        NamedTextColor raceColor = NamedTextColor.WHITE;
+
+        for (String tag : player.getScoreboardTags()) {
+            if (tag.endsWith("Class")) {
+                String nameByItself = tag.substring(0, tag.length() - 5);
+                className = nameByItself.toUpperCase();
+
+                classColor = switch (nameByItself.toUpperCase()) {
+                    case "HUMAN" -> NamedTextColor.GRAY;
+                    case "FELINA" -> NamedTextColor.DARK_GREEN;
+                    case "ARDONI", "MAGNORITE" -> NamedTextColor.GOLD;
+                    case "NECROMANCER" -> NamedTextColor.DARK_GRAY;
+                    default -> throw new IllegalStateException("Unexpected value: " + nameByItself.toUpperCase());
+                };
+            }
+
+            if (tag.endsWith("ArdoniRace")) {
+                String nameByItself2 = tag.substring(0, tag.length() - 10);
+                raceName = nameByItself2.toUpperCase();
+
+                raceColor = switch (nameByItself2.toUpperCase()) {
+                    case "CLANLESS" -> NamedTextColor.WHITE;
+                    case "SENDARIS" -> NamedTextColor.BLUE;
+                    case "NESTORIS" -> NamedTextColor.YELLOW;
+                    case "MENDORIS" -> NamedTextColor.LIGHT_PURPLE;
+                    case "KALTARIS" -> NamedTextColor.GREEN;
+                    case "VOLTARIS" -> NamedTextColor.RED;
+                    default -> throw new IllegalStateException("Unexpected value: " + nameByItself2.toUpperCase());
+                };
+            }
+        }
+
+        if(!allUppercase) {
+            className = capitalize(className);
+            raceName = capitalize(raceName);
+        }
+
+        String joinedName;
+        NamedTextColor joinedColor;
+
+        if (className.equals("ARDONI") || className.equals("Ardoni")) {
+            if(parentheses) {
+                joinedName = className + " (" + raceName + ")";
+            } else {
+                joinedName = className + " - " + raceName;
+            }
+
+            joinedColor = raceColor;
+        } else {
+            joinedName = className;
+            joinedColor = classColor;
+        }
+
+        return Component.text(joinedName, joinedColor);
     }
 
     public static void triggerSong(Player player, String song) {

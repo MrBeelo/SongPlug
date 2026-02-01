@@ -3,6 +3,7 @@ package net.mrbeelo.songPlug;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -278,57 +279,10 @@ public class SongPlugListener implements Listener {
     public void onChat(AsyncChatEvent event) {
         Player player = event.getPlayer();
 
-        String className = "ERROR";
-        String raceName = "ERROR";
-        NamedTextColor classColor = NamedTextColor.WHITE;
-        NamedTextColor raceColor = NamedTextColor.WHITE;
+        TextComponent component = getSowClass(player, false, true);
 
-
-        for(String tag : player.getScoreboardTags()) {
-            if(tag.endsWith("Class")) {
-                String nameByItself = tag.substring(0, tag.length() - 5);
-                className = nameByItself.toUpperCase();
-
-                classColor = switch(nameByItself.toUpperCase()) {
-                    case "HUMAN" -> NamedTextColor.GRAY;
-                    case "FELINA" -> NamedTextColor.DARK_GREEN;
-                    case "ARDONI", "MAGNORITE" -> NamedTextColor.GOLD;
-                    case "NECROMANCER" -> NamedTextColor.DARK_GRAY;
-                    default -> throw new IllegalStateException("Unexpected value: " + nameByItself.toUpperCase());
-                };
-            }
-
-            if(tag.endsWith("ArdoniRace")) {
-                String nameByItself2 = tag.substring(0, tag.length() - 10);
-                raceName = nameByItself2.toUpperCase();
-
-                raceColor = switch(nameByItself2.toUpperCase()) {
-                    case "CLANLESS" -> NamedTextColor.WHITE;
-                    case "SENDARIS" -> NamedTextColor.BLUE;
-                    case "NESTORIS" -> NamedTextColor.YELLOW;
-                    case "MENDORIS" -> NamedTextColor.LIGHT_PURPLE;
-                    case "KALTARIS" -> NamedTextColor.GREEN;
-                    case "VOLTARIS" -> NamedTextColor.RED;
-                    default -> throw new IllegalStateException("Unexpected value: " + nameByItself2.toUpperCase());
-                };
-            }
-        }
-
-
-        String joinedName;
-        NamedTextColor joinedColor;
-
-        if(className.equals("ARDONI")) {
-            joinedName = className + " - " + raceName;
-            joinedColor = raceColor;
-        } else {
-            joinedName = className;
-            joinedColor = classColor;
-        }
-
-        String finalJoinedName = joinedName;
         event.renderer((source, sourceDisplayName, message, viewer) ->
-                Component.text("[" + finalJoinedName + "] ", joinedColor)
+                Component.text("[" + component.content() + "] ", component.color())
                         .append(sourceDisplayName.color(NamedTextColor.WHITE))
                         .append(Component.text(": ", NamedTextColor.WHITE))
                         .append(message.color(NamedTextColor.WHITE))
@@ -364,7 +318,7 @@ public class SongPlugListener implements Listener {
         } else if(entity.getScoreboardTags().contains("UsedProtepoint") && entity instanceof Player player) {
             Score activeScore = scoreType(player, "UsingActiveSong");
             if(activeScore.getScore() > 0 && activeScore.getScore() <= 200) {
-                for(Entity interaction : player.getWorld().getEntities()) {
+                for(Entity interaction : getEntities(player)) {
                     if(interaction.getScoreboardTags().contains("ProtepointInteraction" + player.getName())) {
                         if(interaction.getBoundingBox().overlaps(damager.getBoundingBox())) event.setCancelled(true);
                     }
@@ -419,7 +373,7 @@ public class SongPlugListener implements Listener {
     @EventHandler
     public void onPlayerJump(PlayerJumpEvent event) {
         Player player = event.getPlayer();
-        for(Entity entity : player.getWorld().getEntities()) {
+        for(Entity entity : getEntities(player)) {
             if(entity.getScoreboardTags().contains("Mobilibounce" + player.getName()) &&
                     player.getBoundingBox().overlaps(entity.getBoundingBox())) {
                 if(player.getPitch() > 0) {
