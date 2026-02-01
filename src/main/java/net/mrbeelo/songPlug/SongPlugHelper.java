@@ -16,12 +16,17 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.*;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class SongPlugHelper {
     public static void command(String command) {
@@ -366,6 +371,93 @@ public class SongPlugHelper {
         seed ^= (seed >>> 17);
         seed ^= (seed << 5);
         return seed;
+    }
+
+    public static void aggresiumCharge(Player player, int score) {
+        int time = 231 - score; //1-30
+        for(int i = 0; i <= 3; i++) {
+            boolean opp = i % 2 == 0;
+            float degrees = time * 7;
+            float radius = 0.9f;
+
+            if(opp) degrees = 360 - degrees + 180;
+            Color color = opp ? Color.RED : Color.ORANGE;
+
+            float radians = (float) Math.toRadians(degrees);
+
+            BoundingBox box = player.getBoundingBox();
+            Location center = new Location(player.getWorld(), box.getCenterX(), box.getMinY() + 0.3f, box.getCenterZ());
+
+            Location loc = center.clone().add(Math.cos(radians) * radius, i / 2f, Math.sin(radians) * radius);
+            player.getWorld().spawnParticle(Particle.DUST, loc, 3, new Particle.DustOptions(color, 1f));
+        }
+    }
+
+    public static void mobiliumCharge(Player player, int score) {
+        int time = 231 - score; //1-30
+        for(int i = 0; i <= 2; i++) {
+            float degrees = (i != 2) ? time * 7 : 360 - time * 7;
+            float radius = (i == 0) ? 1f : 1f - (time - 5) / 25f;
+            float size = (i == 0) ? 1.3f : 0.8f;
+            float radians = (float) Math.toRadians(degrees);
+            float yoffset = (i == 0) ? 0f : (time - 5) / 25f * ((i == 1) ? 1f : -1f);
+
+            if(time - 5 < 0) {
+                yoffset = 0;
+                radius = 1f;
+            }
+
+            BoundingBox box = player.getBoundingBox();
+            Location center = box.getCenter().toLocation(player.getWorld());
+
+            Location loc = center.clone().add(Math.cos(radians) * radius, yoffset, Math.sin(radians) * radius);
+            player.getWorld().spawnParticle(Particle.DUST, loc, 3, new Particle.DustOptions(Color.YELLOW, size));
+        }
+    }
+
+    public static void protisiumCharge(Player player, int score) {
+        int time = 231 - score; //1-30
+
+        Material block = switch(time) {
+            case 1 -> Material.LIGHT_BLUE_STAINED_GLASS;
+            case 11 -> Material.BLUE_STAINED_GLASS;
+            case 21 -> Material.CYAN_STAINED_GLASS;
+            default -> Material.BLACK_STAINED_GLASS;
+        };
+
+        Vector3f size = new Vector3f(2f, 2f, 2f);
+        Vector3f translation = new Vector3f(size.x * -0.5f, size.y * -0.5f, size.z * -0.5f);
+
+        if(time % 10 == 1) {
+            for(Entity entity : getEntities(player)) if(entity.getScoreboardTags().contains("ProtisiumChargeDisplay" + player.getName())) entity.remove();
+            BlockDisplay display = summonDisplay(getCenter(player), "ProtisiumChargeDisplay" + player.getName(), block);
+            display.setTransformation(new Transformation(translation, new Quaternionf(), size, new Quaternionf()));
+        } else if(time == 30) {
+            for(Entity entity : getEntities(player)) if(entity.getScoreboardTags().contains("ProtisiumChargeDisplay" + player.getName())) entity.remove();
+        } else {
+            for(Entity entity : getEntities(player)) {
+                if(entity.getScoreboardTags().contains("ProtisiumChargeDisplay" + player.getName()) && entity instanceof BlockDisplay display) {
+                    display.teleport(getCenter(player));
+                    display.setTransformation(new Transformation(translation, new Quaternionf(), size, new Quaternionf()));
+                }
+            }
+        }
+    }
+
+    public static void supporiumCharge(Player player, int score) {
+        int time = 231 - score; //1-30
+        BoundingBox pBox = player.getBoundingBox();
+        float offset = 0.5f;
+
+        BoundingBox box = new BoundingBox(pBox.getMinX() - offset, pBox.getMinY() - offset, pBox.getMinZ() - offset,
+                pBox.getMaxX() + offset, pBox.getMaxY() + offset, pBox.getMaxZ() + offset);
+
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        for(int i = 0; i < 16; i++) {
+            Location loc = new Location(player.getWorld(), random.nextDouble(box.getMinX(), box.getMaxX()),
+                    random.nextDouble(box.getMinY(), box.getMaxY()), random.nextDouble(box.getMinZ(), box.getMaxZ()));
+            Particle.DUST.builder().location(loc).count(0).allPlayers().color(Color.LIME).spawn();
+        }
     }
 
     public static Team getTeam(String name) {

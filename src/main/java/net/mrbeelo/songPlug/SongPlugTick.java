@@ -81,6 +81,10 @@ public class SongPlugTick {
 
         //SUPPOROLIFT
         if(player.getScoreboardTags().contains("UsedSupporolift")) {
+            if(usingActiveSong >= 201 && usingActiveSong <= 230) {
+                supporiumCharge(player, usingActiveSong);
+            }
+
             if(usingActiveSong >= 224 && usingActiveSong <= 230) {
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_PARROT_IMITATE_EVOKER, SoundCategory.MASTER, 100f, 0.35f);
             }
@@ -146,6 +150,10 @@ public class SongPlugTick {
 
         //SUPPOROKENISIS
         if(player.getScoreboardTags().contains("UsedSupporokenisis")) {
+            if(usingActiveSong >= 201 && usingActiveSong <= 230) {
+                supporiumCharge(player, usingActiveSong);
+            }
+
             if(usingActiveSong >= 224 && usingActiveSong <= 230) {
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_PARROT_IMITATE_EVOKER, SoundCategory.MASTER, 100f, 0.35f);
             }
@@ -213,6 +221,10 @@ public class SongPlugTick {
             Score usingPassiveSongScore = scoreType(player, "UsingSupporoform");
             int usingPassiveSong = usingPassiveSongScore.getScore();
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
+
+            if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
+                supporiumCharge(player, usingPassiveSong);
+            }
 
             if(usingPassiveSong >= 224 && usingActiveSong <= 230) {
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_PARROT_IMITATE_EVOKER, SoundCategory.MASTER, 100f, 0.35f);
@@ -289,6 +301,10 @@ public class SongPlugTick {
             Score usingPassiveSongScore = scoreType(player, "UsingSupporospike");
             int usingPassiveSong = usingPassiveSongScore.getScore();
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
+
+            if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
+                supporiumCharge(player, usingPassiveSong);
+            }
 
             if(usingPassiveSong == 201) {
                 Block targetBlock = player.getTargetBlock(null, 7);
@@ -386,6 +402,10 @@ public class SongPlugTick {
             AttributeInstance attribute = player.getAttribute(Attribute.SAFE_FALL_DISTANCE);
             assert attribute != null;
 
+            if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
+                mobiliumCharge(player, usingPassiveSong);
+            }
+
             if(usingPassiveSong == 229) {
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
             }
@@ -451,6 +471,10 @@ public class SongPlugTick {
             int usingPassiveSong = usingPassiveSongScore.getScore();
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
+            if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
+                mobiliumCharge(player, usingPassiveSong);
+            }
+
             if(usingPassiveSong == 229) {
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
             }
@@ -510,6 +534,10 @@ public class SongPlugTick {
             int usingPassiveSong = usingPassiveSongScore.getScore();
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
+            if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
+                mobiliumCharge(player, usingPassiveSong);
+            }
+
             if(usingPassiveSong == 229) {
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
             }
@@ -560,6 +588,10 @@ public class SongPlugTick {
 
         //MOBILIWINGS
         if(player.getScoreboardTags().contains("UsedMobiliwings")) {
+            if(usingActiveSong >= 201 && usingActiveSong <= 230) {
+                mobiliumCharge(player, usingActiveSong);
+            }
+
             if(usingActiveSong == 229) {
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
             }
@@ -609,6 +641,10 @@ public class SongPlugTick {
             Score mobilibounceLaunchDelayScore = scoreType(player, "MobilibounceLaunchDelay");
             int mobilibounceLaunchDelay = mobilibounceLaunchDelayScore.getScore();
             if(mobilibounceLaunchDelay > 0) mobilibounceLaunchDelayScore.setScore(mobilibounceLaunchDelay - 1);
+
+            if(usingActiveSong >= 201 && usingActiveSong <= 230) {
+                mobiliumCharge(player, usingActiveSong);
+            }
 
             if(usingActiveSong == 229) {
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
@@ -700,6 +736,10 @@ public class SongPlugTick {
 
         /// MOBILIGLIDE
         if(player.getScoreboardTags().contains("UsedMobiliglide")) {
+            if(usingActiveSong >= 201 && usingActiveSong <= 230) {
+                mobiliumCharge(player, usingActiveSong);
+            }
+
             if(usingActiveSong == 229) {
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.MASTER, 5f, 0.75f);
             }
@@ -770,6 +810,10 @@ public class SongPlugTick {
             int usingPassiveSong = usingPassiveSongScore.getScore();
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
+            if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
+                protisiumCharge(player, usingPassiveSong);
+            }
+
             if(usingPassiveSong == 229) {
                 playSoundToNearby(player.getLocation(), 10, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
             }
@@ -800,6 +844,10 @@ public class SongPlugTick {
             assert attack != null;
             assert armor != null;
             assert speed != null;
+
+            if(usingActiveSong >= 201 && usingActiveSong <= 230) {
+                protisiumCharge(player, usingActiveSong);
+            }
 
             if(usingActiveSong == 229) {
                 playSoundToNearby(player.getLocation(), 10, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
@@ -847,6 +895,10 @@ public class SongPlugTick {
 
         //PROTESPHERE
         if(player.getScoreboardTags().contains("UsedProtesphere")) {
+            if(usingActiveSong >= 201 && usingActiveSong <= 230) {
+                protisiumCharge(player, usingActiveSong);
+            }
+
             if(usingActiveSong == 229) {
                 playSoundToNearby(player.getLocation(), 7, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
             }
@@ -939,6 +991,10 @@ public class SongPlugTick {
 
         //PROTEPOINT
         if(player.getScoreboardTags().contains("UsedProtepoint")) {
+            if(usingActiveSong >= 201 && usingActiveSong <= 230) {
+                protisiumCharge(player, usingActiveSong);
+            }
+
             if(usingActiveSong == 229) {
                 playSoundToNearby(player.getLocation(), 7, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
             }
@@ -1008,6 +1064,10 @@ public class SongPlugTick {
             int usingPassiveSong = usingPassiveSongScore.getScore();
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
+            if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
+                protisiumCharge(player, usingPassiveSong);
+            }
+
             if(usingPassiveSong == 229) {
                 playSoundToNearby(player.getLocation(), 7, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
             }
@@ -1039,6 +1099,10 @@ public class SongPlugTick {
             Score usingPassiveSongScore = scoreType(player, "UsingProtebarrier");
             int usingPassiveSong = usingPassiveSongScore.getScore();
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
+
+            if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
+                protisiumCharge(player, usingPassiveSong);
+            }
 
             if(usingPassiveSong == 229) {
                 playSoundToNearby(player.getLocation(), 7, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
@@ -1127,6 +1191,10 @@ public class SongPlugTick {
             Score usingPassiveSongScore = scoreType(player, "UsingAggrosphere");
             int usingPassiveSong = usingPassiveSongScore.getScore();
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
+
+            if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
+                aggresiumCharge(player, usingPassiveSong);
+            }
 
             if(usingPassiveSong == 229) {
                 speed.setBaseValue(0.03);
@@ -1227,6 +1295,10 @@ public class SongPlugTick {
 
         //AGGROBEAM
         if(player.getScoreboardTags().contains("UsedAggrobeam")) {
+            if(usingActiveSong >= 201 && usingActiveSong <= 230) {
+                aggresiumCharge(player, usingActiveSong);
+            }
+
             if(usingActiveSong == 229) {
                 speed.setBaseValue(0.03);
                 jump.setBaseValue(0.1);
@@ -1283,6 +1355,10 @@ public class SongPlugTick {
             Score usingPassiveSongScore = scoreType(player, "UsingAggroquake");
             int usingPassiveSong = usingPassiveSongScore.getScore();
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
+
+            if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
+                aggresiumCharge(player, usingPassiveSong);
+            }
 
             if(usingPassiveSong == 229) {
                 speed.setBaseValue(0);
@@ -1347,6 +1423,10 @@ public class SongPlugTick {
             int usingPassiveSong = usingPassiveSongScore.getScore();
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
+            if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
+                aggresiumCharge(player, usingPassiveSong);
+            }
+
             if(usingPassiveSong == 229) {
                 speed.setBaseValue(0.03);
                 jump.setBaseValue(0.1);
@@ -1410,6 +1490,10 @@ public class SongPlugTick {
             Score usingPassiveSongScore = scoreType(player, "UsingAggrovortex");
             int usingPassiveSong = usingPassiveSongScore.getScore();
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
+
+            if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
+                aggresiumCharge(player, usingPassiveSong);
+            }
 
             if(usingPassiveSong == 229) {
                 speed.setBaseValue(0.03);
@@ -1523,6 +1607,10 @@ public class SongPlugTick {
             int usingPassiveSong = usingPassiveSongScore.getScore();
             if (usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
+            if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
+                aggresiumCharge(player, usingPassiveSong);
+            }
+
             if(usingPassiveSong == 229) {
                 speed.setBaseValue(0.03);
                 jump.setBaseValue(0.1);
@@ -1619,6 +1707,10 @@ public class SongPlugTick {
             int usingPassiveSong = usingPassiveSongScore.getScore();
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
+            if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
+                aggresiumCharge(player, usingPassiveSong);
+            }
+
             if(usingPassiveSong == 229) {
                 speed.setBaseValue(0.03);
                 jump.setBaseValue(0.1);
@@ -1714,6 +1806,10 @@ public class SongPlugTick {
 
         //AGGROSTORM
         if(player.getScoreboardTags().contains("UsedAggrostorm")) {
+            if(usingActiveSong >= 201 && usingActiveSong <= 230) {
+                aggresiumCharge(player, usingActiveSong);
+            }
+
             if(usingActiveSong == 229) {
                 speed.setBaseValue(0.01);
                 jump.setBaseValue(0.1);
@@ -1767,6 +1863,10 @@ public class SongPlugTick {
             Score usingPassiveSongScore = scoreType(player, "UsingAggroshock");
             int usingPassiveSong = usingPassiveSongScore.getScore();
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
+
+            if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
+                aggresiumCharge(player, usingPassiveSong);
+            }
 
             if(usingPassiveSong == 229) {
                 speed.setBaseValue(0.03);
