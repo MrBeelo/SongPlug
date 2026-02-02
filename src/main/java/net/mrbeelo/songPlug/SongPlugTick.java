@@ -514,7 +514,7 @@ public class SongPlugTick {
 
         //MOBILIFLASH
         if(player.getScoreboardTags().contains("UsedMobiliflash")) {
-            Score usingPassiveSongScore = scoreType(player, "UsingMobilileap");
+            Score usingPassiveSongScore = scoreType(player, "UsingMobiliflash");
             int usingPassiveSong = usingPassiveSongScore.getScore();
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
