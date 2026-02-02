@@ -1,7 +1,5 @@
 package net.mrbeelo.songPlug;
 
-import io.papermc.paper.datacomponent.item.ResolvableProfile;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
@@ -90,7 +88,15 @@ public class SongPlugTick {
     }
 
     public static void updateSidebar(Player player) {
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+
         Scoreboard board = player.getScoreboard();
+
+        if (board == manager.getMainScoreboard()) {
+            board = manager.getNewScoreboard();
+            player.setScoreboard(board);
+        }
+
         Objective sidebar = board.getObjective(DisplaySlot.SIDEBAR);
 
         if (sidebar == null) {
@@ -806,7 +812,7 @@ public class SongPlugTick {
             }
 
             if(usingActiveSong > 0 && usingActiveSong <= 200) {
-                for(Entity entity : getNearbyEntities(player.getLocation(), 9)) {
+                for(Entity entity : getEntities(player)) {
                     if(entity instanceof Mannequin) {
                         for(String tag : entity.getScoreboardTags()) {
                             if(tag.startsWith("Mobiliglide") && tag.endsWith(player.getName())) {
@@ -950,65 +956,18 @@ public class SongPlugTick {
                 playSoundToNearby(player.getLocation(), 7, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 100f, 0.2f);
             }
 
-            if(usingActiveSong == 201) {
-                BlockDisplay display = summonDisplay(player.getLocation(), "ProtesphereDisplay" + player.getName(), Material.CYAN_STAINED_GLASS);
-
-                for(int i = 0; i <= 5; i++) {
-                    BlockDisplay display2 = summonDisplay(player.getLocation(), "ProtesphereDisplay" + i + player.getName(), Material.CYAN_STAINED_GLASS);
-                }
-            }
-
             if(usingActiveSong > 0 && usingActiveSong <= 200) {
-                for(Entity entity : getEntities(player)) {
-                    if(entity.getScoreboardTags().contains("ProtesphereDisplay" + player.getName()) && entity instanceof BlockDisplay display) {
-                        float size = 1.7f;
-                        Location pivot = player.getBoundingBox().getCenter().toLocation(player.getWorld());
-                        display.teleport(pivot);
-                        Vector3f centerOffset = new Vector3f(-0.5f * size, -0.5f * size, -0.5f * size);
-                        display.setTransformation(new Transformation(centerOffset, new Quaternionf(), new Vector3f(size, size, size), new Quaternionf()));
-                    } else {
-                        for(String tag : entity.getScoreboardTags()) {
-                            if(tag.startsWith("ProtesphereDisplay") && tag.endsWith(player.getName()) && entity instanceof BlockDisplay display) {
-                                tag = tag.substring("ProtesphereDisplay".length(), tag.length() - player.getName().length());
-                                int index = Integer.parseInt(tag);
-
-                                int yaw = switch (index) {
-                                    case 1 -> 90;
-                                    case 2 -> 180;
-                                    case 3 -> -90;
-                                    default -> 0;
-                                };
-
-                                int pitch = switch (index) {
-                                    case 4 -> -90;
-                                    case 5 -> 90;
-                                    default -> 0;
-                                };
-
-                                float bigBubbleSize = 1.7f;
-                                Vector3f size = new Vector3f(1f, 1f, 0.3f);
-
-                                Location center = player.getBoundingBox().getCenter().toLocation(player.getWorld());
-                                float offset = bigBubbleSize / 2f + size.z / 2f;
-
-                                Location pivot = switch (index) {
-                                    case 0 -> center.clone().add(0, 0, offset);
-                                    case 1 -> center.clone().add(offset, 0, 0);
-                                    case 2 -> center.clone().add(0, 0, -offset);
-                                    case 3 -> center.clone().add(-offset, 0, 0);
-                                    case 4 -> center.clone().add(0, offset, 0);   // TOP
-                                    case 5 -> center.clone().add(0, -offset, 0);  // BOTTOM
-                                    default -> center;
-                                };
-
-                                pivot.setRotation(yaw, pitch);
-
-                                display.teleport(pivot);
-                                Vector3f centerOffset = new Vector3f(size.x * -0.5f, size.y * -0.5f, size.z * -0.5f);
-                                display.setTransformation(new Transformation(centerOffset, new Quaternionf(), size, new Quaternionf()));
-                            }
-                        }
-                    }
+                Location center = getCenter(player);
+                float radius = 1.3f;
+                int points = 100;
+                for (int i = 0; i < points; i++) {
+                    double theta = Math.random() * Math.PI * 2;
+                    double phi = Math.acos(2 * Math.random() - 1);
+                    double x = radius * Math.sin(phi) * Math.cos(theta);
+                    double y = radius * Math.sin(phi) * Math.sin(theta);
+                    double z = radius * Math.cos(phi);
+                    center.getWorld().spawnParticle(Particle.DUST, center.clone().add(x, y, z), 0, new Particle.DustOptions(Color.fromRGB(71, 110, 253), 0.6f));
+                    Particle.DUST.builder().location(center.clone().add(x, y, z)).receivers(allExceptPlayer(player)).data(new Particle.DustOptions(Color.fromRGB(71, 110, 253), 1.5f)).spawn();
                 }
 
                 for(Entity entity : getEntities(player)) {
@@ -1028,11 +987,6 @@ public class SongPlugTick {
 
             if(usingActiveSong == 0) {
                 player.getScoreboardTags().remove("UsedProtesphere");
-                for(Entity entity : getEntities(player)) {
-                    for(String tag : entity.getScoreboardTags()) {
-                        if(tag.startsWith("ProtesphereDisplay") && tag.endsWith(player.getName())) entity.remove();
-                    }
-                }
             }
         }
 
@@ -1240,7 +1194,7 @@ public class SongPlugTick {
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
             if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
-                aggresiumCharge(player, usingPassiveSong);
+                aggressiumCharge(player, usingPassiveSong);
             }
 
             if(usingPassiveSong == 229) {
@@ -1343,7 +1297,7 @@ public class SongPlugTick {
         //AGGROBEAM
         if(player.getScoreboardTags().contains("UsedAggrobeam")) {
             if(usingActiveSong >= 201 && usingActiveSong <= 230) {
-                aggresiumCharge(player, usingActiveSong);
+                aggressiumCharge(player, usingActiveSong);
             }
 
             if(usingActiveSong == 229) {
@@ -1404,7 +1358,7 @@ public class SongPlugTick {
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
             if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
-                aggresiumCharge(player, usingPassiveSong);
+                aggressiumCharge(player, usingPassiveSong);
             }
 
             if(usingPassiveSong == 229) {
@@ -1471,7 +1425,7 @@ public class SongPlugTick {
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
             if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
-                aggresiumCharge(player, usingPassiveSong);
+                aggressiumCharge(player, usingPassiveSong);
             }
 
             if(usingPassiveSong == 229) {
@@ -1539,7 +1493,7 @@ public class SongPlugTick {
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
             if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
-                aggresiumCharge(player, usingPassiveSong);
+                aggressiumCharge(player, usingPassiveSong);
             }
 
             if(usingPassiveSong == 229) {
@@ -1655,7 +1609,7 @@ public class SongPlugTick {
             if (usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
             if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
-                aggresiumCharge(player, usingPassiveSong);
+                aggressiumCharge(player, usingPassiveSong);
             }
 
             if(usingPassiveSong == 229) {
@@ -1755,7 +1709,7 @@ public class SongPlugTick {
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
             if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
-                aggresiumCharge(player, usingPassiveSong);
+                aggressiumCharge(player, usingPassiveSong);
             }
 
             if(usingPassiveSong == 229) {
@@ -1854,7 +1808,7 @@ public class SongPlugTick {
         //AGGROSTORM
         if(player.getScoreboardTags().contains("UsedAggrostorm")) {
             if(usingActiveSong >= 201 && usingActiveSong <= 230) {
-                aggresiumCharge(player, usingActiveSong);
+                aggressiumCharge(player, usingActiveSong);
             }
 
             if(usingActiveSong == 229) {
@@ -1912,7 +1866,7 @@ public class SongPlugTick {
             if(usingPassiveSong > 0) usingPassiveSongScore.setScore(usingPassiveSong - 1);
 
             if(usingPassiveSong >= 201 && usingPassiveSong <= 230) {
-                aggresiumCharge(player, usingPassiveSong);
+                aggressiumCharge(player, usingPassiveSong);
             }
 
             if(usingPassiveSong == 229) {

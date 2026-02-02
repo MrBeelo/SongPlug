@@ -7,10 +7,6 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.*;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarFlag;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.entity.*;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
@@ -288,7 +284,6 @@ public class SongPlugHelper {
         Vector playerVector = player.getLocation().getDirection().normalize().setY(player.getLocation().getDirection().normalize().getY() / 3);
         Vector entityVector = entityDistanceVector(player, entity).normalize();
         double angle = Math.toDegrees(playerVector.angle(entityVector));
-        player.sendMessage("Angle for " + entity.getName() + ": " + angle + " deg.");
         return angle < 17.5f;
     }
 
@@ -360,74 +355,80 @@ public class SongPlugHelper {
         return seed;
     }
 
-    public static void aggresiumCharge(Player player, int score) {
+    public static void aggressiumCharge(Player player, int score) {
         int time = 231 - score; //1-30
-        for(int i = 0; i <= 3; i++) {
-            boolean opp = i % 2 == 0;
-            float degrees = time * 7;
-            float radius = 0.9f;
 
-            if(opp) degrees = 360 - degrees + 180;
-            Color color = opp ? Color.RED : Color.ORANGE;
+        Location center = getCenter(player);
+        float radius = 1f;
 
-            float radians = (float) Math.toRadians(degrees);
+        if(time > 18 && time <= 25) radius = 1f - (time - 18) * 0.75f / 10f;
+        if(time > 25) radius = 1f / 2f + (time - 25) / 10f * 2.4f;
 
-            BoundingBox box = player.getBoundingBox();
-            Location center = new Location(player.getWorld(), box.getCenterX(), box.getMinY() + 0.3f, box.getCenterZ());
 
-            Location loc = center.clone().add(Math.cos(radians) * radius, i / 2f, Math.sin(radians) * radius);
-            player.getWorld().spawnParticle(Particle.DUST, loc, 3, new Particle.DustOptions(color, 1f));
+        for (int i = 0; i < 100; i++) {
+            double theta = Math.random() * Math.PI * 2;
+            double phi = Math.acos(2 * Math.random() - 1);
+            double x = radius * Math.sin(phi) * Math.cos(theta);
+            double y = radius * Math.sin(phi) * Math.sin(theta);
+            double z = radius * Math.cos(phi);
+            if(i % 7 == 0) center.getWorld().spawnParticle(Particle.DUST, center.clone().add(x, y, z), 0, new Particle.DustOptions(Color.RED, 0.7f));
         }
     }
 
     public static void mobiliumCharge(Player player, int score) {
         int time = 231 - score; //1-30
-        for(int i = 0; i <= 2; i++) {
-            float degrees = (i != 2) ? time * 7 : 360 - time * 7;
-            float radius = (i == 0) ? 1f : 1f - (time - 5) / 25f;
-            float size = (i == 0) ? 1.3f : 0.8f;
-            float radians = (float) Math.toRadians(degrees);
-            float yoffset = (i == 0) ? 0f : (time - 5) / 25f * ((i == 1) ? 1f : -1f);
 
-            if(time - 5 < 0) {
-                yoffset = 0;
-                radius = 1f;
+        for(int j = 1; j <= 3; j++) {
+            Location center = getCenter(player);
+            float radius = 1f;
+            int points = 100;
+
+            Vector circleVector = switch(j) {
+                case 1 -> new Vector(0.13f, 0.96f, 0.25f);
+                case 2 -> new Vector(0.97f, 0.21f, 0.26f);
+                case 3 -> new Vector(0.36f, 0.32f, 0.95f);
+                default -> new Vector(0, 0, 0);
+            };
+
+            Vector circleAddVector = switch(j) {
+                case 1 -> new Vector(time / 60f, time / -40f, time / -80f);
+                case 2 -> new Vector(time / -45f, time / -55f, time / 70f);
+                case 3 -> new Vector(time / -90f, time / 60f, time / -45f);
+                default -> new Vector(0, 0, 0);
+            };
+
+            Vector forward = circleVector.add(circleAddVector);
+            Vector up = new Vector(0, 1, 0);
+            if (Math.abs(forward.dot(up)) > 0.99) up = new Vector(1, 0, 0);
+
+            Vector right = forward.clone().crossProduct(up).normalize();
+            up = right.clone().crossProduct(forward).normalize();
+
+            for (int i = 0; i < points; i++) {
+                double angle = 2 * Math.PI * i / points;
+                Vector offset = right.clone().multiply(Math.cos(angle) * radius).add(up.clone().multiply(Math.sin(angle) * radius));
+                Location loc = center.clone().add(offset);
+
+
+                player.getWorld().spawnParticle(Particle.DUST, loc, 0, new Particle.DustOptions(Color.YELLOW, 0.6f * (31 - time) / 30f));
             }
-
-            BoundingBox box = player.getBoundingBox();
-            Location center = box.getCenter().toLocation(player.getWorld());
-
-            Location loc = center.clone().add(Math.cos(radians) * radius, yoffset, Math.sin(radians) * radius);
-            player.getWorld().spawnParticle(Particle.DUST, loc, 3, new Particle.DustOptions(Color.YELLOW, size));
         }
     }
 
     public static void protisiumCharge(Player player, int score) {
         int time = 231 - score; //1-30
 
-        Material block = switch(time) {
-            case 1 -> Material.LIGHT_BLUE_STAINED_GLASS;
-            case 11 -> Material.BLUE_STAINED_GLASS;
-            case 21 -> Material.CYAN_STAINED_GLASS;
-            default -> Material.BLACK_STAINED_GLASS;
-        };
+        Location center = getCenter(player);
+        float radius = 1.15f;
+        int points = 100;
+        for (int i = 0; i < points; i++) {
+            double theta = Math.random() * Math.PI * 2;
+            double phi = Math.acos(2 * Math.random() - 1);
+            double x = radius * Math.sin(phi) * Math.cos(theta);
+            double y = radius * Math.sin(phi) * Math.sin(theta);
+            double z = radius * Math.cos(phi);
 
-        Vector3f size = new Vector3f(2f, 2f, 2f);
-        Vector3f translation = new Vector3f(size.x * -0.5f, size.y * -0.5f, size.z * -0.5f);
-
-        if(time % 10 == 1) {
-            for(Entity entity : getEntities(player)) if(entity.getScoreboardTags().contains("ProtisiumChargeDisplay" + player.getName())) entity.remove();
-            BlockDisplay display = summonDisplay(getCenter(player), "ProtisiumChargeDisplay" + player.getName(), block);
-            display.setTransformation(new Transformation(translation, new Quaternionf(), size, new Quaternionf()));
-        } else if(time == 30) {
-            for(Entity entity : getEntities(player)) if(entity.getScoreboardTags().contains("ProtisiumChargeDisplay" + player.getName())) entity.remove();
-        } else {
-            for(Entity entity : getEntities(player)) {
-                if(entity.getScoreboardTags().contains("ProtisiumChargeDisplay" + player.getName()) && entity instanceof BlockDisplay display) {
-                    display.teleport(getCenter(player));
-                    display.setTransformation(new Transformation(translation, new Quaternionf(), size, new Quaternionf()));
-                }
-            }
+            center.getWorld().spawnParticle(Particle.DUST, center.clone().add(x, y, z), 0, new Particle.DustOptions(Color.fromRGB(71, 110, 253), 0.6f));
         }
     }
 
@@ -440,11 +441,21 @@ public class SongPlugHelper {
                 pBox.getMaxX() + offset, pBox.getMaxY() + offset, pBox.getMaxZ() + offset);
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        for(int i = 0; i < 16; i++) {
+        for(int i = 0; i < 5; i++) {
             Location loc = new Location(player.getWorld(), random.nextDouble(box.getMinX(), box.getMaxX()),
                     random.nextDouble(box.getMinY(), box.getMaxY()), random.nextDouble(box.getMinZ(), box.getMaxZ()));
-            Particle.DUST.builder().location(loc).count(0).allPlayers().color(Color.LIME).spawn();
+            player.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, loc, 0, new Particle.DustTransition(
+                    Color.fromRGB(137, 251, 104), Color.fromRGB(58, 255, 0), time / 30f));
         }
+    }
+
+    public static List<Player> allExceptPlayer(Player player) {
+        List<Player> players = new ArrayList<>();
+        for(Player plr : Bukkit.getOnlinePlayers()) {
+            if(!plr.getName().equals(player.getName())) players.add(plr);
+        }
+
+        return players;
     }
 
     public static Team getTeam(String name) {
