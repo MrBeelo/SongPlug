@@ -28,9 +28,28 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.random.RandomGenerator;
 
+import static net.mrbeelo.songPlug.SongPlugClass.resetClassStats;
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugTick {
+    public static void classTick(Player player) {
+        Score infuseDebuffScore = scoreType(player, "InfuseDebuff");
+        int infuseDebuff = infuseDebuffScore.getScore();
+        if(infuseDebuff > 0) infuseDebuffScore.setScore(infuseDebuff - 1);
+        if(infuseDebuff == 1) resetClassStats(player);
+
+        Score xpScore = scoreType(player, "XP");
+        int xp = xpScore.getScore();
+        Score levelScore = scoreType(player, "Level");
+        int level = levelScore.getScore();
+
+        if(xp >= level * 10 + 100) {
+            int rem = (level != 0) ? xp % (level * 10 + 100) : 0;
+            xpScore.setScore(rem);
+            levelScore.setScore(level + 1);
+            player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1.0f, 1.0f);
+        }
+    }
 
     public static void updateBossBar(Player player, int songEnergy) {
         NamespacedKey key = new NamespacedKey("songplug", "song_energy_" + player.getName().toLowerCase() + "_key");
@@ -112,7 +131,8 @@ public class SongPlugTick {
             }
         } else if(sidebar.getName().equals("Stats")) {
             for (String entry : Objects.requireNonNull(sidebar.getScoreboard()).getEntries()) sidebar.getScore(entry).resetScore();
-            sidebar.getScore("§7").setScore(5);
+            sidebar.getScore("§7").setScore(6);
+            sidebar.getScore("XP: " + scoreValue(player, "XP") + "/" + (scoreValue(player, "Level") * 10 + 100)).setScore(5);
             sidebar.getScore("Level: " + scoreValue(player, "Level")).setScore(4);
             sidebar.getScore("§6").setScore(3);
             sidebar.getScore("Class: " + getSowClass(player, true, false).content()).setScore(2);

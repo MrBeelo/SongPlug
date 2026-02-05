@@ -42,6 +42,7 @@ public final class SongPlug extends JavaPlugin {
     public void tick() {
         for (Player player : Bukkit.getOnlinePlayers()) {
             Score energyScore = scoreType(player, "SongEnergy");
+            classTick(player);
             updateBossBar(player, energyScore.getScore());
             updateRegen(player, energyScore);
             updateCooldowns(player);

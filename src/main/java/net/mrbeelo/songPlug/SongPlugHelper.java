@@ -92,7 +92,7 @@ public class SongPlugHelper {
         dropCustomItemName(player, material, name);
     }
 
-    public static void infuseSong(Player player, String name, boolean includeStacks, boolean force) {
+    public static boolean infuseSong(Player player, String name, boolean includeStacks, boolean force) {
         String songType = "ERROR";
         String songColor = "ERROR";
 
@@ -122,10 +122,14 @@ public class SongPlugHelper {
                 player.getScoreboardTags().add("Has" + songColor + "Song");
                 if(includeStacks) player.getInventory().getItemInMainHand().setAmount(player.getInventory().getItemInMainHand().getAmount() - 1);
                 player.sendMessage("You have been infused with " + name + "!");
+
+                return true;
             } else {
                 player.sendMessage("You already have a " + songType + " Song!");
             }
         }
+
+        return false;
     }
 
     public static void clearSongs(Player player, boolean includeStacks) {

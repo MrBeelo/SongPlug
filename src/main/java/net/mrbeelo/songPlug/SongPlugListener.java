@@ -6,6 +6,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -13,7 +15,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -25,14 +26,22 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import static net.mrbeelo.songPlug.SongPlugClass.resetClassStats;
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugListener implements Listener {
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        resetClassStats(player);
+    }
+
     @EventHandler
     public void scrolled(PlayerItemHeldEvent event) {
         Player player = event.getPlayer();
@@ -45,6 +54,7 @@ public class SongPlugListener implements Listener {
         Player player = event.getPlayer();
 
         if(!player.getScoreboardTags().contains("ArdoniClass")) return;
+        if(scoreValue(player, "Level") < 10) return;
 
         Score score = scoreType(player, "FCycle");
         int playerScore = score.getScore();
@@ -173,6 +183,8 @@ public class SongPlugListener implements Listener {
                     }
                 }
 
+                resetClassStats(player);
+
                 event.setCancelled(true);
                 view.close();
 
@@ -231,7 +243,22 @@ public class SongPlugListener implements Listener {
                 }
 
                 String name = meta.getItemName();
-                infuseSong(player, name, true, false);
+                if(infuseSong(player, name, true, false)) {
+                    playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, SoundCategory.MASTER, 1.0f, 1.0f);
+                    if(scoreValue(player, "Level") < 30) {
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 140, 0, true, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 140, 2, true, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 140, 0, true, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, 140, 255, true, false, false));
+
+                        Score score = scoreType(player, "InfuseDebuff");
+                        score.setScore(140);
+
+                        AttributeInstance health = player.getAttribute(Attribute.MAX_HEALTH);
+                        assert health != null;
+                        health.setBaseValue(6);
+                    }
+                };
             }
         }
 

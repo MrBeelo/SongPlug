@@ -1,6 +1,6 @@
 She song me till I plugin
 
-//--RARITIES--// (Common, Uncommon, Rare, Legendary)
+//--SONGS & RARITIES--// (Common, Uncommon, Rare, Legendary)
 
 Aggrosphere - R1
 Aggrobeam - L1
@@ -29,3 +29,40 @@ Supporoform - C5
 Supporospike - R6
 
 Common: 5, Uncommon: 8, Rare: 6, Legendary: 6
+
+//--PERKS--//
+
+Human:
+10 -
+20 -
+30 -
+40 -
+50 -
+
+Felina:
+10 -
+20 -
+30 -
+40 -
+50 -
+
+Ardoni:
+10 - Song Wielder
+20 -
+30 - Amateur
+40 -
+50 -
+
+Magnorite:
+10 -
+20 -
+30 -
+40 -
+50 -
+
+Necromancer:
+10 -
+20 -
+30 -
+40 -
+50 -
