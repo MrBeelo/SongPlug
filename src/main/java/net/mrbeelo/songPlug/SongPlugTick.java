@@ -69,7 +69,7 @@ public class SongPlugTick {
                 }
             }
 
-            if(getSowClass(player) == 0 && scoreValue(player, "Level") >= 50) {
+            if(getSowClass(player) == 0 && getLevel(player) >= 50) {
                 if(player.hasPotionEffect(PotionEffectType.SLOWNESS)) player.removePotionEffect(PotionEffectType.SLOWNESS);
             } else {
                 if(foundNetherite) {
@@ -81,7 +81,7 @@ public class SongPlugTick {
             }
         }
 
-        if(getSowClass(player) == 3 && scoreValue(player, "Level") >= 10) {
+        if(getSowClass(player) == 3 && getLevel(player) >= 10) {
             PotionEffectType[] types = {PotionEffectType.SLOWNESS, PotionEffectType.BLINDNESS, PotionEffectType.HUNGER, PotionEffectType.NAUSEA,
                     PotionEffectType.POISON, PotionEffectType.WEAKNESS, PotionEffectType.INFESTED, PotionEffectType.LEVITATION,
                     PotionEffectType.MINING_FATIGUE, PotionEffectType.OOZING, PotionEffectType.UNLUCK, PotionEffectType.WEAVING,
@@ -174,8 +174,8 @@ public class SongPlugTick {
         } else if(sidebar.getName().equals("Stats")) {
             for (String entry : Objects.requireNonNull(sidebar.getScoreboard()).getEntries()) sidebar.getScore(entry).resetScore();
             sidebar.getScore("§7").setScore(6);
-            sidebar.getScore("XP: " + scoreValue(player, "XP") + "/" + (scoreValue(player, "Level") * 10 + 100)).setScore(5);
-            sidebar.getScore("Level: " + scoreValue(player, "Level")).setScore(4);
+            sidebar.getScore("XP: " + scoreValue(player, "XP") + "/" + (getLevel(player) * 10 + 100)).setScore(5);
+            sidebar.getScore("Level: " + getLevel(player)).setScore(4);
             sidebar.getScore("§6").setScore(3);
             sidebar.getScore("Class: " + getSowClassComponent(player, true, false).content()).setScore(2);
             sidebar.getScore("§5").setScore(1);

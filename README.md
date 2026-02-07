@@ -40,7 +40,7 @@ Human:
 50 - Ender Path
 
 Felina:
-10 -
+10 - Monster Hunter
 20 -
 30 -
 40 -

@@ -58,7 +58,7 @@ public class SongPlugListener implements Listener {
         ItemStack stack = event.getItem();
         Material material = stack.getType();
 
-        if(isFish(material) && getSowClass(player) == 1 && scoreValue(player, "Level") >= 50) {
+        if(isFish(material) && getSowClass(player) == 1 && getLevel(player) >= 50) {
             player.heal(4);
             player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 60, 2, true, false, false));
             if(material.equals(Material.PUFFERFISH)) {
@@ -96,12 +96,8 @@ public class SongPlugListener implements Listener {
             Material material;
 
             int[] chancePool = {48, 28, 16, 6, 2};
-            String test = "Normal: ";
 
-            if(getSowClass(player) == 0 && scoreValue(player, "Level") >= 40) {
-                chancePool = new int[]{40, 27, 20, 9, 4};
-                test = "Lucky: ";
-            }
+            if(getSowClass(player) == 0 && getLevel(player) >= 40) chancePool = new int[]{40, 27, 20, 9, 4};
 
             int chanceSum = Arrays.stream(chancePool).sum();
 
@@ -113,7 +109,6 @@ public class SongPlugListener implements Listener {
             else if(randomInt >= chanceSum - chancePool[4] - chancePool[3] - chancePool[2]) material = Material.IRON_ORE;
             else if(randomInt >= chanceSum - chancePool[4] - chancePool[3] - chancePool[2] - chancePool[1]) material = Material.COAL_ORE;
             else material = Material.COBBLESTONE;
-            Bukkit.broadcastMessage(test + material.name() + " (" + randomInt + ")");
 
             event.setCancelled(true);
             location.getBlock().setType(material);
@@ -125,7 +120,7 @@ public class SongPlugListener implements Listener {
         Player player = event.getPlayer();
 
         if(!player.getScoreboardTags().contains("ArdoniClass")) return;
-        if(scoreValue(player, "Level") < 10) return;
+        if(getLevel(player) < 10) return;
 
         Score score = scoreType(player, "FCycle");
         int playerScore = score.getScore();
@@ -316,7 +311,7 @@ public class SongPlugListener implements Listener {
                 String name = meta.getItemName();
                 if(infuseSong(player, name, true, false)) {
                     playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, SoundCategory.MASTER, 1.0f, 1.0f);
-                    if(scoreValue(player, "Level") < 30) {
+                    if(getLevel(player) < 30) {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 140, 0, true, false, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 140, 2, true, false, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 140, 0, true, false, false));
@@ -468,7 +463,20 @@ public class SongPlugListener implements Listener {
             }
 
             if(cause.equals(EntityDamageEvent.DamageCause.PROJECTILE) && getSowClass(player) == 3 &&
-                    scoreValue(player, "Level") >= 50) event.setCancelled(true);
+                    getLevel(player) >= 50) event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onEntityDamagedByEntity(EntityDamageByEntityEvent event) {
+        Entity entity = event.getEntity();
+        Entity damager = event.getDamager();
+
+        if(damager instanceof Player player && isUndead(entity)) {
+            if(getSowClass(player) == 1 && getLevel(player) >= 10) {
+                double damage = event.getDamage();
+                event.setDamage(damage * 1.2f);
+            }
         }
     }
 

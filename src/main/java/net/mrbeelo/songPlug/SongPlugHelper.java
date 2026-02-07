@@ -176,20 +176,48 @@ public class SongPlugHelper {
         return score.getScore();
     }
 
+    public static int getLevel(Player player) {
+        return scoreValue(player, "Level");
+    }
+
     public static void handleSongActivationScoreboards(Player player, Score energyScore, Score energyRegenScore, Score energyCooldownScore) {
         updateBossBar(player, energyScore.getScore() - 1);
         energyScore.setScore(energyScore.getScore() - 1);
         energyRegenScore.setScore(0);
 
         Score warSongScore = scoreType(player, "WarSongMeter");
-        if(scoreValue(player, "Level") >= 50) warSongScore.setScore(warSongScore.getScore() + 1);
+        if(getLevel(player) >= 50) warSongScore.setScore(warSongScore.getScore() + 1);
 
-        if(scoreValue(player, "WarSongMeter") == 4 && scoreValue(player, "Level") >= 50) {
+        if(scoreValue(player, "WarSongMeter") == 4 && getLevel(player) >= 50) {
             warSongScore.setScore(0);
             player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1.0f, 1.5f);
         } else {
             energyCooldownScore.setScore(200);
         }
+    }
+
+    public static boolean isUndead(Entity entity) {
+        return switch(entity.getType()) {
+            case CAMEL_HUSK,
+                 DROWNED,
+                 GIANT,
+                 HUSK,
+                 PARCHED,
+                 PHANTOM,
+                 SKELETON,
+                 SKELETON_HORSE,
+                 STRAY,
+                 WITHER,
+                 WITHER_SKELETON,
+                 ZOGLIN,
+                 ZOMBIE,
+                 ZOMBIE_HORSE,
+                 ZOMBIE_VILLAGER,
+                 ZOMBIFIED_PIGLIN,
+                 BOGGED,
+                 ZOMBIE_NAUTILUS -> true;
+            default -> false;
+        };
     }
 
     public static Location getLocationInFrontOfLoc(Location loc, float blocks) {

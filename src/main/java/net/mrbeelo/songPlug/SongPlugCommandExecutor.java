@@ -62,6 +62,17 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
             }
         } else if (name.equals("clearsongs")) {
             if (commandSender instanceof Player player) clearSongs(player, false);
+        } else if(name.equals("level")) {
+            if(commandSender instanceof Player player) {
+                Score levelScore = scoreType(player, "Level");
+                levelScore.setScore(Integer.parseInt(strings[0]));
+                if(strings.length > 1) {
+                    if(strings[1].equals("clearxp")) {
+                        Score xpScore = scoreType(player, "XP");
+                        xpScore.setScore(0);
+                    }
+                }
+            }
         }
         return false;
     }
@@ -80,6 +91,8 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
             return List.of("0", "1", "2", "3", "4", "5");
         } else if(name.equals("infusesong") && args.length == 2) {
             return List.of("force");
+        } else if(name.equals("level") && args.length == 2) {
+            return List.of("clearxp");
         }
         return List.of();
     }

@@ -30,7 +30,7 @@ public final class SongPlug extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new SongPlugListener(), this);
         getServer().getScheduler().runTaskTimer(this, this::tick, 0,  1);
 
-        String[] commands = {"class", "givesong", "getblock", "resetcooldowns", "energy", "infusesong", "clearsongs"};
+        String[] commands = {"class", "givesong", "getblock", "resetcooldowns", "energy", "infusesong", "clearsongs", "level"};
         for(String command : commands) Objects.requireNonNull(getCommand(command)).setExecutor(new SongPlugCommandExecutor());
     }
 

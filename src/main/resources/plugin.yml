@@ -17,3 +17,5 @@ commands:
     description: Infuses the specified song onto the player
   clearsongs:
     description: Clears the player's songs
+  level:
+    description: Sets the player's level
