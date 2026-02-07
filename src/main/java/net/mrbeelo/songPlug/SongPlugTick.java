@@ -49,6 +49,48 @@ public class SongPlugTick {
             levelScore.setScore(level + 1);
             player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1.0f, 1.0f);
         }
+
+        AttributeInstance blockBreakSpeedInstance = player.getAttribute(Attribute.BLOCK_BREAK_SPEED);
+        assert blockBreakSpeedInstance != null;
+
+        if(getSowClass(player) != 5) {
+            if(blockBreakSpeedInstance.getBaseValue() != 10) blockBreakSpeedInstance.setBaseValue(10);
+        } else {
+            if(blockBreakSpeedInstance.getBaseValue() != 1) blockBreakSpeedInstance.setBaseValue(1);
+        }
+
+        if(getSowClass(player) == 0 || getSowClass(player) == 1) {
+            boolean foundNetherite = false;
+            for(ItemStack stack : player.getInventory().getArmorContents()) {
+                if(stack == null) continue;
+                if(isNetheriteArmor(stack)) {
+                    foundNetherite = true;
+                    break;
+                }
+            }
+
+            if(getSowClass(player) == 0 && scoreValue(player, "Level") >= 50) {
+                if(player.hasPotionEffect(PotionEffectType.SLOWNESS)) player.removePotionEffect(PotionEffectType.SLOWNESS);
+            } else {
+                if(foundNetherite) {
+                    if(!player.hasPotionEffect(PotionEffectType.SLOWNESS)) player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS,
+                            9999, 2, true, false, false));
+                } else {
+                    if(player.hasPotionEffect(PotionEffectType.SLOWNESS)) player.removePotionEffect(PotionEffectType.SLOWNESS);
+                }
+            }
+        }
+
+        if(getSowClass(player) == 3 && scoreValue(player, "Level") >= 10) {
+            PotionEffectType[] types = {PotionEffectType.SLOWNESS, PotionEffectType.BLINDNESS, PotionEffectType.HUNGER, PotionEffectType.NAUSEA,
+                    PotionEffectType.POISON, PotionEffectType.WEAKNESS, PotionEffectType.INFESTED, PotionEffectType.LEVITATION,
+                    PotionEffectType.MINING_FATIGUE, PotionEffectType.OOZING, PotionEffectType.UNLUCK, PotionEffectType.WEAVING,
+                    PotionEffectType.WIND_CHARGED, PotionEffectType.WITHER};
+
+            for(PotionEffectType type : types) {
+                if(player.hasPotionEffect(type)) player.removePotionEffect(type);
+            }
+        }
     }
 
     public static void updateBossBar(Player player, int songEnergy) {
@@ -135,7 +177,7 @@ public class SongPlugTick {
             sidebar.getScore("XP: " + scoreValue(player, "XP") + "/" + (scoreValue(player, "Level") * 10 + 100)).setScore(5);
             sidebar.getScore("Level: " + scoreValue(player, "Level")).setScore(4);
             sidebar.getScore("§6").setScore(3);
-            sidebar.getScore("Class: " + getSowClass(player, true, false).content()).setScore(2);
+            sidebar.getScore("Class: " + getSowClassComponent(player, true, false).content()).setScore(2);
             sidebar.getScore("§5").setScore(1);
         }
     }
@@ -201,7 +243,7 @@ public class SongPlugTick {
                         }
 
                         Score cooldownScore = scoreType(player, "GreenEnergyCooldown");
-                        cooldownScore.setScore(200);
+                        if(cooldownScore.getScore() != 0) cooldownScore.setScore(200);
 
                         if(player.isSneaking()) {
                             if(player.getLocation().getRotation().pitch() < 0) {
@@ -271,7 +313,7 @@ public class SongPlugTick {
                         }
 
                         Score cooldownScore = scoreType(player, "GreenEnergyCooldown");
-                        cooldownScore.setScore(200);
+                        if(cooldownScore.getScore() != 0) cooldownScore.setScore(200);
 
                         if(player.isSneaking()) {
                             usingActiveSongScore.setScore(0);
@@ -304,7 +346,7 @@ public class SongPlugTick {
             }
 
             if(usingPassiveSong == 201) {
-                Material[] acceptableItems = {Material.COPPER_INGOT, Material.IRON_INGOT, Material.GOLD_INGOT, Material.DIAMOND};
+                Material[] acceptableItems = {Material.COPPER_INGOT, Material.IRON_INGOT, Material.GOLD_INGOT, Material.DIAMOND, Material.OBSIDIAN};
                 ItemStack stack = player.getInventory().getItemInMainHand();
                 if(!Arrays.asList(acceptableItems).contains(stack.getType())) return;
                 if(!stack.isEmpty()) {
@@ -337,6 +379,13 @@ public class SongPlugTick {
                             case 1 -> Material.DIAMOND_CHESTPLATE;
                             case 2 -> Material.DIAMOND_LEGGINGS;
                             case 3 -> Material.DIAMOND_BOOTS;
+                            default -> Material.BARRIER;
+                        };
+                        case Material.OBSIDIAN -> switch (random % 4) {
+                            case 0 -> Material.NETHERITE_HELMET;
+                            case 1 -> Material.NETHERITE_CHESTPLATE;
+                            case 2 -> Material.NETHERITE_LEGGINGS;
+                            case 3 -> Material.NETHERITE_BOOTS;
                             default -> Material.BARRIER;
                         };
                         default -> Material.STRUCTURE_BLOCK;
@@ -690,7 +739,7 @@ public class SongPlugTick {
                 }
 
                 Score cooldownScore =  scoreType(player, "YellowEnergyCooldown");
-                cooldownScore.setScore(200);
+                if(cooldownScore.getScore() != 0) cooldownScore.setScore(200);
 
                 if(player.isOnGround() && player.isSneaking()) usingActiveSongScore.setScore(0);
             }
@@ -789,7 +838,7 @@ public class SongPlugTick {
                 }
 
                 Score cooldownScore =  scoreType(player, "YellowEnergyCooldown");
-                cooldownScore.setScore(200);
+                if(cooldownScore.getScore() != 0) cooldownScore.setScore(200);
 
                 if(player.isSneaking()) usingActiveSongScore.setScore(0);
             }
@@ -854,7 +903,7 @@ public class SongPlugTick {
                 }
 
                 Score cooldownScore =  scoreType(player, "YellowEnergyCooldown");
-                cooldownScore.setScore(200);
+                if(cooldownScore.getScore() != 0) cooldownScore.setScore(200);
 
                 if(player.isSneaking()) {
                     usingActiveSongScore.setScore(0);
@@ -947,7 +996,7 @@ public class SongPlugTick {
 
             if(usingActiveSong <= 200 && usingActiveSong > 0) {
                 Score cooldownScore = scoreType(player, "BlueEnergyCooldown");
-                cooldownScore.setScore(200);
+                if(cooldownScore.getScore() != 0) cooldownScore.setScore(200);
 
                 if(player.isSneaking()) usingActiveSongScore.setScore(0);
             }
@@ -997,7 +1046,7 @@ public class SongPlugTick {
                 }
 
                 Score cooldownScore = scoreType(player, "BlueEnergyCooldown");
-                cooldownScore.setScore(200);
+                if(cooldownScore.getScore() != 0) cooldownScore.setScore(200);
 
                 if(player.isSneaking()) usingActiveSongScore.setScore(0);
                 for(Entity entity : getEntities(player)) {
@@ -1064,7 +1113,7 @@ public class SongPlugTick {
                 }
 
                 Score cooldownScore = scoreType(player, "BlueEnergyCooldown");
-                cooldownScore.setScore(200);
+                if(cooldownScore.getScore() != 0) cooldownScore.setScore(200);
 
                 if(player.isSneaking()) usingActiveSongScore.setScore(0);
             }
@@ -1340,7 +1389,7 @@ public class SongPlugTick {
                 }
 
                 Score cooldownScore = scoreType(player, "RedEnergyCooldown");
-                cooldownScore.setScore(200);
+                if(cooldownScore.getScore() != 0) cooldownScore.setScore(200);
 
                 if(player.isSneaking()) {
                     usingActiveSongScore.setScore(0);
@@ -1851,7 +1900,7 @@ public class SongPlugTick {
                 }
 
                 Score cooldownScore = scoreType(player, "RedEnergyCooldown");
-                cooldownScore.setScore(200);
+                if(cooldownScore.getScore() != 0) cooldownScore.setScore(200);
 
                 for(int i = 0; i < 6; i++) {
                     float degrees = (usingActiveSong / 2f + i * 20) + ((i % 2 == 0) ? 180 : 0);

@@ -15,10 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.*;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
-import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -158,6 +155,16 @@ public class SongPlugHelper {
         }
     }
 
+    public static boolean isNetheriteArmor(ItemStack stack) {
+        Material mat = stack.getType();
+        return mat.equals(Material.NETHERITE_HELMET) || mat.equals(Material.NETHERITE_CHESTPLATE) || mat.equals(Material.NETHERITE_LEGGINGS) || mat.equals(Material.NETHERITE_BOOTS);
+    }
+
+    public static boolean isFish(Material material) {
+        return material.equals(Material.TROPICAL_FISH) || material.equals(Material.PUFFERFISH) || material.equals(Material.COD) ||
+                material.equals(Material.COOKED_COD) || material.equals(Material.SALMON) || material.equals(Material.COOKED_SALMON);
+    }
+
     public static Score scoreType(Entity entity, String scoreboardName) {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         Objective objective = getNotNullObjective(scoreboard, scoreboardName);
@@ -173,7 +180,16 @@ public class SongPlugHelper {
         updateBossBar(player, energyScore.getScore() - 1);
         energyScore.setScore(energyScore.getScore() - 1);
         energyRegenScore.setScore(0);
-        energyCooldownScore.setScore(200);
+
+        Score warSongScore = scoreType(player, "WarSongMeter");
+        if(scoreValue(player, "Level") >= 50) warSongScore.setScore(warSongScore.getScore() + 1);
+
+        if(scoreValue(player, "WarSongMeter") == 4 && scoreValue(player, "Level") >= 50) {
+            warSongScore.setScore(0);
+            player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1.0f, 1.5f);
+        } else {
+            energyCooldownScore.setScore(200);
+        }
     }
 
     public static Location getLocationInFrontOfLoc(Location loc, float blocks) {
@@ -514,9 +530,18 @@ public class SongPlugHelper {
         return string.substring(0, 1).toUpperCase() + string.substring(1).toLowerCase();
     }
 
-    public static TextComponent getSowClass(Player player, boolean parentheses, boolean allUppercase) {
-        String className = "ERROR";
-        String raceName = "ERROR";
+    public static int getSowClass(Player player) {
+        if(player.getScoreboardTags().contains("HumanClass")) return 0;
+        if(player.getScoreboardTags().contains("FelinaClass")) return 1;
+        if(player.getScoreboardTags().contains("ArdoniClass")) return 2;
+        if(player.getScoreboardTags().contains("MagnoriteClass")) return 3;
+        if(player.getScoreboardTags().contains("NecromancerClass")) return 4;
+        return 5;
+    }
+
+    public static TextComponent getSowClassComponent(Player player, boolean parentheses, boolean allUppercase) {
+        String className = "NONE";
+        String raceName = "NONE";
         NamedTextColor classColor = NamedTextColor.WHITE;
         NamedTextColor raceColor = NamedTextColor.WHITE;
 

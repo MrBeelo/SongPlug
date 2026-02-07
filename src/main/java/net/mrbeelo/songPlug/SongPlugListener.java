@@ -1,5 +1,6 @@
 package net.mrbeelo.songPlug;
 
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
@@ -15,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -22,14 +24,15 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Score;
-import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
+import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static net.mrbeelo.songPlug.SongPlugClass.resetClassStats;
@@ -43,14 +46,82 @@ public class SongPlugListener implements Listener {
     }
 
     @EventHandler
-    public void scrolled(PlayerItemHeldEvent event) {
+    public void onPlayerScroll(PlayerItemHeldEvent event) {
         Player player = event.getPlayer();
         Score score = scoreType(player, "FCycle");
         score.setScore(0);
     }
 
     @EventHandler
-    public void pressedF(PlayerSwapHandItemsEvent event) {
+    public void onPlayerEat(PlayerItemConsumeEvent event) {
+        Player player = event.getPlayer();
+        ItemStack stack = event.getItem();
+        Material material = stack.getType();
+
+        if(isFish(material) && getSowClass(player) == 1 && scoreValue(player, "Level") >= 50) {
+            player.heal(4);
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 60, 2, true, false, false));
+            if(material.equals(Material.PUFFERFISH)) {
+                Bukkit.getScheduler().runTask(SongPlug.getPlugin(SongPlug.class), () -> {
+                    player.removePotionEffect(PotionEffectType.NAUSEA);
+                    player.removePotionEffect(PotionEffectType.HUNGER);
+                    player.removePotionEffect(PotionEffectType.POISON);
+                });
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerWearArmor(PlayerArmorChangeEvent event) {
+        Player player = event.getPlayer();
+        if(getSowClass(player) == 0 || getSowClass(player) == 1 || getSowClass(player) == 5) return;
+
+        if(event.getNewItem().getType() != Material.AIR) {
+            Bukkit.getScheduler().runTask(SongPlug.getPlugin(SongPlug.class), () -> {
+                PlayerInventory inv = player.getInventory();
+                inv.setItem(event.getSlot(), event.getOldItem());
+                player.give(event.getNewItem());
+                player.updateInventory();
+            });
+        }
+    }
+
+    @EventHandler
+    public void onPlayerBreakBlock(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        Block block = event.getBlock();
+
+        if(block.getType().equals(Material.ANCIENT_DEBRIS) && getSowClass(player) != 5) {
+            Location location = block.getLocation();
+            Material material;
+
+            int[] chancePool = {48, 28, 16, 6, 2};
+            String test = "Normal: ";
+
+            if(getSowClass(player) == 0 && scoreValue(player, "Level") >= 40) {
+                chancePool = new int[]{40, 27, 20, 9, 4};
+                test = "Lucky: ";
+            }
+
+            int chanceSum = Arrays.stream(chancePool).sum();
+
+            ThreadLocalRandom random = ThreadLocalRandom.current();
+            int randomInt = random.nextInt(chanceSum);
+
+            if(randomInt >= chanceSum - chancePool[4]) material = Material.DIAMOND_ORE;
+            else if(randomInt >= chanceSum - chancePool[4] - chancePool[3]) material = Material.GOLD_ORE;
+            else if(randomInt >= chanceSum - chancePool[4] - chancePool[3] - chancePool[2]) material = Material.IRON_ORE;
+            else if(randomInt >= chanceSum - chancePool[4] - chancePool[3] - chancePool[2] - chancePool[1]) material = Material.COAL_ORE;
+            else material = Material.COBBLESTONE;
+            Bukkit.broadcastMessage(test + material.name() + " (" + randomInt + ")");
+
+            event.setCancelled(true);
+            location.getBlock().setType(material);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerPressedF(PlayerSwapHandItemsEvent event) {
         Player player = event.getPlayer();
 
         if(!player.getScoreboardTags().contains("ArdoniClass")) return;
@@ -75,7 +146,7 @@ public class SongPlugListener implements Listener {
     }
 
     @EventHandler
-    public void selectedItem(InventoryClickEvent event) {
+    public void onPlayerSelectItem(InventoryClickEvent event) {
         InventoryView view = event.getView();
         if(view.title().equals(Component.text("Song Selection"))) {
             ItemStack stack = event.getCurrentItem();
@@ -223,7 +294,7 @@ public class SongPlugListener implements Listener {
     }
 
     @EventHandler
-    public void pressedLeftClick(PlayerInteractEvent event) {
+    public void onPlayerPressedLeftClick(PlayerInteractEvent event) {
         if(event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
             Player player = event.getPlayer();
             Block downBlock = player.getLocation().subtract(0, 1, 0).getBlock();
@@ -275,7 +346,7 @@ public class SongPlugListener implements Listener {
     }
 
     @EventHandler
-    public void playerDied(PlayerDeathEvent event) {
+    public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getPlayer();
         if(player.getScoreboardTags().contains("ArdoniClass")) {
             String[] songColors = {"Red", "Blue", "Yellow", "Green"};
@@ -306,7 +377,7 @@ public class SongPlugListener implements Listener {
     public void onChat(AsyncChatEvent event) {
         Player player = event.getPlayer();
 
-        TextComponent component = getSowClass(player, false, true);
+        TextComponent component = getSowClassComponent(player, false, true);
 
         event.renderer((source, sourceDisplayName, message, viewer) ->
                 Component.text("[" + component.content() + "] ", component.color())
@@ -370,6 +441,8 @@ public class SongPlugListener implements Listener {
     @EventHandler
     public void onPlayerDamaged(EntityDamageEvent event) {
         Entity entity = event.getEntity();
+        EntityDamageEvent.DamageCause cause = event.getCause();
+
         if(entity instanceof Player player) {
             if(player.getScoreboardTags().contains("UsedAggroquake")) {
                 Score passiveScore = scoreType(player, "UsingAggroquake");
@@ -390,10 +463,12 @@ public class SongPlugListener implements Listener {
             } else if(player.getScoreboardTags().contains("UsedProtearmor")) {
                 Score activeScore = scoreType(player, "UsingActiveSong");
                 if(activeScore.getScore() > 0 && activeScore.getScore() <= 200) {
-                    EntityDamageEvent.DamageCause cause = event.getCause();
                     if(!cause.equals(EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) event.setCancelled(true);
                 }
             }
+
+            if(cause.equals(EntityDamageEvent.DamageCause.PROJECTILE) && getSowClass(player) == 3 &&
+                    scoreValue(player, "Level") >= 50) event.setCancelled(true);
         }
     }
 

@@ -36,29 +36,29 @@ Human:
 10 -
 20 -
 30 -
-40 -
-50 -
+40 - Lukertum (boss loot missing)
+50 - Ender Path
 
 Felina:
 10 -
 20 -
 30 -
 40 -
-50 -
+50 - Fish Muncher
 
 Ardoni:
 10 - Song Wielder
 20 -
 30 - Amateur
 40 -
-50 -
+50 - War Song
 
 Magnorite:
-10 -
+10 - Protection From Evil
 20 -
 30 -
 40 -
-50 -
+50 - Projectile Reduction
 
 Necromancer:
 10 -
