@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.mrbeelo.songPlug.SongPlugClass.resetClassStats;
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
@@ -73,6 +74,17 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
                     }
                 }
             }
+        } else if(name.equals("skull")) {
+            if (commandSender instanceof Player player) {
+                Score skullScore = scoreType(player, "Skull");
+                int amount = Integer.parseInt(strings[0]);
+                if (amount >= 0 && amount <= 5) {
+                    skullScore.setScore(amount);
+                    resetClassStats(player);
+                } else {
+                    player.sendMessage("Amount out of bounds!");
+                }
+            }
         }
         return false;
     }
@@ -87,7 +99,7 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
             songs.addAll(List.of(yellowSongs));
             songs.addAll(List.of(greenSongs));
             return songs;
-        } else if(name.equals("energy") && args.length == 1) {
+        } else if((name.equals("energy") || name.equals("skull")) && args.length == 1) {
             return List.of("0", "1", "2", "3", "4", "5");
         } else if(name.equals("infusesong") && args.length == 2) {
             return List.of("force");

@@ -30,7 +30,7 @@ public final class SongPlug extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new SongPlugListener(), this);
         getServer().getScheduler().runTaskTimer(this, this::tick, 0,  1);
 
-        String[] commands = {"class", "givesong", "getblock", "resetcooldowns", "energy", "infusesong", "clearsongs", "level"};
+        String[] commands = {"class", "givesong", "getblock", "resetcooldowns", "energy", "infusesong", "clearsongs", "level", "skull"};
         for(String command : commands) Objects.requireNonNull(getCommand(command)).setExecutor(new SongPlugCommandExecutor());
     }
 
@@ -43,7 +43,7 @@ public final class SongPlug extends JavaPlugin {
         for (Player player : Bukkit.getOnlinePlayers()) {
             Score energyScore = scoreType(player, "SongEnergy");
             classTick(player);
-            updateBossBar(player, energyScore.getScore());
+            updateBossBar(player);
             updateRegen(player, energyScore);
             updateCooldowns(player);
             updateSidebar(player);

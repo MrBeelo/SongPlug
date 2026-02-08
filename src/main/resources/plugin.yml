@@ -19,3 +19,5 @@ commands:
     description: Clears the player's songs
   level:
     description: Sets the player's level
+  skull:
+    description: Sets the player's skull

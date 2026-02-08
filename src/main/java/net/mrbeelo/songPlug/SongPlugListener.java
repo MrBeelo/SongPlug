@@ -10,6 +10,7 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
+import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -19,6 +20,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
@@ -95,9 +97,9 @@ public class SongPlugListener implements Listener {
             Location location = block.getLocation();
             Material material;
 
-            int[] chancePool = {48, 28, 16, 6, 2};
+            int[] chancePool = {53, 30, 12, 4, 1};
 
-            if(getSowClass(player) == 0 && getLevel(player) >= 40) chancePool = new int[]{40, 27, 20, 9, 4};
+            if(getSowClass(player) == 0 && getLevel(player) >= 40) chancePool = new int[]{46, 29, 16, 7, 2};
 
             int chanceSum = Arrays.stream(chancePool).sum();
 
@@ -502,6 +504,24 @@ public class SongPlugListener implements Listener {
             }
 
             if(entity.getScoreboardTags().contains("MobilibounceDisplay" + player.getName())) entity.remove();
+        }
+    }
+
+    @EventHandler
+    public void onEntityDeath(EntityDeathEvent event) {
+        Entity entity = event.getEntity();
+        DamageSource source = event.getDamageSource();
+        Entity killer = source.getCausingEntity();
+
+        if(entity instanceof Player || isUndead(entity)) {
+            if(killer instanceof Player player && getSowClass(player) == 3 && getLevel(player) >= 40) {
+                Score skullScore = scoreType(player, "Skull");
+                int skull = skullScore.getScore();
+                if(skull < 5) skullScore.setScore(skull + 1);
+                Score skullAliveTimeScore = scoreType(player, "SkullAliveTime");
+                skullAliveTimeScore.setScore(35 * 20);
+                resetClassStats(player);
+            }
         }
     }
 }

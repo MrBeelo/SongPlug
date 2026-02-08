@@ -81,6 +81,7 @@ public class SongPlugTick {
             }
         }
 
+        //PROTECTION FROM EVIL
         if(getSowClass(player) == 3 && getLevel(player) >= 10) {
             PotionEffectType[] types = {PotionEffectType.SLOWNESS, PotionEffectType.BLINDNESS, PotionEffectType.HUNGER, PotionEffectType.NAUSEA,
                     PotionEffectType.POISON, PotionEffectType.WEAKNESS, PotionEffectType.INFESTED, PotionEffectType.LEVITATION,
@@ -91,21 +92,37 @@ public class SongPlugTick {
                 if(player.hasPotionEffect(type)) player.removePotionEffect(type);
             }
         }
+
+        //CHAMPION
+        Score skullAliveTimeScore = scoreType(player, "SkullAliveTime");
+        int skullAliveTime = skullAliveTimeScore.getScore();
+        if(skullAliveTime > 0) skullAliveTimeScore.setScore(skullAliveTime - 1);
+
+        Score skullScore = scoreType(player, "Skull");
+        int skull = skullScore.getScore();
+
+        if(skullAliveTime == 0 && skull > 0) {
+            skullScore.setScore(skull - 1);
+            skullAliveTimeScore.setScore(35 * 20);
+            resetClassStats(player);
+        }
+
+        player.sendActionBar(Component.text("\uD83D\uDC80".repeat(skull)));
     }
 
-    public static void updateBossBar(Player player, int songEnergy) {
-        NamespacedKey key = new NamespacedKey("songplug", "song_energy_" + player.getName().toLowerCase() + "_key");
-        KeyedBossBar keyedBossBar = Bukkit.getBossBar(key);
+    public static void updateBossBar(Player player) {
+        NamespacedKey songEnergyKey = new NamespacedKey("songplug", "song_energy_" + player.getName().toLowerCase() + "_key");
+        KeyedBossBar songEnergyKeyedBossBar = Bukkit.getBossBar(songEnergyKey);
 
-        if(keyedBossBar == null) {
-            keyedBossBar = Bukkit.createBossBar(key, "Song Energy", BarColor.YELLOW, BarStyle.SOLID, BarFlag.PLAY_BOSS_MUSIC);
+        if(songEnergyKeyedBossBar == null) {
+            songEnergyKeyedBossBar = Bukkit.createBossBar(songEnergyKey, "Song Energy", BarColor.YELLOW, BarStyle.SOLID, BarFlag.PLAY_BOSS_MUSIC);
         }
 
         if(player.getScoreboardTags().contains("ArdoniClass")) {
-            keyedBossBar.addPlayer(player);
-            keyedBossBar.setProgress((double) songEnergy / 5);
+            songEnergyKeyedBossBar.addPlayer(player);
+            songEnergyKeyedBossBar.setProgress((double) scoreValue(player, "SongEnergy") / 5);
         } else {
-            keyedBossBar.removePlayer(player);
+            songEnergyKeyedBossBar.removePlayer(player);
         }
     }
 
@@ -119,8 +136,8 @@ public class SongPlugTick {
                     energyRegenScore.setScore(songEnergyRegen + 1);
                 } else {
                     energyRegenScore.setScore(0);
-                    updateBossBar(player, energyScore.getScore() + 1);
                     energyScore.setScore(energyScore.getScore() + 1);
+                    updateBossBar(player);
                 }
             }
         }

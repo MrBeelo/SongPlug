@@ -57,7 +57,7 @@ Magnorite:
 10 - Protection From Evil
 20 -
 30 -
-40 -
+40 - Champion
 50 - Projectile Reduction
 
 Necromancer:

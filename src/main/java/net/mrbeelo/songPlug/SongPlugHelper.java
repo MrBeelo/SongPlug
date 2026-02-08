@@ -12,6 +12,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.*;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
@@ -181,8 +182,8 @@ public class SongPlugHelper {
     }
 
     public static void handleSongActivationScoreboards(Player player, Score energyScore, Score energyRegenScore, Score energyCooldownScore) {
-        updateBossBar(player, energyScore.getScore() - 1);
         energyScore.setScore(energyScore.getScore() - 1);
+        updateBossBar(player);
         energyRegenScore.setScore(0);
 
         Score warSongScore = scoreType(player, "WarSongMeter");
@@ -628,24 +629,32 @@ public class SongPlugHelper {
     }
 
     public static void triggerSong(Player player, String song) {
-        if(songIn(song, redSongs)) for(String sng : redSongs) player.getScoreboardTags().remove("Used" + sng);
-        if(songIn(song, blueSongs)) for(String sng : blueSongs) player.getScoreboardTags().remove("Used" + sng);
-        if(songIn(song, yellowSongs)) for(String sng : yellowSongs) player.getScoreboardTags().remove("Used" + sng);
-        if(songIn(song, greenSongs)) for(String sng : greenSongs) player.getScoreboardTags().remove("Used" + sng);
-        player.getScoreboardTags().add("Used" + song);
+        String[] activeSongs = {"Supporolift", "Supporokenisis", "Aggrobeam", "Mobiliwings", "Mobilibounce", "Mobiliglide", "Protesphere", "Protepoint",
+                "Aggrostorm", "Protearmor"};
+        String[] passiveSongs = {"Aggrosphere", "Proteheal", "Mobilileap", "Mobiliflash", "Aggroquake", "Mobiliburst", "Supporoform", "Aggroblast", "Aggrovortex",
+                "Aggroshard", "Aggrodetonate", "Supporospike", "Proteclone", "Protebarrier", "Aggroshock"};
 
-        switch(song) {
-            case "Supporolift", "Supporokenisis", "Aggrobeam", "Mobiliwings", "Mobilibounce", "Mobiliglide", "Protesphere", "Protepoint",
-                 "Aggrostorm", "Protearmor":
-                Score activeScore = scoreType(player, "UsingActiveSong");
-                activeScore.setScore(230);
-                break;
-            case "Aggrosphere", "Proteheal", "Mobilileap", "Mobiliflash", "Aggroquake", "Mobiliburst", "Supporoform", "Aggroblast", "Aggrovortex",
-                 "Aggroshard", "Aggrodetonate", "Supporospike", "Proteclone", "Protebarrier", "Aggroshock":
-                Score passiveScore = scoreType(player, "Using" + song);
-                passiveScore.setScore(230);
-                break;
-            default: break;
+        Score score;
+
+        if(Arrays.stream(activeSongs).toList().contains(song)) {
+            score = scoreType(player, "UsingActiveSong");
+        } else if(Arrays.stream(passiveSongs).toList().contains(song)) {
+            score = scoreType(player, "Using" + song);
+        } else {
+            score = null;
+        }
+
+        if(score != null) {
+            if(player.getScoreboardTags().contains("Used" + song)) {
+                score.setScore(0);
+                Bukkit.getScheduler().runTaskLater(SongPlug.getPlugin(SongPlug.class), () -> {
+                    score.setScore(230);
+                    player.getScoreboardTags().add("Used" + song);
+                }, 1L);
+            } else {
+                score.setScore(230);
+                player.getScoreboardTags().add("Used" + song);
+            }
         }
     }
 }

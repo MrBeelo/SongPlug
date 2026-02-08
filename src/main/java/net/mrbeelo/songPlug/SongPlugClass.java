@@ -4,7 +4,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 
-import static net.mrbeelo.songPlug.SongPlugHelper.getSowClass;
+import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugClass {
     public static void setMovementSpeed(Player player, float amount) {
@@ -51,15 +51,15 @@ public class SongPlugClass {
 
     public static float getMovementSpeed(int index) {
         return switch(index) {
-            case 1 -> 13;
-            case 3 -> 8;
+            case 1 -> 11.5f;
+            case 3 -> 9;
             default -> 10;
         };
     }
 
     public static float getJumpStrength(int index) {
         return switch(index) {
-            case 1 -> 11;
+            case 1 -> 11.7f;
             case 3 -> 9;
             default -> 10;
         };
@@ -93,18 +93,33 @@ public class SongPlugClass {
     public static float getArmor(int index) {
         return switch(index) {
             case 2 -> 2;
-            case 3 -> 10;
+            case 3 -> 5;
             default -> 0;
         };
     }
 
     public static void resetClassStats(Player player) {
         int index = getSowClass(player);
-        setMovementSpeed(player, getMovementSpeed(index));
-        setJumpStrength(player, getJumpStrength(index));
-        setAttackDamage(player, getAttackDamage(index));
-        setAttackSpeed(player, getAttackSpeed(index));
-        setMaxHealth(player, getMaxHealth(index));
-        setArmor(player, getArmor(index));
+
+        float baseMovementSpeed = getMovementSpeed(index);
+        float baseJumpStrength = getJumpStrength(index);
+        float baseAttackDamage = getAttackDamage(index);
+        float baseAttackSpeed = getAttackSpeed(index);
+        float baseMaxHealth = getMaxHealth(index);
+        float baseArmor = getArmor(index);
+
+        if(getSowClass(player) == 3 && getLevel(player) >= 40) {
+            int skull = scoreValue(player, "Skull");
+            baseMaxHealth += skull / 2f;
+            baseArmor += skull;
+            baseAttackDamage += skull;
+        }
+
+        setMovementSpeed(player, baseMovementSpeed);
+        setJumpStrength(player, baseJumpStrength);
+        setAttackDamage(player, baseAttackDamage);
+        setAttackSpeed(player, baseAttackSpeed);
+        setMaxHealth(player, baseMaxHealth);
+        setArmor(player, baseArmor);
     }
 }
