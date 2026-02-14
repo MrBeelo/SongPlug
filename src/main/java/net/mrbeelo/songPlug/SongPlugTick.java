@@ -107,7 +107,21 @@ public class SongPlugTick {
             resetClassStats(player);
         }
 
-        player.sendActionBar(Component.text("\uD83D\uDC80".repeat(skull)));
+        if(getSowClass(player) == 3 && getLevel(player) >= 40) player.sendActionBar(Component.text("\uD83D\uDC80".repeat(skull)));
+
+        //SCAREDY CAT
+        Score scaredyCatScore = scoreType(player, "ScaredyCat");
+        int scaredyCat = scaredyCatScore.getScore();
+        if(scaredyCat > 0) scaredyCatScore.setScore(scaredyCat - 1);
+
+        if(getSowClass(player) == 1 && getLevel(player) >= 20 && scaredyCat == 0) {
+            if(player.getHealth() / player.getMaxHealth() < 0.2f) {
+                scaredyCatScore.setScore(12 * 20);
+                player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1f, 1.3f);
+            }
+
+            resetClassStats(player);
+        }
     }
 
     public static void updateBossBar(Player player) {

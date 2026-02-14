@@ -34,14 +34,14 @@ Common: 5, Uncommon: 8, Rare: 6, Legendary: 6
 
 Human:
 10 -
-20 -
+20 - Potion Chugger
 30 -
 40 - Lukertum (boss loot missing)
 50 - Ender Path
 
 Felina:
 10 - Monster Hunter
-20 -
+20 - Scaredy Cat
 30 -
 40 -
 50 - Fish Muncher

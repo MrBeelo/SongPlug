@@ -5,6 +5,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.*;
 import org.bukkit.entity.*;
@@ -12,7 +13,10 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 import org.bukkit.scoreboard.*;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
@@ -77,6 +81,16 @@ public class SongPlugHelper {
         meta.itemName(Component.text(name));
         item.setItemMeta(meta);
         player.getWorld().dropItem(player.getLocation(), item);
+    }
+
+    public static void removeItems(Inventory inventory, Material material, int amount) {
+        int remaining = amount;
+        for (ItemStack stack : inventory.getContents()) {
+            if (stack == null || stack.getType() != material) continue;
+            int take = Math.min(stack.getAmount(), remaining);
+            stack.setAmount(stack.getAmount() - take);
+            remaining -= take;
+        }
     }
 
     public static void dropSong(Player player, String name) {
@@ -251,6 +265,28 @@ public class SongPlugHelper {
                 || entity instanceof Interaction || entity instanceof ArmorStand;
     }
 
+    public static ItemStack potionStack(PotionType type) {
+        ItemStack stack = new ItemStack(Material.POTION);
+        PotionMeta meta = (PotionMeta) stack.getItemMeta();
+        meta.setBasePotionType(type);
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
+    public static ItemStack customPotionStack(Material material, PotionEffectType effectType, int duration, int amplifier, String name) {
+        ItemStack stack = new ItemStack(material);
+        PotionMeta meta = (PotionMeta) stack.getItemMeta();
+        meta.addCustomEffect(new PotionEffect(effectType, duration, amplifier),  true);
+        meta.setBasePotionType(PotionType.WATER);
+        meta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false));
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
+    public static ItemStack customPotionStack(PotionEffectType effectType, int duration, int amplifier, String name) {
+        return customPotionStack(Material.POTION, effectType, duration, amplifier, name);
+    }
+
     public static void openSongMenu(Player player) {
         Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST, Component.text("Song Selection"));
         menu.setItem(4, customNameItemStack(Material.RED_STAINED_GLASS, Component.text("Aggressium").color(NamedTextColor.RED)));
@@ -280,6 +316,16 @@ public class SongPlugHelper {
         menu.setItem(14, customNameItemStack(Material.LIME_WOOL, Component.text("Kaltaris")));
         menu.setItem(15, customNameItemStack(Material.RED_WOOL, Component.text("Voltaris")));
         menu.setItem(26, customNameItemStack(Material.BARRIER, Component.text("Cancel")));
+        player.openInventory(menu);
+    }
+
+    public static void openBrewingMenu(Player player) {
+        Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST, Component.text("Brewing Stand"));
+        menu.setItem(0, customPotionStack(PotionEffectType.INVISIBILITY, 400, 0, "Potion of Invisibility"));
+        menu.setItem(1, customPotionStack(PotionEffectType.SPEED, 400, 0, "Potion of Speed"));
+        menu.setItem(2, customPotionStack(PotionEffectType.FIRE_RESISTANCE, 400, 0, "Potion of Fire Resistance"));
+        menu.setItem(3, customPotionStack(PotionEffectType.HASTE, 400, 0, "Potion of Haste"));
+        menu.setItem(4, customPotionStack(Material.SPLASH_POTION, PotionEffectType.WEAKNESS, 400, 0, "Splash Potion of Weakness"));
         player.openInventory(menu);
     }
 

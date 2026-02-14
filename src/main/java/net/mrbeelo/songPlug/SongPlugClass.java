@@ -115,6 +115,13 @@ public class SongPlugClass {
             baseAttackDamage += skull;
         }
 
+        if(getSowClass(player) == 1 && getLevel(player) >= 20) {
+            if(scoreValue(player, "ScaredyCat") > 0) {
+                baseMovementSpeed += baseMovementSpeed * 0.20f;
+                baseAttackDamage -= baseAttackDamage * 0.15f;
+            }
+        }
+
         setMovementSpeed(player, baseMovementSpeed);
         setJumpStrength(player, baseJumpStrength);
         setAttackDamage(player, baseAttackDamage);

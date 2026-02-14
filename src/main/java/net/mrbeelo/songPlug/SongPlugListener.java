@@ -12,6 +12,7 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,6 +25,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -287,6 +289,34 @@ public class SongPlugListener implements Listener {
 
                 if(stack.getItemMeta().getDisplayName().equals("Cancel")) openClassMenu(player);
             }
+        } else if(view.title().equals(Component.text("Brewing Stand"))) {
+            HumanEntity human = event.getWhoClicked();
+            ItemStack stack = event.getCurrentItem();
+            if(stack != null && human instanceof Player player) {
+                String name = stack.getItemMeta().getDisplayName();
+
+                Material material = switch(name) {
+                    case "Potion of Invisibility" -> Material.OPEN_EYEBLOSSOM;
+                    case "Potion of Speed" -> Material.PITCHER_PLANT;
+                    case "Potion of Fire Resistance" -> Material.TORCHFLOWER;
+                    case "Potion of Haste" -> Material.TORCHFLOWER_SEEDS;
+                    case "Splash Potion of Weakness" -> Material.WITHER_ROSE;
+                    default -> Material.BARRIER;
+                };
+
+                Inventory inv = player.getInventory();
+                if(inv.contains(material, 1) && inv.contains(Material.GOLD_INGOT, 1) && inv.contains(Material.GUNPOWDER, 5)) {
+                    removeItems(inv, material, 1);
+                    removeItems(inv, Material.GOLD_INGOT, 1);
+                    removeItems(inv, Material.GUNPOWDER, 5);
+                    player.give(stack);
+                    player.sendMessage("Crafted " + name + " Successfully!");
+                } else {
+                    player.sendMessage("Missing items for " + name + "!");
+                }
+
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -331,15 +361,15 @@ public class SongPlugListener implements Listener {
         }
 
         //! FOR FUTURE
-        /*else if(event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+        else if(event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Player player = event.getPlayer();
             Block block = event.getClickedBlock();
             assert block != null;
-            if(block.getType().equals(Material.ENCHANTING_TABLE)) {
+            if(block.getType().equals(Material.BREWING_STAND)) {
                 event.setCancelled(true);
-                openClassMenu(player);
+                openBrewingMenu(player);
             }
-        }*/
+        }
     }
 
     @EventHandler
@@ -523,5 +553,15 @@ public class SongPlugListener implements Listener {
                 resetClassStats(player);
             }
         }
+    }
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        Player player = event.getPlayer();
+        Location from = event.getFrom();
+        Location to = event.getTo();
+
+        if (from.getBlockX() == to.getBlockX() && from.getBlockZ() == to.getBlockZ()) return;
+        if(getSowClass(player) != 5 && player.hasPotionEffect(PotionEffectType.INVISIBILITY)) player.removePotionEffect(PotionEffectType.INVISIBILITY);
     }
 }
