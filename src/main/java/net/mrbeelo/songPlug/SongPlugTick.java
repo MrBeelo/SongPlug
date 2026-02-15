@@ -122,6 +122,40 @@ public class SongPlugTick {
 
             resetClassStats(player);
         }
+
+        //DISARM
+        Score disarmStunScore = scoreType(player, "DisarmStun");
+        int disarmStun = disarmStunScore.getScore();
+        if(disarmStun > 0) disarmStunScore.setScore(disarmStun - 1);
+
+        Score disarmCooldownScore = scoreType(player, "DisarmCooldown");
+        int disarmCooldown = disarmCooldownScore.getScore();
+        if(disarmCooldown > 0) disarmCooldownScore.setScore(disarmCooldown - 1);
+
+        //ENRAGED
+        Score enragedTimeScore = scoreType(player, "EnragedTime");
+        int enragedTime = enragedTimeScore.getScore();
+        if(enragedTime > 0) enragedTimeScore.setScore(enragedTime - 1);
+
+        Score enragedCooldownScore = scoreType(player, "EnragedCooldown");
+        int enragedCooldown = enragedCooldownScore.getScore();
+
+        if(getSowClass(player) == 3 && getLevel(player) >= 30 && enragedTime == 0) {
+            if(player.getHealth() / player.getMaxHealth() < 0.4f && enragedCooldown == 0) {
+                enragedTimeScore.setScore(6 * 20);
+                enragedCooldownScore.setScore(1);
+                player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1f, 1.6f);
+            }
+
+            resetClassStats(player);
+        }
+
+        if(getSowClass(player) == 3 && getLevel(player) >= 30 && enragedCooldown == 1) {
+            if(player.getHealth() == player.getMaxHealth()) {
+                enragedCooldownScore.setScore(0);
+                player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1f, 1.6f);
+            }
+        }
     }
 
     public static void updateBossBar(Player player) {

@@ -2,6 +2,7 @@ package net.mrbeelo.songPlug;
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
+import io.papermc.paper.event.entity.EntityMoveEvent;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -510,6 +511,21 @@ public class SongPlugListener implements Listener {
                 event.setDamage(damage * 1.2f);
             }
         }
+
+        if(damager instanceof Player player && player.getInventory().getItemInMainHand().isEmpty() &&
+        scoreValue(player, "DisarmCooldown") == 0 && getSowClass(player) == 3 &&
+        getLevel(player) >= 20) {
+            player.playSound(player, Sound.BLOCK_ANVIL_LAND, SoundCategory.MASTER, 1f, 0.6f);
+            if(entity instanceof Player player2) player2.playSound(player2, Sound.BLOCK_ANVIL_LAND, SoundCategory.MASTER, 1f, 0.6f);
+
+            Score disarmStunScore = scoreType(entity, "DisarmStun");
+            disarmStunScore.setScore(2 * 20);
+
+            Score disarmCooldownScore = scoreType(player, "DisarmCooldown");
+            disarmCooldownScore.setScore(20 * 20);
+        }
+
+        if(damager instanceof Player player && scoreValue(player, "DisarmStun") > 0) event.setCancelled(true);
     }
 
     @EventHandler
@@ -563,5 +579,6 @@ public class SongPlugListener implements Listener {
 
         if (from.getBlockX() == to.getBlockX() && from.getBlockZ() == to.getBlockZ()) return;
         if(getSowClass(player) != 5 && player.hasPotionEffect(PotionEffectType.INVISIBILITY)) player.removePotionEffect(PotionEffectType.INVISIBILITY);
+        if(scoreValue(player, "DisarmStun") > 0) event.setCancelled(true);
     }
 }

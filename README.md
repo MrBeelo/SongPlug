@@ -36,7 +36,7 @@ Human:
 10 -
 20 - Potion Chugger
 30 -
-40 - Lukertum (boss loot missing)
+40 - Lukertum
 50 - Ender Path
 
 Felina:
@@ -55,8 +55,8 @@ Ardoni:
 
 Magnorite:
 10 - Protection From Evil
-20 -
-30 -
+20 - Disarm
+30 - Enraged
 40 - Champion
 50 - Projectile Reduction
 

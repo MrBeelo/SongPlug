@@ -122,6 +122,16 @@ public class SongPlugClass {
             }
         }
 
+        if(getSowClass(player) == 3 && getLevel(player) >= 30) {
+            if(scoreValue(player, "EnragedTime") > 0) {
+                baseMaxHealth += baseMaxHealth * 0.20f;
+                baseMovementSpeed += baseMovementSpeed * 0.20f;
+                baseAttackDamage += baseAttackDamage * 0.20f;
+                baseArmor -= 10;
+                if(baseArmor < 0) baseArmor = 0;
+            }
+        }
+
         setMovementSpeed(player, baseMovementSpeed);
         setJumpStrength(player, baseJumpStrength);
         setAttackDamage(player, baseAttackDamage);
