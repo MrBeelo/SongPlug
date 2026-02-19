@@ -42,7 +42,7 @@ Human:
 Felina:
 10 - Monster Hunter
 20 - Scaredy Cat
-30 -
+30 - Stealth
 40 -
 50 - Fish Muncher
 

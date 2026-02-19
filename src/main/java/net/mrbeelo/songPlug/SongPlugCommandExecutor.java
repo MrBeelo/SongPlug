@@ -1,12 +1,16 @@
 package net.mrbeelo.songPlug;
 
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scoreboard.Score;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.mrbeelo.songPlug.SongPlug.plugin;
 import static net.mrbeelo.songPlug.SongPlugClass.resetClassStats;
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
@@ -84,6 +89,14 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
                 } else {
                     player.sendMessage("Amount out of bounds!");
                 }
+            }
+        } else if(name.equals("weapontype")) {
+            if(commandSender instanceof Player player) {
+                ItemStack stack = player.getInventory().getItemInMainHand();
+                NamespacedKey key = new NamespacedKey(plugin(), "weapon_type");
+                stack.editPersistentDataContainer(pdc -> {
+                    pdc.set(key, PersistentDataType.STRING, strings[0]);
+                });
             }
         }
         return false;

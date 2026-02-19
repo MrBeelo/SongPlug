@@ -156,6 +156,15 @@ public class SongPlugTick {
                 player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1f, 1.6f);
             }
         }
+
+        //STEALTH
+        Score stealthTimeScore = scoreType(player, "StealthTime");
+        int stealthTime = stealthTimeScore.getScore();
+        if(stealthTime > 0) stealthTimeScore.setScore(stealthTime - 1);
+
+        Score stealthCooldownScore = scoreType(player, "StealthCooldown");
+        int stealthCooldown = stealthCooldownScore.getScore();
+        if(stealthCooldown > 0) stealthCooldownScore.setScore(stealthCooldown - 1);
     }
 
     public static void updateBossBar(Player player) {

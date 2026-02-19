@@ -132,6 +132,8 @@ public class SongPlugClass {
             }
         }
 
+        if(scoreValue(player, "StealthTime") > 0) baseArmor = 0;
+
         setMovementSpeed(player, baseMovementSpeed);
         setJumpStrength(player, baseJumpStrength);
         setAttackDamage(player, baseAttackDamage);

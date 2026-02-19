@@ -31,6 +31,8 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Score;
@@ -38,10 +40,13 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static net.mrbeelo.songPlug.SongPlug.plugin;
 import static net.mrbeelo.songPlug.SongPlugClass.resetClassStats;
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
+import static org.bukkit.plugin.java.JavaPlugin.getPlugin;
 
 public class SongPlugListener implements Listener {
     @EventHandler
@@ -526,6 +531,21 @@ public class SongPlugListener implements Listener {
         }
 
         if(damager instanceof Player player && scoreValue(player, "DisarmStun") > 0) event.setCancelled(true);
+
+        if(damager instanceof Player player && getSowClass(player) == 1 && getLevel(player) >= 30) {
+            ItemStack stack = player.getInventory().getItemInMainHand();
+            ItemMeta meta = stack.getItemMeta();
+            NamespacedKey key = new NamespacedKey(plugin(), "weapon_type");
+            PersistentDataContainer container = meta.getPersistentDataContainer();
+            String weaponType = container.get(key, PersistentDataType.STRING);
+            if(weaponType != null && weaponType.equals("Dagger") && entity instanceof Player attackedPlayer &&
+            scoreValue(player, "StealthCooldown") == 0) {
+                Score stealthTimeScore = scoreType(attackedPlayer, "StealthTime");
+                stealthTimeScore.setScore(2 * 20);
+                Score stealthCooldownScore = scoreType(player, "StealthCooldown");
+                stealthCooldownScore.setScore(20 * 20);
+            }
+        }
     }
 
     @EventHandler
