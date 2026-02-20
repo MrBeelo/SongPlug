@@ -19,6 +19,8 @@ commands:
     description: Clears the player's songs
   level:
     description: Sets the player's level
+  sowxp:
+    description: Sets the player's xp
   skull:
     description: Sets the player's skull
   weapontype:

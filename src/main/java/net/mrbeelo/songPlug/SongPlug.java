@@ -7,6 +7,7 @@ import org.bukkit.scoreboard.Score;
 
 import java.util.Objects;
 
+import static net.mrbeelo.songPlug.SongPlugCommandExecutor.commands;
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 import static net.mrbeelo.songPlug.SongPlugTick.*;
 
@@ -34,7 +35,6 @@ public final class SongPlug extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new SongPlugListener(), this);
         getServer().getScheduler().runTaskTimer(this, this::tick, 0,  1);
 
-        String[] commands = {"class", "givesong", "getblock", "resetcooldowns", "energy", "infusesong", "clearsongs", "level", "skull", "weapontype"};
         for(String command : commands) Objects.requireNonNull(getCommand(command)).setExecutor(new SongPlugCommandExecutor());
     }
 
