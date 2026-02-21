@@ -32,7 +32,14 @@ import static net.mrbeelo.songPlug.SongPlugClass.resetClassStats;
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugTick {
-    public static void classTick(Player player) {
+    public static void updateEntities(Entity entity) {
+        Score bleedScore = scoreType(entity, "Bleed");
+        int bleed = bleedScore.getScore();
+        if(bleed > 0) bleedScore.setScore(bleed - 1);
+        if(bleed > 0 && entity instanceof LivingEntity living) living.damage(0.75f);
+    }
+
+    public static void updateClasses(Player player) {
         Score infuseDebuffScore = scoreType(player, "InfuseDebuff");
         int infuseDebuff = infuseDebuffScore.getScore();
         if(infuseDebuff > 0) infuseDebuffScore.setScore(infuseDebuff - 1);
@@ -165,6 +172,19 @@ public class SongPlugTick {
         Score stealthCooldownScore = scoreType(player, "StealthCooldown");
         int stealthCooldown = stealthCooldownScore.getScore();
         if(stealthCooldown > 0) stealthCooldownScore.setScore(stealthCooldown - 1);
+
+        //FELINE FURY
+        if(getSowClass(player) == 1 && getLevel(player) >= 40) {
+            for(Entity entity : getNearbyEntities(player.getLocation(), 10)) {
+                if(entity instanceof Creeper && player.hasLineOfSight(entity)) {
+                    entity.setVelocity(entityDistanceVector(player, entity).multiply(0.5f).setY(0));
+                }
+            }
+        }
+
+        Score felineFuryCooldownScore = scoreType(player, "FelineFuryCooldown");
+        int felineFuryCooldown = felineFuryCooldownScore.getScore();
+        if(felineFuryCooldown > 0) felineFuryCooldownScore.setScore(felineFuryCooldown - 1);
     }
 
     public static void updateBossBar(Player player) {

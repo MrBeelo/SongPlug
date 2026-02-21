@@ -24,6 +24,7 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -356,6 +357,12 @@ public class SongPlugHelper {
                 player.playSound(player.getLocation(), sound, category, volume, pitch);
             }
         }
+    }
+
+    public static Collection<Entity> getGlobalEntityCollection() {
+        Collection<Entity> entities = new ArrayList<>();
+        for (World world : Bukkit.getWorlds()) entities.addAll(world.getEntities());
+        return entities;
     }
 
     public static List<Entity> getEntities(Entity entity) {

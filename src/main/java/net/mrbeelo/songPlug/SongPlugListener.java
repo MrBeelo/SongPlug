@@ -535,15 +535,27 @@ public class SongPlugListener implements Listener {
         if(damager instanceof Player player && getSowClass(player) == 1 && getLevel(player) >= 30) {
             ItemStack stack = player.getInventory().getItemInMainHand();
             ItemMeta meta = stack.getItemMeta();
-            NamespacedKey key = new NamespacedKey(plugin(), "weapon_type");
-            PersistentDataContainer container = meta.getPersistentDataContainer();
-            String weaponType = container.get(key, PersistentDataType.STRING);
-            if(weaponType != null && weaponType.equals("Dagger") && entity instanceof Player attackedPlayer &&
-            scoreValue(player, "StealthCooldown") == 0) {
-                Score stealthTimeScore = scoreType(attackedPlayer, "StealthTime");
-                stealthTimeScore.setScore(2 * 20);
-                Score stealthCooldownScore = scoreType(player, "StealthCooldown");
-                stealthCooldownScore.setScore(20 * 20);
+            if(meta != null) {
+                NamespacedKey key = new NamespacedKey(plugin(), "weapon_type");
+                PersistentDataContainer container = meta.getPersistentDataContainer();
+                String weaponType = container.get(key, PersistentDataType.STRING);
+                if(weaponType != null && weaponType.equals("Dagger") && entity instanceof Player attackedPlayer &&
+                        scoreValue(player, "StealthCooldown") == 0) {
+                    Score stealthTimeScore = scoreType(attackedPlayer, "StealthTime");
+                    stealthTimeScore.setScore(2 * 20);
+                    Score stealthCooldownScore = scoreType(player, "StealthCooldown");
+                    stealthCooldownScore.setScore(20 * 20);
+                }
+            }
+        }
+
+        if(damager instanceof Player player && getSowClass(player) == 1 && getLevel(player) >= 40) {
+            ItemStack stack = player.getInventory().getItemInMainHand();
+            if(stack.isEmpty() && scoreValue(player, "FelineFuryCooldown") == 0) {
+                Score bleedScore = scoreType(entity, "Bleed");
+                bleedScore.setScore(5 * 20);
+                Score felineFuryCooldownScore = scoreType(player, "FelineFuryCooldown");
+                felineFuryCooldownScore.setScore(20 * 20);
             }
         }
     }
