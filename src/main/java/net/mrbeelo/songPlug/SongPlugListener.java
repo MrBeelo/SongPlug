@@ -75,7 +75,7 @@ public class SongPlugListener implements Listener {
             player.heal(4);
             player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 60, 2, true, false, false));
             if(material.equals(Material.PUFFERFISH)) {
-                Bukkit.getScheduler().runTask(SongPlug.getPlugin(SongPlug.class), () -> {
+                Bukkit.getScheduler().runTask(getPlugin(SongPlug.class), () -> {
                     player.removePotionEffect(PotionEffectType.NAUSEA);
                     player.removePotionEffect(PotionEffectType.HUNGER);
                     player.removePotionEffect(PotionEffectType.POISON);
@@ -90,7 +90,7 @@ public class SongPlugListener implements Listener {
         if(getSowClass(player) == 0 || getSowClass(player) == 1 || getSowClass(player) == 5) return;
 
         if(event.getNewItem().getType() != Material.AIR) {
-            Bukkit.getScheduler().runTask(SongPlug.getPlugin(SongPlug.class), () -> {
+            Bukkit.getScheduler().runTask(getPlugin(SongPlug.class), () -> {
                 PlayerInventory inv = player.getInventory();
                 inv.setItem(event.getSlot(), event.getOldItem());
                 player.give(event.getNewItem());
@@ -362,7 +362,7 @@ public class SongPlugListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerPressedLeftClick(PlayerInteractEvent event) {
+    public void onPlayerInteract(PlayerInteractEvent event) {
         if(event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
             Player player = event.getPlayer();
             Block downBlock = player.getLocation().subtract(0, 1, 0).getBlock();
@@ -399,7 +399,9 @@ public class SongPlugListener implements Listener {
                     }
                 };
             }
-        } else if(event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+        }
+
+        if(event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Player player = event.getPlayer();
             Block block = event.getClickedBlock();
             assert block != null;
@@ -419,6 +421,29 @@ public class SongPlugListener implements Listener {
                     openEnchantingMenu(player);
                 } else if(sowClass != 5) {
                     event.setCancelled(true);
+                }
+            }
+        }
+
+        if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            Player player = event.getPlayer();
+            ItemStack stack = player.getInventory().getItemInMainHand();
+            if(!stack.isEmpty()) {
+                String name = stack.getItemMeta().getItemName();
+                name = name.substring(0, name.length() - " Song Crate".length());
+                if(isIn(name, rarities)) {
+                    String[] songPool = switch(name) {
+                        case "Common" -> commonSongs;
+                        case "Uncommon" -> uncommonSongs;
+                        case "Rare" -> rareSongs;
+                        case "Legendary" -> legendarySongs;
+                        default -> throw new IllegalStateException("Unexpected value: " + name);
+                    };
+
+                    player.getInventory().setItem(player.getInventory().getHeldItemSlot(), ItemStack.empty());
+                    ThreadLocalRandom random = ThreadLocalRandom.current();
+                    int index = random.nextInt(0, songPool.length);
+                    giveSong(player, songPool[index]);
                 }
             }
         }

@@ -46,6 +46,13 @@ public class SongPlugHelper {
     static String[] redSongs = {"Aggrobeam", "Aggroblast", "Aggrostorm", "Aggrosphere", "Aggroquake", "Aggroshock",
             "Aggrovortex", "Aggroshard", "Aggrodetonate"};
 
+    static String[] rarities = {"Common", "Uncommon", "Rare", "Legendary"};
+    static String[] commonSongs = {"Aggrodetonate", "Aggrovortex", "Mobilileap", "Protepoint", "Supporoform"};
+    static String[] uncommonSongs = {"Aggrostorm", "Aggroshard", "Mobiliflash", "Mobiliglide", "Proteclone", "Protebarrier",
+        "Proteheal", "Supporokenisis"};
+    static String[] rareSongs = {"Aggrosphere", "Aggroblast", "Aggroquake", "Mobiliburst", "Protearmor", "Supporospike"};
+    static String[] legendarySongs = {"Aggrobeam", "Aggroshock", "Mobilibounce", "Mobiliwings", "Protesphere", "Supporolift"};
+
     public static Objective getNotNullObjective(Scoreboard scoreboard, String name) {
         Objective objective = scoreboard.getObjective(name);
 
@@ -58,8 +65,8 @@ public class SongPlugHelper {
         return objective;
     }
 
-    public static boolean songIn(String song, String[] songArray) {
-        return Arrays.asList(songArray).contains(song);
+    public static boolean isIn(String name, String[] array) {
+        return Arrays.asList(array).contains(name);
     }
 
     public static void giveCustomItemName(Player player, Material material, String name) {
@@ -73,12 +80,33 @@ public class SongPlugHelper {
     public static void giveSong(Player player, String name) {
         Material material = Material.BARRIER;
 
-        if(songIn(name, redSongs)) material = Material.RED_STAINED_GLASS;
-        if(songIn(name, blueSongs)) material = Material.CYAN_STAINED_GLASS;
-        if(songIn(name, yellowSongs)) material = Material.YELLOW_STAINED_GLASS;
-        if(songIn(name, greenSongs)) material = Material.LIME_STAINED_GLASS;
+        if(isIn(name, redSongs)) material = Material.RED_STAINED_GLASS;
+        if(isIn(name, blueSongs)) material = Material.CYAN_STAINED_GLASS;
+        if(isIn(name, yellowSongs)) material = Material.YELLOW_STAINED_GLASS;
+        if(isIn(name, greenSongs)) material = Material.LIME_STAINED_GLASS;
 
         giveCustomItemName(player, material, name);
+    }
+
+    public static void giveCrate(Player player, String name) {
+        if(isIn(name, rarities)) {
+            Material material = switch(name) {
+                case "Common" -> Material.IRON_BLOCK;
+                case "Uncommon" -> Material.GOLD_BLOCK;
+                case "Rare" -> Material.DIAMOND_BLOCK;
+                case "Legendary" -> Material.EMERALD_BLOCK;
+                default -> Material.BARRIER;
+            };
+
+            ItemStack stack = new ItemStack(material, 1);
+            ItemMeta meta = stack.getItemMeta();
+            meta.itemName(Component.text(name + " Song Crate"));
+            meta.setEnchantmentGlintOverride(true);
+            stack.setItemMeta(meta);
+            player.give(stack);
+        } else {
+            player.sendMessage("Not a valid rarity!");
+        }
     }
 
     public static void dropCustomItemName(Player player, Material material, String name) {
@@ -102,10 +130,10 @@ public class SongPlugHelper {
     public static void dropSong(Player player, String name) {
         Material material = Material.BARRIER;
 
-        if(songIn(name, redSongs)) material = Material.RED_STAINED_GLASS;
-        if(songIn(name, blueSongs)) material = Material.CYAN_STAINED_GLASS;
-        if(songIn(name, yellowSongs)) material = Material.YELLOW_STAINED_GLASS;
-        if(songIn(name, greenSongs)) material = Material.LIME_STAINED_GLASS;
+        if(isIn(name, redSongs)) material = Material.RED_STAINED_GLASS;
+        if(isIn(name, blueSongs)) material = Material.CYAN_STAINED_GLASS;
+        if(isIn(name, yellowSongs)) material = Material.YELLOW_STAINED_GLASS;
+        if(isIn(name, greenSongs)) material = Material.LIME_STAINED_GLASS;
 
         dropCustomItemName(player, material, name);
     }
@@ -114,27 +142,27 @@ public class SongPlugHelper {
         String songType = "ERROR";
         String songColor = "ERROR";
 
-        if(songIn(name, greenSongs)) {
+        if(isIn(name, greenSongs)) {
             songType = "Supporium";
             songColor = "Green";
-        } else if(songIn(name, yellowSongs)) {
+        } else if(isIn(name, yellowSongs)) {
             songType = "Mobilium";
             songColor = "Yellow";
-        } else if(songIn(name, blueSongs)) {
+        } else if(isIn(name, blueSongs)) {
             songType = "Protisium";
             songColor = "Blue";
-        } else if(songIn(name, redSongs)) {
+        } else if(isIn(name, redSongs)) {
             songType = "Aggressium";
             songColor = "Red";
         }
 
-        if(songIn(name, redSongs) || songIn(name, blueSongs) || songIn(name, yellowSongs) || songIn(name, greenSongs)) {
+        if(isIn(name, redSongs) || isIn(name, blueSongs) || isIn(name, yellowSongs) || isIn(name, greenSongs)) {
             if(!player.getScoreboardTags().contains("Has" + songColor + "Song") || force) {
                 if(force) {
-                    if(songIn(name, redSongs)) for(String name2 : redSongs) player.getScoreboardTags().remove(name2);
-                    if(songIn(name, blueSongs)) for(String name2 : blueSongs) player.getScoreboardTags().remove(name2);
-                    if(songIn(name, yellowSongs)) for(String name2 : yellowSongs) player.getScoreboardTags().remove(name2);
-                    if(songIn(name, greenSongs)) for(String name2 : greenSongs) player.getScoreboardTags().remove(name2);
+                    if(isIn(name, redSongs)) for(String name2 : redSongs) player.getScoreboardTags().remove(name2);
+                    if(isIn(name, blueSongs)) for(String name2 : blueSongs) player.getScoreboardTags().remove(name2);
+                    if(isIn(name, yellowSongs)) for(String name2 : yellowSongs) player.getScoreboardTags().remove(name2);
+                    if(isIn(name, greenSongs)) for(String name2 : greenSongs) player.getScoreboardTags().remove(name2);
                 }
                 player.getScoreboardTags().add(name);
                 player.getScoreboardTags().add("Has" + songColor + "Song");
@@ -329,7 +357,7 @@ public class SongPlugHelper {
 
     public static void openRaceMenu(Player player) {
         Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST, Component.text("Race Selection"));
-        menu.setItem(10, customNameItemStack(Material.WHITE_WOOL, Component.text("Clanless")));
+        menu.setItem(4, customNameItemStack(Material.WHITE_WOOL, Component.text("Clanless")));
         menu.setItem(11, customNameItemStack(Material.CYAN_WOOL, Component.text("Sendaris")));
         menu.setItem(12, customNameItemStack(Material.YELLOW_WOOL, Component.text("Nestoris")));
         menu.setItem(13, customNameItemStack(Material.PURPLE_WOOL, Component.text("Mendoris")));

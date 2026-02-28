@@ -27,7 +27,8 @@ import static net.mrbeelo.songPlug.SongPlugClass.weaponTypes;
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
-    public static String[] commands = {"class", "givesong", "getblock", "resetcooldowns", "energy", "infusesong", "clearsongs", "level", "sowxp", "skull", "weapontype"};
+    public static String[] commands = {"class", "givesong", "getblock", "resetcooldowns", "energy", "infusesong", "clearsongs",
+            "level", "sowxp", "skull", "weapontype", "givecrate"};
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] strings) {
@@ -126,6 +127,10 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
                     setCustomItemData(stack, "weapon_type", strings[1]);
                 }
             }
+        } else if(name.equals("givecrate")) {
+            for(Entity entity : Bukkit.selectEntities(sender, selector)) {
+                if(entity instanceof Player player) giveCrate(player, strings[1]);
+            }
         }
         return false;
     }
@@ -160,6 +165,8 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
             return List.of("clearxp");
         } else if(name.equals("weapontype") && args.length == 2) {
             return Arrays.asList(weaponTypes);
+        } else if(name.equals("givecrate") & args.length == 2) {
+            return List.of(rarities);
         }
         return List.of();
     }
