@@ -23,6 +23,7 @@ import java.util.List;
 
 import static net.mrbeelo.songPlug.SongPlug.plugin;
 import static net.mrbeelo.songPlug.SongPlugClass.resetClassStats;
+import static net.mrbeelo.songPlug.SongPlugClass.weaponTypes;
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
@@ -122,10 +123,7 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
             for(Entity entity : Bukkit.selectEntities(sender, selector)) {
                 if(entity instanceof Player player) {
                     ItemStack stack = player.getInventory().getItemInMainHand();
-                    NamespacedKey key = new NamespacedKey(plugin(), "weapon_type");
-                    stack.editPersistentDataContainer(pdc -> {
-                        pdc.set(key, PersistentDataType.STRING, strings[1]);
-                    });
+                    setCustomItemData(stack, "weapon_type", strings[1]);
                 }
             }
         }
@@ -160,6 +158,8 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
             return List.of("force");
         } else if(name.equals("level") && args.length == 3) {
             return List.of("clearxp");
+        } else if(name.equals("weapontype") && args.length == 2) {
+            return Arrays.asList(weaponTypes);
         }
         return List.of();
     }

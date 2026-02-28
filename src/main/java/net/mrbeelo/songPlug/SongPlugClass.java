@@ -3,10 +3,13 @@ package net.mrbeelo.songPlug;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugClass {
+    public static String[] weaponTypes = {"Sword", "Longsword", "Battleaxe", "Spear", "Staff", "Dagger"};
+
     public static void setMovementSpeed(Player player, float amount) {
         AttributeInstance instance = player.getAttribute(Attribute.MOVEMENT_SPEED);
         assert instance != null;
@@ -133,6 +136,26 @@ public class SongPlugClass {
         }
 
         if(scoreValue(player, "StealthTime") > 0) baseArmor = 0;
+
+        ItemStack stack = player.getInventory().getItemInMainHand();
+        String weaponType = getCustomItemData(stack, "weapon_type");
+
+        if(weaponType != null) {
+            float speedDecreasePercent = switch(weaponType) {
+                case "Sword" -> 20f;
+                case "Longsword" -> 25f;
+                case "Battleaxe" -> 35f;
+                case "Spear","Staff" -> 30f;
+                case "Dagger" -> 10f;
+                default -> 0f;
+            };
+
+            player.sendMessage("before: " + speedDecreasePercent);
+            if(getSowClass(player) == 0 && getLevel(player) >= 10 && speedDecreasePercent >= 3f) speedDecreasePercent -= 5f;
+            player.sendMessage("after: " + speedDecreasePercent);
+
+            baseMovementSpeed -= baseMovementSpeed * speedDecreasePercent / 100f;
+        }
 
         setMovementSpeed(player, baseMovementSpeed);
         setJumpStrength(player, baseJumpStrength);

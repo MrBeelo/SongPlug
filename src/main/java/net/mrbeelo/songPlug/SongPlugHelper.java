@@ -14,6 +14,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -28,6 +30,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static net.mrbeelo.songPlug.SongPlug.plugin;
 import static net.mrbeelo.songPlug.SongPlugTick.updateBossBar;
 
 public class SongPlugHelper {
@@ -379,6 +382,23 @@ public class SongPlugHelper {
         Vector vector = target.getLocation().toVector().subtract(source.getLocation().toVector());
         if (vector.lengthSquared() < 1e-6) return new Vector(0, 0, 0);
         return vector.normalize();
+    }
+
+    public static void setCustomItemData(ItemStack stack, String key, String value) {
+        NamespacedKey namespacedKey = new NamespacedKey(plugin(), key);
+        stack.editPersistentDataContainer(pdc -> {
+            pdc.set(namespacedKey, PersistentDataType.STRING, value);
+        });
+    }
+
+    public static String getCustomItemData(ItemStack stack, String key) {
+        ItemMeta meta = stack.getItemMeta();
+        if(meta != null) {
+            NamespacedKey namespacedKey = new NamespacedKey(plugin(), key);
+            PersistentDataContainer container = meta.getPersistentDataContainer();
+            return container.get(namespacedKey, PersistentDataType.STRING);
+        }
+        return null;
     }
 
     public static boolean aggroblastSightHelper(Player player, LivingEntity entity) {

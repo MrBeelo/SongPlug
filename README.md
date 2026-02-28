@@ -33,7 +33,7 @@ Common: 5, Uncommon: 8, Rare: 6, Legendary: 6
 //--PERKS--//
 
 Human:
-10 -
+10 - Master Of Arms
 20 - Potion Chugger
 30 -
 40 - Lukertum
@@ -43,7 +43,7 @@ Felina:
 10 - Monster Hunter
 20 - Scaredy Cat
 30 - Stealth
-40 -
+40 - Feline Fury
 50 - Fish Muncher
 
 Ardoni:

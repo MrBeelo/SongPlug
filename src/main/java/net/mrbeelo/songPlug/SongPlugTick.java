@@ -28,6 +28,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.random.RandomGenerator;
 
+import static net.mrbeelo.songPlug.SongPlug.plugin;
 import static net.mrbeelo.songPlug.SongPlugClass.resetClassStats;
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
@@ -121,13 +122,19 @@ public class SongPlugTick {
         int scaredyCat = scaredyCatScore.getScore();
         if(scaredyCat > 0) scaredyCatScore.setScore(scaredyCat - 1);
 
-        if(getSowClass(player) == 1 && getLevel(player) >= 20 && scaredyCat == 0) {
-            if(player.getHealth() / player.getMaxHealth() < 0.2f) {
-                scaredyCatScore.setScore(12 * 20);
-                player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1f, 1.3f);
+        if(getSowClass(player) == 1 && getLevel(player) >= 20) {
+            //! Changed to stop repeated resetClassStats. Might be broken...
+            if(scaredyCat == 0) {
+                if(player.getHealth() / player.getMaxHealth() < 0.2f) {
+                    scaredyCatScore.setScore(12 * 20);
+                    player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1f, 1.3f);
+                    resetClassStats(player);
+                }
+            } else if(scaredyCat == 1) {
+                Bukkit.getScheduler().runTaskLater(plugin(), () -> {
+                    resetClassStats(player);
+                }, 1L);
             }
-
-            resetClassStats(player);
         }
 
         //DISARM
@@ -147,14 +154,20 @@ public class SongPlugTick {
         Score enragedCooldownScore = scoreType(player, "EnragedCooldown");
         int enragedCooldown = enragedCooldownScore.getScore();
 
-        if(getSowClass(player) == 3 && getLevel(player) >= 30 && enragedTime == 0) {
-            if(player.getHealth() / player.getMaxHealth() < 0.4f && enragedCooldown == 0) {
-                enragedTimeScore.setScore(6 * 20);
-                enragedCooldownScore.setScore(1);
-                player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1f, 1.6f);
+        if(getSowClass(player) == 3 && getLevel(player) >= 30) {
+            //! Changed to stop repeated resetClassStats. Might be broken...
+            if(enragedTime == 0) {
+                if(player.getHealth() / player.getMaxHealth() < 0.4f && enragedCooldown == 0) {
+                    enragedTimeScore.setScore(6 * 20);
+                    enragedCooldownScore.setScore(1);
+                    player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1f, 1.6f);
+                    resetClassStats(player);
+                }
+            } else if(enragedTime == 1) {
+                Bukkit.getScheduler().runTaskLater(plugin(), () -> {
+                    resetClassStats(player);
+                }, 1L);
             }
-
-            resetClassStats(player);
         }
 
         if(getSowClass(player) == 3 && getLevel(player) >= 30 && enragedCooldown == 1) {

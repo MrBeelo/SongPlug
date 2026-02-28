@@ -60,6 +60,9 @@ public class SongPlugListener implements Listener {
         Player player = event.getPlayer();
         Score score = scoreType(player, "FCycle");
         score.setScore(0);
+        Bukkit.getScheduler().runTaskLater(plugin(), () -> {
+            resetClassStats(player);
+        }, 1L);
     }
 
     @EventHandler
@@ -364,10 +367,7 @@ public class SongPlugListener implements Listener {
                     }
                 };
             }
-        }
-
-        //! FOR FUTURE
-        else if(event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+        } else if(event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Player player = event.getPlayer();
             Block block = event.getClickedBlock();
             assert block != null;
@@ -534,18 +534,13 @@ public class SongPlugListener implements Listener {
 
         if(damager instanceof Player player && getSowClass(player) == 1 && getLevel(player) >= 30) {
             ItemStack stack = player.getInventory().getItemInMainHand();
-            ItemMeta meta = stack.getItemMeta();
-            if(meta != null) {
-                NamespacedKey key = new NamespacedKey(plugin(), "weapon_type");
-                PersistentDataContainer container = meta.getPersistentDataContainer();
-                String weaponType = container.get(key, PersistentDataType.STRING);
-                if(weaponType != null && weaponType.equals("Dagger") && entity instanceof Player attackedPlayer &&
-                        scoreValue(player, "StealthCooldown") == 0) {
-                    Score stealthTimeScore = scoreType(attackedPlayer, "StealthTime");
-                    stealthTimeScore.setScore(2 * 20);
-                    Score stealthCooldownScore = scoreType(player, "StealthCooldown");
-                    stealthCooldownScore.setScore(20 * 20);
-                }
+            String weaponType = getCustomItemData(stack, "weapon_type");
+            if(weaponType != null && weaponType.equals("Dagger") && entity instanceof Player attackedPlayer &&
+                    scoreValue(player, "StealthCooldown") == 0) {
+                Score stealthTimeScore = scoreType(attackedPlayer, "StealthTime");
+                stealthTimeScore.setScore(2 * 20);
+                Score stealthCooldownScore = scoreType(player, "StealthCooldown");
+                stealthCooldownScore.setScore(20 * 20);
             }
         }
 
