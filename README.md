@@ -35,7 +35,7 @@ Common: 5, Uncommon: 8, Rare: 6, Legendary: 6
 Human:
 10 - Master Of Arms
 20 - Potion Chugger
-30 -
+30 - Enchanter
 40 - Lukertum
 50 - Ender Path
 

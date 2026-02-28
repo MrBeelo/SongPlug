@@ -262,6 +262,11 @@ public class SongPlugListener implements Listener {
                     }
                 }
 
+                if(stack.getItemMeta().getDisplayName().equals("None")) {
+                    event.setCancelled(true);
+                    view.close();
+                }
+
                 resetClassStats(player);
 
                 event.setCancelled(true);
@@ -326,6 +331,33 @@ public class SongPlugListener implements Listener {
 
                 event.setCancelled(true);
             }
+        } else if(view.title().equals(Component.text("Enchantment Table"))) {
+            HumanEntity human = event.getWhoClicked();
+            ItemStack stack = event.getCurrentItem();
+            if(stack != null && human instanceof Player player) {
+                String name = stack.getItemMeta().getDisplayName();
+
+                Material material = switch(name) {
+                    case "Enchanted Book of Silk Touch" -> Material.CYAN_DYE;
+                    case "Enchanted Book of Unbreaking" -> Material.GREEN_DYE;
+                    case "Enchanted Book of Efficiency" -> Material.PINK_DYE;
+                    case "Enchanted Book of Sharpness" -> Material.RED_DYE;
+                    case "Enchanted Book of Looting" -> Material.YELLOW_DYE;
+                    default -> Material.BARRIER;
+                };
+
+                Inventory inv = player.getInventory();
+                if(inv.contains(material, 1) && inv.contains(Material.LAPIS_LAZULI, 10)) {
+                    removeItems(inv, material, 1);
+                    removeItems(inv, Material.LAPIS_LAZULI, 10);
+                    player.give(stack);
+                    player.sendMessage("Crafted " + name + " Successfully!");
+                } else {
+                    player.sendMessage("Missing items for " + name + "!");
+                }
+
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -371,9 +403,23 @@ public class SongPlugListener implements Listener {
             Player player = event.getPlayer();
             Block block = event.getClickedBlock();
             assert block != null;
+            int sowClass = getSowClass(player);
+            int level = getLevel(player);
+
             if(block.getType().equals(Material.BREWING_STAND)) {
-                event.setCancelled(true);
-                openBrewingMenu(player);
+                if(sowClass == 0 && level >= 20) {
+                    event.setCancelled(true);
+                    openBrewingMenu(player);
+                } else if(sowClass != 5) {
+                    event.setCancelled(true);
+                }
+            } else if(block.getType().equals(Material.ENCHANTING_TABLE)) {
+                if(sowClass == 0 && level >= 30) {
+                    event.setCancelled(true);
+                    openEnchantingMenu(player);
+                } else if(sowClass != 5) {
+                    event.setCancelled(true);
+                }
             }
         }
     }

@@ -8,10 +8,12 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.*;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -277,6 +279,19 @@ public class SongPlugHelper {
         return stack;
     }
 
+    public static ItemStack enchantmentStack(Enchantment enchantment, int level) {
+        return customEnchantmentStack(enchantment, level, null);
+    }
+
+    public static ItemStack customEnchantmentStack(Enchantment enchantment, int level, String name) {
+        ItemStack stack = new ItemStack(Material.ENCHANTED_BOOK);
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) stack.getItemMeta();
+        meta.addStoredEnchant(enchantment, level, true);
+        if(name != null) meta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false));
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
     public static ItemStack customPotionStack(Material material, PotionEffectType effectType, int duration, int amplifier, String name) {
         ItemStack stack = new ItemStack(material);
         PotionMeta meta = (PotionMeta) stack.getItemMeta();
@@ -308,6 +323,7 @@ public class SongPlugHelper {
         menu.setItem(13, customNameItemStack(Material.DARK_PRISMARINE, Component.text("Ardoni").color(NamedTextColor.YELLOW)));
         menu.setItem(14, customNameItemStack(Material.MAGMA_BLOCK, Component.text("Magnorite").color(NamedTextColor.YELLOW)));
         menu.setItem(15, customNameItemStack(Material.ZOMBIE_HEAD, Component.text("Necromancer").color(NamedTextColor.YELLOW)));
+        menu.setItem(26, customNameItemStack(Material.STRUCTURE_VOID, Component.text("None")));
         player.openInventory(menu);
     }
 
@@ -330,6 +346,16 @@ public class SongPlugHelper {
         menu.setItem(2, customPotionStack(PotionEffectType.FIRE_RESISTANCE, 400, 0, "Potion of Fire Resistance"));
         menu.setItem(3, customPotionStack(PotionEffectType.HASTE, 400, 0, "Potion of Haste"));
         menu.setItem(4, customPotionStack(Material.SPLASH_POTION, PotionEffectType.WEAKNESS, 400, 0, "Splash Potion of Weakness"));
+        player.openInventory(menu);
+    }
+
+    public static void openEnchantingMenu(Player player) {
+        Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST, Component.text("Enchantment Table"));
+        menu.setItem(0, customEnchantmentStack(Enchantment.SILK_TOUCH, 1, "Enchanted Book of Silk Touch"));
+        menu.setItem(1, customEnchantmentStack(Enchantment.UNBREAKING, 2, "Enchanted Book of Unbreaking"));
+        menu.setItem(2, customEnchantmentStack(Enchantment.EFFICIENCY, 1, "Enchanted Book of Efficiency"));
+        menu.setItem(3, customEnchantmentStack(Enchantment.SHARPNESS, 1, "Enchanted Book of Sharpness"));
+        menu.setItem(4, customEnchantmentStack(Enchantment.LOOTING, 2, "Enchanted Book of Looting"));
         player.openInventory(menu);
     }
 
