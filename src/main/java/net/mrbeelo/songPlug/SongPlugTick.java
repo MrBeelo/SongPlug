@@ -37,7 +37,19 @@ public class SongPlugTick {
         Score bleedScore = scoreType(entity, "Bleed");
         int bleed = bleedScore.getScore();
         if(bleed > 0) bleedScore.setScore(bleed - 1);
-        if(bleed > 0 && entity instanceof LivingEntity living) living.damage(0.75f);
+        if(bleed > 0 && entity instanceof LivingEntity living) {
+            living.damage(1);
+            if(living.hasPotionEffect(PotionEffectType.REGENERATION)) living.removePotionEffect(PotionEffectType.REGENERATION);
+            if(living.hasPotionEffect(PotionEffectType.ABSORPTION)) living.removePotionEffect(PotionEffectType.ABSORPTION);
+            if(living.hasPotionEffect(PotionEffectType.INSTANT_HEALTH)) living.removePotionEffect(PotionEffectType.INSTANT_HEALTH);
+
+            living.getWorld().spawnParticle(Particle.BLOCK, living.getLocation().add(0, 1, 0), 7, 0.2, 0.25, 0.2, 0,
+                    Bukkit.createBlockData(Material.REDSTONE_BLOCK));
+        }
+
+        Score disarmStunScore = scoreType(entity, "DisarmStun");
+        int disarmStun = disarmStunScore.getScore();
+        if(disarmStun > 0) disarmStunScore.setScore(disarmStun - 1);
     }
 
     public static void updateClasses(Player player) {
@@ -138,10 +150,6 @@ public class SongPlugTick {
         }
 
         //DISARM
-        Score disarmStunScore = scoreType(player, "DisarmStun");
-        int disarmStun = disarmStunScore.getScore();
-        if(disarmStun > 0) disarmStunScore.setScore(disarmStun - 1);
-
         Score disarmCooldownScore = scoreType(player, "DisarmCooldown");
         int disarmCooldown = disarmCooldownScore.getScore();
         if(disarmCooldown > 0) disarmCooldownScore.setScore(disarmCooldown - 1);
@@ -186,8 +194,14 @@ public class SongPlugTick {
         int stealthCooldown = stealthCooldownScore.getScore();
         if(stealthCooldown > 0) stealthCooldownScore.setScore(stealthCooldown - 1);
 
+        if(stealthTime == 1) {
+            Bukkit.getScheduler().runTaskLater(plugin(), () -> {
+                resetClassStats(player);
+            }, 1L);
+        }
+
         //FELINE FURY
-        if(getSowClass(player) == 1 && getLevel(player) >= 40) {
+        if(getSowClass(player) == 1 && getLevel(player) >= 30) {
             for(Entity entity : getNearbyEntities(player.getLocation(), 10)) {
                 if(entity instanceof Creeper && player.hasLineOfSight(entity)) {
                     entity.setVelocity(entityDistanceVector(player, entity).multiply(0.5f).setY(0));
@@ -280,9 +294,10 @@ public class SongPlugTick {
             }
         } else if(sidebar.getName().equals("Stats")) {
             for (String entry : Objects.requireNonNull(sidebar.getScoreboard()).getEntries()) sidebar.getScore(entry).resetScore();
-            sidebar.getScore("§7").setScore(6);
-            sidebar.getScore("XP: " + scoreValue(player, "XP") + "/" + (getLevel(player) * 10 + 100)).setScore(5);
-            sidebar.getScore("Level: " + getLevel(player)).setScore(4);
+            sidebar.getScore("§7").setScore(7);
+            sidebar.getScore("XP: " + scoreValue(player, "XP") + "/" + (getLevel(player) * 10 + 100)).setScore(6);
+            sidebar.getScore("Level: " + getLevel(player)).setScore(5);
+            sidebar.getScore("Points: " + scoreValue(player, "Points")).setScore(4);
             sidebar.getScore("§6").setScore(3);
             sidebar.getScore("Class: " + getSowClassComponent(player, true, false).content()).setScore(2);
             sidebar.getScore("§5").setScore(1);

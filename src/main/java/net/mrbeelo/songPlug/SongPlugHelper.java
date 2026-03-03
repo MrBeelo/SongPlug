@@ -89,6 +89,11 @@ public class SongPlugHelper {
     }
 
     public static void giveCrate(Player player, String name) {
+        ItemStack stack = crateStack(name);
+        if(stack != null) player.give(stack); else player.sendMessage("Not a valid rarity!");
+    }
+
+    public static ItemStack crateStack(String name) {
         if(isIn(name, rarities)) {
             Material material = switch(name) {
                 case "Common" -> Material.IRON_BLOCK;
@@ -103,9 +108,38 @@ public class SongPlugHelper {
             meta.itemName(Component.text(name + " Song Crate"));
             meta.setEnchantmentGlintOverride(true);
             stack.setItemMeta(meta);
-            player.give(stack);
+            return stack;
         } else {
-            player.sendMessage("Not a valid rarity!");
+            return null;
+        }
+    }
+
+    public static ItemStack shopCrateStack(String name) {
+        if(isIn(name, rarities)) {
+            Material material = switch(name) {
+                case "Common" -> Material.IRON_BLOCK;
+                case "Uncommon" -> Material.GOLD_BLOCK;
+                case "Rare" -> Material.DIAMOND_BLOCK;
+                case "Legendary" -> Material.EMERALD_BLOCK;
+                default -> Material.BARRIER;
+            };
+
+            int points = switch(name) {
+                case "Common" -> 250;
+                case "Uncommon" -> 500;
+                case "Rare" -> 750;
+                case "Legendary" -> 1000;
+                default -> 0;
+            };
+
+            ItemStack stack = new ItemStack(material, 1);
+            ItemMeta meta = stack.getItemMeta();
+            meta.itemName(Component.text(name + " Song Crate (" + points + " points)"));
+            meta.setEnchantmentGlintOverride(true);
+            stack.setItemMeta(meta);
+            return stack;
+        } else {
+            return null;
         }
     }
 
@@ -384,6 +418,15 @@ public class SongPlugHelper {
         menu.setItem(2, customEnchantmentStack(Enchantment.EFFICIENCY, 1, "Enchanted Book of Efficiency"));
         menu.setItem(3, customEnchantmentStack(Enchantment.SHARPNESS, 1, "Enchanted Book of Sharpness"));
         menu.setItem(4, customEnchantmentStack(Enchantment.LOOTING, 2, "Enchanted Book of Looting"));
+        player.openInventory(menu);
+    }
+
+    public static void openShopMenu(Player player) {
+        Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST, Component.text("Shop"));
+        menu.setItem(0, shopCrateStack("Common"));
+        menu.setItem(1, shopCrateStack("Uncommon"));
+        menu.setItem(2, shopCrateStack("Rare"));
+        menu.setItem(3, shopCrateStack("Legendary"));
         player.openInventory(menu);
     }
 

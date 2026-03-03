@@ -20,6 +20,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -358,6 +359,24 @@ public class SongPlugListener implements Listener {
 
                 event.setCancelled(true);
             }
+        } else if(view.title().equals(Component.text("Shop"))) {
+            HumanEntity human = event.getWhoClicked();
+            ItemStack stack = event.getCurrentItem();
+            if(stack != null && human instanceof Player player) {
+                String name = stack.getItemMeta().getItemName();
+                String rarity = name.substring(0, name.indexOf(" "));
+                int requiredPoints = Integer.parseInt(name.substring(name.indexOf("(") + 1, name.indexOf(" points)")));
+
+                Score pointScore = scoreType(player, "Points");
+                if(pointScore.getScore() >= requiredPoints) {
+                    pointScore.setScore(pointScore.getScore() - requiredPoints);
+                    giveCrate(player, rarity);
+                } else {
+                    player.sendMessage("Not enough points!");
+                }
+
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -428,7 +447,7 @@ public class SongPlugListener implements Listener {
         if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Player player = event.getPlayer();
             ItemStack stack = player.getInventory().getItemInMainHand();
-            if(!stack.isEmpty()) {
+            if(!stack.isEmpty() && stack.getItemMeta().getItemName().endsWith(" Song Crate")) {
                 String name = stack.getItemMeta().getItemName();
                 name = name.substring(0, name.length() - " Song Crate".length());
                 if(isIn(name, rarities)) {
@@ -440,7 +459,7 @@ public class SongPlugListener implements Listener {
                         default -> throw new IllegalStateException("Unexpected value: " + name);
                     };
 
-                    player.getInventory().setItem(player.getInventory().getHeldItemSlot(), ItemStack.empty());
+                    stack.setAmount(stack.getAmount() - 1);
                     ThreadLocalRandom random = ThreadLocalRandom.current();
                     int index = random.nextInt(0, songPool.length);
                     giveSong(player, songPool[index]);
@@ -606,12 +625,23 @@ public class SongPlugListener implements Listener {
         if(damager instanceof Player player && getSowClass(player) == 1 && getLevel(player) >= 30) {
             ItemStack stack = player.getInventory().getItemInMainHand();
             String weaponType = getCustomItemData(stack, "weapon_type");
-            if(weaponType != null && weaponType.equals("Dagger") && entity instanceof Player attackedPlayer &&
-                    scoreValue(player, "StealthCooldown") == 0) {
-                Score stealthTimeScore = scoreType(attackedPlayer, "StealthTime");
-                stealthTimeScore.setScore(2 * 20);
-                Score stealthCooldownScore = scoreType(player, "StealthCooldown");
-                stealthCooldownScore.setScore(20 * 20);
+
+            if(entity instanceof Player attackedPlayer) {
+                Vector attackedPlayerVector = attackedPlayer.getLocation().getDirection().normalize().setY(attackedPlayer.getLocation().getDirection().normalize().getY() / 3);
+                Vector combinedVector = entityDistanceVector(player, attackedPlayer).normalize();
+                double angle = Math.toDegrees(attackedPlayerVector.angle(combinedVector));
+
+                if(weaponType != null && weaponType.equals("Dagger") && angle < 20f &&
+                        scoreValue(player, "StealthCooldown") == 0) {
+                    Score stealthTimeScore = scoreType(attackedPlayer, "StealthTime");
+                    stealthTimeScore.setScore(2 * 20);
+                    Score stealthCooldownScore = scoreType(player, "StealthCooldown");
+                    stealthCooldownScore.setScore(20 * 20);
+
+                    Bukkit.getScheduler().runTaskLater(plugin(), () -> {
+                        resetClassStats(attackedPlayer);
+                    }, 1L);
+                }
             }
         }
 
@@ -677,6 +707,25 @@ public class SongPlugListener implements Listener {
 
         if (from.getBlockX() == to.getBlockX() && from.getBlockZ() == to.getBlockZ()) return;
         if(getSowClass(player) != 5 && player.hasPotionEffect(PotionEffectType.INVISIBILITY)) player.removePotionEffect(PotionEffectType.INVISIBILITY);
-        if(scoreValue(player, "DisarmStun") > 0) event.setCancelled(true);
+
+    }
+
+    @EventHandler
+    public void onEntityMove(EntityMoveEvent event) {
+        Entity entity = event.getEntity();
+        Location from = event.getFrom();
+        Location to = event.getTo();
+        if (from.getBlockX() == to.getBlockX() && from.getBlockZ() == to.getBlockZ()) return;
+        if(scoreValue(entity, "DisarmStun") > 0) event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        Player player = event.getPlayer();
+        ItemStack stack = player.getInventory().getItemInMainHand();
+        if(stack.getItemMeta().getItemName().endsWith(" Song Crate")) event.setCancelled(true);
+
+        String name = stack.getItemMeta().getItemName();
+        if(isIn(name, redSongs) || isIn(name, blueSongs) || isIn(name, yellowSongs) || isIn(name, greenSongs)) event.setCancelled(true);
     }
 }
