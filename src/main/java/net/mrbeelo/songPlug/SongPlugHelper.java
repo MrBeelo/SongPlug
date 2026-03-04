@@ -8,6 +8,9 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.inventory.InventoryType;
@@ -18,6 +21,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -496,6 +500,19 @@ public class SongPlugHelper {
             return container.get(namespacedKey, PersistentDataType.STRING);
         }
         return null;
+    }
+
+    public static void stealthHelper(Player victim, long seconds) {
+        AttributeInstance instance = victim.getAttribute(Attribute.ARMOR);
+        if(instance == null) return;
+
+        NamespacedKey key = new NamespacedKey(plugin(), "zero_armor");
+        AttributeModifier modifier = new AttributeModifier(key, -instance.getValue(), AttributeModifier.Operation.ADD_NUMBER);
+        instance.addModifier(modifier);
+
+        Bukkit.getScheduler().runTaskLater(plugin(), () -> {
+            instance.removeModifier(modifier);
+        }, seconds * 20L);
     }
 
     public static boolean aggroblastSightHelper(Player player, LivingEntity entity) {

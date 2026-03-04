@@ -66,35 +66,27 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
 
             }
             case "resetcooldowns" -> {
-                Score redCooldownScore = null;
-                Score blueCooldownScore = null;
-                Score yellowCooldownScore = null;
-                Score greenCooldownScore = null;
+                String[] scores = {"RedEnergyCooldown", "BlueEnergyCooldown", "YellowEnergyCooldown", "GreenEnergyCooldown",
+                        "DisarmCooldown", "EnragedCooldown", "StealthCooldown", "FelineFuryCooldown"};
 
                 if(strings.length != 0) {
                     String selector = strings[0];
                     for (Entity entity : Bukkit.selectEntities(sender, selector)) {
                         if (entity instanceof Player player) {
-                            redCooldownScore = scoreType(player, "RedEnergyCooldown");
-                            blueCooldownScore = scoreType(player, "BlueEnergyCooldown");
-                            yellowCooldownScore = scoreType(player, "YellowEnergyCooldown");
-                            greenCooldownScore = scoreType(player, "GreenEnergyCooldown");
+                            for(String scoreStr : scores) {
+                                Score score = scoreType(player, scoreStr);
+                                score.setScore(0);
+                            }
                         }
                     }
                 } else {
                     if(sender instanceof Player player) {
-                        redCooldownScore = scoreType(player, "RedEnergyCooldown");
-                        blueCooldownScore = scoreType(player, "BlueEnergyCooldown");
-                        yellowCooldownScore = scoreType(player, "YellowEnergyCooldown");
-                        greenCooldownScore = scoreType(player, "GreenEnergyCooldown");
+                        for(String scoreStr : scores) {
+                            Score score = scoreType(player, scoreStr);
+                            score.setScore(0);
+                        }
                     }
                 }
-
-                if(redCooldownScore != null) redCooldownScore.setScore(0);
-                if(blueCooldownScore != null) blueCooldownScore.setScore(0);
-                if(yellowCooldownScore != null) yellowCooldownScore.setScore(0);
-                if(greenCooldownScore != null) greenCooldownScore.setScore(0);
-
             }
             case "energy" -> {
                 String selector = strings[0];

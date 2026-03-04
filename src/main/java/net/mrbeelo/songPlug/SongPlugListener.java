@@ -637,6 +637,7 @@ public class SongPlugListener implements Listener {
                     stealthTimeScore.setScore(2 * 20);
                     Score stealthCooldownScore = scoreType(player, "StealthCooldown");
                     stealthCooldownScore.setScore(20 * 20);
+                    stealthHelper(attackedPlayer, 2);
 
                     Bukkit.getScheduler().runTaskLater(plugin(), () -> {
                         resetClassStats(attackedPlayer);

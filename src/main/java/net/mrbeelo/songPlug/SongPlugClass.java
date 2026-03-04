@@ -151,9 +151,7 @@ public class SongPlugClass {
                 default -> 0f;
             };
 
-            player.sendMessage("before: " + speedDecreasePercent);
             if(getSowClass(player) == 0 && getLevel(player) >= 10 && speedDecreasePercent >= 3f) speedDecreasePercent -= 5f;
-            player.sendMessage("after: " + speedDecreasePercent);
 
             baseMovementSpeed -= baseMovementSpeed * speedDecreasePercent / 100f;
         }
