@@ -32,8 +32,6 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Score;
@@ -41,7 +39,6 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static net.mrbeelo.songPlug.SongPlug.plugin;
@@ -337,24 +334,50 @@ public class SongPlugListener implements Listener {
             ItemStack stack = event.getCurrentItem();
             if(stack != null && human instanceof Player player) {
                 String name = stack.getItemMeta().getDisplayName();
-
-                Material material = switch(name) {
-                    case "Enchanted Book of Silk Touch" -> Material.CYAN_DYE;
-                    case "Enchanted Book of Unbreaking" -> Material.GREEN_DYE;
-                    case "Enchanted Book of Efficiency" -> Material.PINK_DYE;
-                    case "Enchanted Book of Sharpness" -> Material.RED_DYE;
-                    case "Enchanted Book of Looting" -> Material.YELLOW_DYE;
-                    default -> Material.BARRIER;
-                };
+                String nameByItself = name.substring(0, name.length() - 2);
+                int num = Integer.parseInt(name.substring(name.length() - 1));
+                String key = nameByItself.toLowerCase().replace(" ", "_");
 
                 Inventory inv = player.getInventory();
-                if(inv.contains(material, 1) && inv.contains(Material.LAPIS_LAZULI, 10)) {
-                    removeItems(inv, material, 1);
-                    removeItems(inv, Material.LAPIS_LAZULI, 10);
-                    player.give(stack);
-                    player.sendMessage("Crafted " + name + " Successfully!");
-                } else {
+                ItemStack heldStack = player.getInventory().getItemInMainHand();
+                int enchantsNumber = getCustomItemDataInt(heldStack, "enchants");
+
+                int maxEnchants = -1;
+                if(isCopper(heldStack)) maxEnchants = 1;
+                if(isIron(heldStack)) maxEnchants = 2;
+                if(isGold(heldStack)) maxEnchants = 3;
+                if(isDiamond(heldStack)) maxEnchants = 4;
+
+                boolean shouldEnchant = true;
+
+                if(maxEnchants == -1) {
+                    player.sendMessage("Cannot enchant!");
+                    shouldEnchant = false;
+                }
+                if(heldStack.isEmpty()) {
+                    player.sendMessage("You aren't holding any items!");
+                    shouldEnchant = false;
+                }
+                if(!inv.contains(Material.LAPIS_LAZULI, 3 * num) && maxEnchants != -1) {
                     player.sendMessage("Missing items for " + name + "!");
+                    shouldEnchant = false;
+                }
+                if(enchantsNumber >= maxEnchants && maxEnchants != -1 && getCustomItemDataInt(heldStack, key) < num) {
+                    player.sendMessage("Too many enchantments!");
+                    shouldEnchant = false;
+                }
+                if(getCustomItemDataInt(heldStack, key) >= num) {
+                    player.sendMessage("You already have a similar enchantment!");
+                    shouldEnchant = false;
+                }
+                if(shouldEnchant) {
+                    removeItems(inv, Material.LAPIS_LAZULI, 3 * num);
+                    if(getCustomItemDataInt(heldStack, key) == 0) setCustomItemDataInt(heldStack, "enchants", enchantsNumber + 1);
+                    setCustomItemDataInt(heldStack, key, num);
+                    ItemMeta meta = heldStack.getItemMeta();
+                    meta.setEnchantmentGlintOverride(true);
+                    heldStack.setItemMeta(meta);
+                    player.sendMessage("Applied " + name + " to item successfully!");
                 }
 
                 event.setCancelled(true);
@@ -624,7 +647,7 @@ public class SongPlugListener implements Listener {
 
         if(damager instanceof Player player && getSowClass(player) == 1 && getLevel(player) >= 30) {
             ItemStack stack = player.getInventory().getItemInMainHand();
-            String weaponType = getCustomItemData(stack, "weapon_type");
+            String weaponType = getCustomItemDataString(stack, "weapon_type");
 
             if(entity instanceof Player attackedPlayer) {
                 Vector attackedPlayerVector = attackedPlayer.getLocation().getDirection().normalize().setY(attackedPlayer.getLocation().getDirection().normalize().getY() / 3);

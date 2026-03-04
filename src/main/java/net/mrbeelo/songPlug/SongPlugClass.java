@@ -1,6 +1,5 @@
 package net.mrbeelo.songPlug;
 
-import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
@@ -139,7 +138,7 @@ public class SongPlugClass {
         if(scoreValue(player, "StealthTime") > 0) baseArmor = 0;
 
         ItemStack stack = player.getInventory().getItemInMainHand();
-        String weaponType = getCustomItemData(stack, "weapon_type");
+        String weaponType = getCustomItemDataString(stack, "weapon_type");
 
         if(weaponType != null) {
             float speedDecreasePercent = switch(weaponType) {

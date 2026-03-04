@@ -2,7 +2,6 @@ package net.mrbeelo.songPlug;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,18 +9,14 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scoreboard.Score;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
-import static net.mrbeelo.songPlug.SongPlug.plugin;
 import static net.mrbeelo.songPlug.SongPlugClass.resetClassStats;
 import static net.mrbeelo.songPlug.SongPlugClass.weaponTypes;
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
@@ -168,7 +163,7 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
                 for (Entity entity : Bukkit.selectEntities(sender, selector)) {
                     if (entity instanceof Player player) {
                         ItemStack stack = player.getInventory().getItemInMainHand();
-                        setCustomItemData(stack, "weapon_type", strings[1]);
+                        setCustomItemDataString(stack, "weapon_type", strings[1]);
                     }
                 }
             }

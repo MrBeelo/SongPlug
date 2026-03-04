@@ -21,7 +21,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -69,7 +68,7 @@ public class SongPlugHelper {
         return objective;
     }
 
-    public static boolean isIn(String name, String[] array) {
+    public static <T> boolean isIn(T name, T[] array) {
         return Arrays.asList(array).contains(name);
     }
 
@@ -242,6 +241,38 @@ public class SongPlugHelper {
         }
     }
 
+    public static boolean isCopper(ItemStack stack) {
+        Material mat = stack.getType();
+        Material[] validMaterials = {Material.COPPER_HELMET, Material.COPPER_CHESTPLATE, Material.COPPER_LEGGINGS, Material.COPPER_BOOTS,
+                Material.COPPER_SWORD, Material.COPPER_PICKAXE, Material.COPPER_AXE, Material.COPPER_SHOVEL, Material.COPPER_HOE, Material.COPPER_SPEAR};
+
+        return isIn(mat, validMaterials);
+    }
+
+    public static boolean isIron(ItemStack stack) {
+        Material mat = stack.getType();
+        Material[] validMaterials = {Material.IRON_HELMET, Material.IRON_CHESTPLATE, Material.IRON_LEGGINGS, Material.IRON_BOOTS,
+        Material.IRON_SWORD, Material.IRON_PICKAXE, Material.IRON_AXE, Material.IRON_SHOVEL, Material.IRON_HOE, Material.IRON_SPEAR};
+
+        return isIn(mat, validMaterials);
+    }
+
+    public static boolean isGold(ItemStack stack) {
+        Material mat = stack.getType();
+        Material[] validMaterials = {Material.GOLDEN_HELMET, Material.GOLDEN_CHESTPLATE, Material.GOLDEN_LEGGINGS, Material.GOLDEN_BOOTS,
+                Material.GOLDEN_SWORD, Material.GOLDEN_PICKAXE, Material.GOLDEN_AXE, Material.GOLDEN_SHOVEL, Material.GOLDEN_HOE, Material.GOLDEN_SPEAR};
+
+        return isIn(mat, validMaterials);
+    }
+
+    public static boolean isDiamond(ItemStack stack) {
+        Material mat = stack.getType();
+        Material[] validMaterials = {Material.DIAMOND_HELMET, Material.DIAMOND_CHESTPLATE, Material.DIAMOND_LEGGINGS, Material.DIAMOND_BOOTS,
+                Material.DIAMOND_SWORD, Material.DIAMOND_PICKAXE, Material.DIAMOND_AXE, Material.DIAMOND_SHOVEL, Material.DIAMOND_HOE, Material.DIAMOND_SPEAR};
+
+        return isIn(mat, validMaterials);
+    }
+
     public static boolean isNetheriteArmor(ItemStack stack) {
         Material mat = stack.getType();
         return mat.equals(Material.NETHERITE_HELMET) || mat.equals(Material.NETHERITE_CHESTPLATE) || mat.equals(Material.NETHERITE_LEGGINGS) || mat.equals(Material.NETHERITE_BOOTS);
@@ -358,6 +389,14 @@ public class SongPlugHelper {
         return stack;
     }
 
+    public static ItemStack sowEnchantmentStack(String name) {
+        ItemStack stack = new ItemStack(Material.ENCHANTED_BOOK);
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) stack.getItemMeta();
+        if(name != null) meta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false));
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
     public static ItemStack customPotionStack(Material material, PotionEffectType effectType, int duration, int amplifier, String name) {
         ItemStack stack = new ItemStack(material);
         PotionMeta meta = (PotionMeta) stack.getItemMeta();
@@ -417,11 +456,13 @@ public class SongPlugHelper {
 
     public static void openEnchantingMenu(Player player) {
         Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST, Component.text("Enchantment Table"));
-        menu.setItem(0, customEnchantmentStack(Enchantment.SILK_TOUCH, 1, "Enchanted Book of Silk Touch"));
-        menu.setItem(1, customEnchantmentStack(Enchantment.UNBREAKING, 2, "Enchanted Book of Unbreaking"));
-        menu.setItem(2, customEnchantmentStack(Enchantment.EFFICIENCY, 1, "Enchanted Book of Efficiency"));
-        menu.setItem(3, customEnchantmentStack(Enchantment.SHARPNESS, 1, "Enchanted Book of Sharpness"));
-        menu.setItem(4, customEnchantmentStack(Enchantment.LOOTING, 2, "Enchanted Book of Looting"));
+        menu.setItem(0, sowEnchantmentStack("Armor rating 1"));
+        menu.setItem(1, sowEnchantmentStack("Weapon Damage 1"));
+        menu.setItem(2, sowEnchantmentStack("Luck 1"));
+        menu.setItem(3, sowEnchantmentStack("Max Health 1"));
+        menu.setItem(4, sowEnchantmentStack("Movement Speed 1"));
+        menu.setItem(5, sowEnchantmentStack("Song Resistance 1"));
+        menu.setItem(6, sowEnchantmentStack("All Attributes 1"));
         player.openInventory(menu);
     }
 
@@ -485,14 +526,14 @@ public class SongPlugHelper {
         return vector.normalize();
     }
 
-    public static void setCustomItemData(ItemStack stack, String key, String value) {
+    public static void setCustomItemDataString(ItemStack stack, String key, String value) {
         NamespacedKey namespacedKey = new NamespacedKey(plugin(), key);
         stack.editPersistentDataContainer(pdc -> {
             pdc.set(namespacedKey, PersistentDataType.STRING, value);
         });
     }
 
-    public static String getCustomItemData(ItemStack stack, String key) {
+    public static String getCustomItemDataString(ItemStack stack, String key) {
         ItemMeta meta = stack.getItemMeta();
         if(meta != null) {
             NamespacedKey namespacedKey = new NamespacedKey(plugin(), key);
@@ -500,6 +541,24 @@ public class SongPlugHelper {
             return container.get(namespacedKey, PersistentDataType.STRING);
         }
         return null;
+    }
+
+    public static void setCustomItemDataInt(ItemStack stack, String key, int value) {
+        NamespacedKey namespacedKey = new NamespacedKey(plugin(), key);
+        stack.editPersistentDataContainer(pdc -> {
+            pdc.set(namespacedKey, PersistentDataType.INTEGER, value);
+        });
+    }
+
+    public static int getCustomItemDataInt(ItemStack stack, String key) {
+        ItemMeta meta = stack.getItemMeta();
+        if(meta != null) {
+            NamespacedKey namespacedKey = new NamespacedKey(plugin(), key);
+            PersistentDataContainer container = meta.getPersistentDataContainer();
+            Integer value = container.get(namespacedKey, PersistentDataType.INTEGER);
+            if(value != null) return value;
+        }
+        return 0;
     }
 
     public static void stealthHelper(Player victim, long seconds) {
