@@ -122,22 +122,31 @@ public class SongPlugListener implements Listener {
                     int luck = getCustomItemDataInt(stack, "armor_rating");
                     switch(luck) {
                         case 1 -> {
+                            chancePool[0] -= 1;
                             chancePool[2] += 1;
                         }
                         case 2 -> {
+                            chancePool[0] -= 2;
+                            chancePool[1] -= 1;
                             chancePool[2] += 2;
                             chancePool[3] += 1;
                         }
                         case 3 -> {
+                            chancePool[0] -= 3;
+                            chancePool[1] -= 2;
                             chancePool[2] += 3;
                             chancePool[3] += 2;
                         }
                         case 4 -> {
+                            chancePool[0] -= 4;
+                            chancePool[1] -= 3;
                             chancePool[2] += 4;
                             chancePool[3] += 2;
                             chancePool[4] += 1;
                         }
                         case 5 -> {
+                            chancePool[0] -= 5;
+                            chancePool[1] -= 3;
                             chancePool[2] += 5;
                             chancePool[3] += 3;
                             chancePool[4] += 1;
