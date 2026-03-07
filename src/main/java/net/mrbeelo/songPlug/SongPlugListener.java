@@ -453,19 +453,24 @@ public class SongPlugListener implements Listener {
             ItemStack stack = event.getCurrentItem();
             if(stack != null && human instanceof Player player) {
                 String name = stack.getItemMeta().getItemName();
-                String rarity = name.substring(0, name.indexOf(" "));
-                int requiredPoints = switch(rarity) {
-                    case "Common" -> 250;
-                    case "Uncommon" -> 500;
-                    case "Rare" -> 750;
-                    case "Legendary" -> 1000;
-                    default -> 0;
-                };
+                int requiredPoints;
+                if(stack.getType().equals(Material.DRAGON_EGG)) {
+                    requiredPoints = 1000;
+                } else {
+                    String rarity = name.substring(0, name.indexOf(" "));
+                    requiredPoints = switch(rarity) {
+                        case "Common" -> 250;
+                        case "Uncommon" -> 500;
+                        case "Rare" -> 750;
+                        case "Legendary" -> 1000;
+                        default -> 0;
+                    };
+                }
 
                 Score pointScore = scoreType(player, "Points");
                 if(pointScore.getScore() >= requiredPoints) {
                     pointScore.setScore(pointScore.getScore() - requiredPoints);
-                    giveCrate(player, rarity);
+                    player.give(noLoreStack(stack));
                 } else {
                     player.sendMessage("Not enough points!");
                 }

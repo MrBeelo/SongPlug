@@ -447,6 +447,17 @@ public class SongPlugHelper {
         return customPotionStack(Material.POTION, effectType, duration, amplifier, name, requiredItem);
     }
 
+    public static ItemStack itemStackLoreGlint(Material material, String lore, boolean glint) {
+        ItemStack stack = new ItemStack(material);
+        ItemMeta meta = stack.getItemMeta();
+        List<Component> loreList = new ArrayList<>();
+        loreList.add(Component.text(lore).color(NamedTextColor.BLUE));
+        meta.lore(loreList);
+        if(glint) meta.setEnchantmentGlintOverride(true);
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
     public static void openSongMenu(Player player) {
         Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST, Component.text("Song Selection"));
         menu.setItem(4, customNameItemStack(Material.RED_STAINED_GLASS, Component.text("Aggressium").color(NamedTextColor.RED)));
@@ -555,6 +566,7 @@ public class SongPlugHelper {
         menu.setItem(1, shopCrateStack("Uncommon"));
         menu.setItem(2, shopCrateStack("Rare"));
         menu.setItem(3, shopCrateStack("Legendary"));
+        menu.setItem(8, itemStackLoreGlint(Material.DRAGON_EGG, "Cost: 1000 points", true));
         player.openInventory(menu);
     }
 
