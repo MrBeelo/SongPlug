@@ -7,6 +7,7 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -38,7 +39,9 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static net.mrbeelo.songPlug.SongPlug.plugin;
@@ -95,6 +98,10 @@ public class SongPlugListener implements Listener {
                 player.updateInventory();
             });
         }
+
+        Bukkit.getScheduler().runTaskLater(plugin(), () -> {
+            resetClassStats(player);
+        }, 1L);
     }
 
     @EventHandler
@@ -109,6 +116,35 @@ public class SongPlugListener implements Listener {
             int[] chancePool = {53, 30, 12, 4, 1};
 
             if(getSowClass(player) == 0 && getLevel(player) >= 40) chancePool = new int[]{46, 29, 16, 7, 2};
+
+            for(ItemStack stack : usedStacks(player)) {
+                if(getCustomItemDataInt(stack, "luck") != 0) {
+                    int luck = getCustomItemDataInt(stack, "armor_rating");
+                    switch(luck) {
+                        case 1 -> {
+                            chancePool[2] += 1;
+                        }
+                        case 2 -> {
+                            chancePool[2] += 2;
+                            chancePool[3] += 1;
+                        }
+                        case 3 -> {
+                            chancePool[2] += 3;
+                            chancePool[3] += 2;
+                        }
+                        case 4 -> {
+                            chancePool[2] += 4;
+                            chancePool[3] += 2;
+                            chancePool[4] += 1;
+                        }
+                        case 5 -> {
+                            chancePool[2] += 5;
+                            chancePool[3] += 3;
+                            chancePool[4] += 1;
+                        }
+                    }
+                }
+            }
 
             int chanceSum = Arrays.stream(chancePool).sum();
 
@@ -254,9 +290,14 @@ public class SongPlugListener implements Listener {
 
                 for(String name : classNames) {
                     if(stack.getItemMeta().getDisplayName().substring(2).equals(name)) {
-                        player.getScoreboardTags().add(name + "Class");
-                        event.setCancelled(true);
-                        view.close();
+                        if(!stack.getItemMeta().getDisplayName().substring(2).equals("Necromancer")) {
+                            player.getScoreboardTags().add(name + "Class");
+                            event.setCancelled(true);
+                            view.close();
+                        } else {
+                            player.sendMessage("Nick is too lazy to add Necromacer!");
+                            event.setCancelled(true);
+                        }
                     }
                 }
 
@@ -266,9 +307,6 @@ public class SongPlugListener implements Listener {
                 }
 
                 resetClassStats(player);
-
-                event.setCancelled(true);
-                view.close();
 
                 if(stack.getItemMeta().getDisplayName().equals("§eArdoni")) {
                     openRaceMenu(player);
@@ -321,7 +359,7 @@ public class SongPlugListener implements Listener {
                     removeItems(inv, material, 1);
                     removeItems(inv, Material.GOLD_INGOT, 1);
                     removeItems(inv, Material.GUNPOWDER, 5);
-                    player.give(stack);
+                    player.give(noLoreStack(stack));
                     player.sendMessage("Crafted " + name + " Successfully!");
                 } else {
                     player.sendMessage("Missing items for " + name + "!");
@@ -334,50 +372,78 @@ public class SongPlugListener implements Listener {
             ItemStack stack = event.getCurrentItem();
             if(stack != null && human instanceof Player player) {
                 String name = stack.getItemMeta().getDisplayName();
-                String nameByItself = name.substring(0, name.length() - 2);
-                int num = Integer.parseInt(name.substring(name.length() - 1));
-                String key = nameByItself.toLowerCase().replace(" ", "_");
 
-                Inventory inv = player.getInventory();
-                ItemStack heldStack = player.getInventory().getItemInMainHand();
-                int enchantsNumber = getCustomItemDataInt(heldStack, "enchants");
+                if(name.equals("First Page")) {
+                    view.close();
+                    event.setCancelled(true);
+                    openEnchantingMenu(player);
+                } else if(name.equals("Next Page")) {
+                    view.close();
+                    event.setCancelled(true);
+                    openSecondaryEnchantingMenu(player);
+                } else {
+                    String nameByItself = name.substring(0, name.length() - 2);
+                    int num = Integer.parseInt(name.substring(name.length() - 1));
+                    String key = nameByItself.toLowerCase().replace(" ", "_");
 
-                int maxEnchants = -1;
-                if(isCopper(heldStack)) maxEnchants = 1;
-                if(isIron(heldStack)) maxEnchants = 2;
-                if(isGold(heldStack)) maxEnchants = 3;
-                if(isDiamond(heldStack)) maxEnchants = 4;
+                    Inventory inv = player.getInventory();
+                    ItemStack heldStack = player.getInventory().getItemInMainHand();
+                    int enchantsNumber = getCustomItemDataInt(heldStack, "enchants");
 
-                boolean shouldEnchant = true;
+                    int maxEnchants = -1;
+                    if(isCopper(heldStack)) maxEnchants = 1;
+                    if(isIron(heldStack)) maxEnchants = 2;
+                    if(isGold(heldStack)) maxEnchants = 3;
+                    if(isDiamond(heldStack)) maxEnchants = 4;
 
-                if(maxEnchants == -1) {
-                    player.sendMessage("Cannot enchant!");
-                    shouldEnchant = false;
-                }
-                if(heldStack.isEmpty()) {
-                    player.sendMessage("You aren't holding any items!");
-                    shouldEnchant = false;
-                }
-                if(!inv.contains(Material.LAPIS_LAZULI, 3 * num) && maxEnchants != -1) {
-                    player.sendMessage("Missing items for " + name + "!");
-                    shouldEnchant = false;
-                }
-                if(enchantsNumber >= maxEnchants && maxEnchants != -1 && getCustomItemDataInt(heldStack, key) < num) {
-                    player.sendMessage("Too many enchantments!");
-                    shouldEnchant = false;
-                }
-                if(getCustomItemDataInt(heldStack, key) >= num) {
-                    player.sendMessage("You already have a similar enchantment!");
-                    shouldEnchant = false;
-                }
-                if(shouldEnchant) {
-                    removeItems(inv, Material.LAPIS_LAZULI, 3 * num);
-                    if(getCustomItemDataInt(heldStack, key) == 0) setCustomItemDataInt(heldStack, "enchants", enchantsNumber + 1);
-                    setCustomItemDataInt(heldStack, key, num);
-                    ItemMeta meta = heldStack.getItemMeta();
-                    meta.setEnchantmentGlintOverride(true);
-                    heldStack.setItemMeta(meta);
-                    player.sendMessage("Applied " + name + " to item successfully!");
+                    boolean shouldEnchant = true;
+
+                    if(maxEnchants == -1 && !heldStack.isEmpty()) {
+                        player.sendMessage("Cannot enchant!");
+                        shouldEnchant = false;
+                    }
+                    if(heldStack.isEmpty()) {
+                        player.sendMessage("You aren't holding any items!");
+                        shouldEnchant = false;
+                    }
+
+                    if(enchantsNumber >= maxEnchants && maxEnchants != -1 && getCustomItemDataInt(heldStack, key) < num) {
+                        player.sendMessage("Too many enchantments!");
+                        shouldEnchant = false;
+                    }
+                    if(getCustomItemDataInt(heldStack, key) >= num) {
+                        player.sendMessage("You already have a similar enchantment!");
+                        shouldEnchant = false;
+                    }
+                    if(key.equals("all_attributes")) {
+                        if((!inv.contains(Material.LAPIS_LAZULI, 30) || !inv.contains(Material.DIAMOND, 10)) && maxEnchants != -1) {
+                            player.sendMessage("Missing items for " + name + "!");
+                            shouldEnchant = false;
+                        }
+                    } else {
+                        if(!inv.contains(Material.LAPIS_LAZULI, 3 * num) && maxEnchants != -1) {
+                            player.sendMessage("Missing items for " + name + "!");
+                            shouldEnchant = false;
+                        }
+                    }
+                    if(shouldEnchant) {
+                        if(key.equals("all_attributes")) {
+                            removeItems(inv, Material.LAPIS_LAZULI, 30);
+                            removeItems(inv, Material.DIAMOND, 10);
+                        } else {
+                            removeItems(inv, Material.LAPIS_LAZULI, 3 * num);
+                        }
+
+                        if(getCustomItemDataInt(heldStack, key) == 0) setCustomItemDataInt(heldStack, "enchants", enchantsNumber + 1);
+                        setCustomItemDataInt(heldStack, key, num);
+                        ItemMeta meta = heldStack.getItemMeta();
+                        meta.setEnchantmentGlintOverride(true);
+                        List<Component> loreArray = new ArrayList<>();
+                        loreArray.add(Component.text(name).color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
+                        meta.lore(loreArray);
+                        heldStack.setItemMeta(meta);
+                        player.sendMessage("Applied " + name + " to item successfully!");
+                    }
                 }
 
                 event.setCancelled(true);
@@ -388,7 +454,13 @@ public class SongPlugListener implements Listener {
             if(stack != null && human instanceof Player player) {
                 String name = stack.getItemMeta().getItemName();
                 String rarity = name.substring(0, name.indexOf(" "));
-                int requiredPoints = Integer.parseInt(name.substring(name.indexOf("(") + 1, name.indexOf(" points)")));
+                int requiredPoints = switch(rarity) {
+                    case "Common" -> 250;
+                    case "Uncommon" -> 500;
+                    case "Rare" -> 750;
+                    case "Legendary" -> 1000;
+                    default -> 0;
+                };
 
                 Score pointScore = scoreType(player, "Points");
                 if(pointScore.getScore() >= requiredPoints) {
@@ -426,7 +498,7 @@ public class SongPlugListener implements Listener {
                 String name = meta.getItemName();
                 if(infuseSong(player, name, true, false)) {
                     playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, SoundCategory.MASTER, 1.0f, 1.0f);
-                    if(getLevel(player) < 30) {
+                    if(getLevel(player) < 20) {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 140, 0, true, false, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 140, 2, true, false, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 140, 0, true, false, false));

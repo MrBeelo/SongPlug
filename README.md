@@ -48,9 +48,9 @@ Felina:
 
 Ardoni:
 10 - Song Wielder
-20 -
-30 - Amateur
-40 -
+20 - Amateur
+30 - Mana Surge
+40 - Staff Mastery
 50 - War Song
 
 Magnorite:

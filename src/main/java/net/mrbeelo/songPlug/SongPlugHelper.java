@@ -5,6 +5,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.*;
@@ -16,6 +17,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -36,6 +38,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static net.mrbeelo.songPlug.SongPlug.plugin;
+import static net.mrbeelo.songPlug.SongPlugHelper.getCustomItemDataInt;
 import static net.mrbeelo.songPlug.SongPlugTick.updateBossBar;
 
 public class SongPlugHelper {
@@ -137,8 +140,11 @@ public class SongPlugHelper {
 
             ItemStack stack = new ItemStack(material, 1);
             ItemMeta meta = stack.getItemMeta();
-            meta.itemName(Component.text(name + " Song Crate (" + points + " points)"));
+            meta.itemName(Component.text(name + " Song Crate"));
             meta.setEnchantmentGlintOverride(true);
+            List<Component> lore = new ArrayList<>();
+            lore.add(Component.text("Cost: " + points + " points").color(NamedTextColor.BLUE));
+            meta.lore(lore);
             stack.setItemMeta(meta);
             return stack;
         } else {
@@ -239,6 +245,17 @@ public class SongPlugHelper {
                 }
             }
         }
+    }
+
+    public static List<ItemStack> usedStacks(Player player) {
+        List<ItemStack> stacks = new ArrayList<>(List.of());
+        PlayerInventory inventory = player.getInventory();
+        stacks.add(inventory.getHelmet());
+        stacks.add(inventory.getChestplate());
+        stacks.add(inventory.getLeggings());
+        stacks.add(inventory.getBoots());
+        stacks.add(inventory.getItemInMainHand());
+        return stacks;
     }
 
     public static boolean isCopper(ItemStack stack) {
@@ -391,24 +408,43 @@ public class SongPlugHelper {
 
     public static ItemStack sowEnchantmentStack(String name) {
         ItemStack stack = new ItemStack(Material.ENCHANTED_BOOK);
-        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) stack.getItemMeta();
-        if(name != null) meta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false));
+        int num = Integer.parseInt(name.substring(name.length() - 1));
+        ItemMeta meta = stack.getItemMeta();
+        meta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false));
+        List<Component> lore = new ArrayList<>();
+        lore.add(Component.text("Cost: " + 3 * num + " lazuli").color(NamedTextColor.BLUE));
+        meta.lore(lore);
         stack.setItemMeta(meta);
         return stack;
     }
 
-    public static ItemStack customPotionStack(Material material, PotionEffectType effectType, int duration, int amplifier, String name) {
+    public static ItemStack sowEnchantmentStackLore(String name, String lore) {
+        ItemStack stack = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta meta = stack.getItemMeta();
+        meta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false));
+        List<Component> loreArray = new ArrayList<>();
+        loreArray.add(Component.text(lore).color(NamedTextColor.BLUE));
+        meta.lore(loreArray);
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
+    public static ItemStack customPotionStack(Material material, PotionEffectType effectType, int duration, int amplifier, String name, String requiredItem) {
         ItemStack stack = new ItemStack(material);
         PotionMeta meta = (PotionMeta) stack.getItemMeta();
         meta.addCustomEffect(new PotionEffect(effectType, duration, amplifier),  true);
         meta.setBasePotionType(PotionType.WATER);
         meta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false));
+        List<Component> lore = new ArrayList<>();
+        lore.add(Component.empty());
+        lore.add(Component.text("Cost: 1 gold, 5 gunpowder, " + requiredItem).color(NamedTextColor.BLUE));
+        meta.lore(lore);
         stack.setItemMeta(meta);
         return stack;
     }
 
-    public static ItemStack customPotionStack(PotionEffectType effectType, int duration, int amplifier, String name) {
-        return customPotionStack(Material.POTION, effectType, duration, amplifier, name);
+    public static ItemStack customPotionStack(PotionEffectType effectType, int duration, int amplifier, String name, String requiredItem) {
+        return customPotionStack(Material.POTION, effectType, duration, amplifier, name, requiredItem);
     }
 
     public static void openSongMenu(Player player) {
@@ -446,11 +482,11 @@ public class SongPlugHelper {
 
     public static void openBrewingMenu(Player player) {
         Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST, Component.text("Brewing Stand"));
-        menu.setItem(0, customPotionStack(PotionEffectType.INVISIBILITY, 400, 0, "Potion of Invisibility"));
-        menu.setItem(1, customPotionStack(PotionEffectType.SPEED, 400, 0, "Potion of Speed"));
-        menu.setItem(2, customPotionStack(PotionEffectType.FIRE_RESISTANCE, 400, 0, "Potion of Fire Resistance"));
-        menu.setItem(3, customPotionStack(PotionEffectType.HASTE, 400, 0, "Potion of Haste"));
-        menu.setItem(4, customPotionStack(Material.SPLASH_POTION, PotionEffectType.WEAKNESS, 400, 0, "Splash Potion of Weakness"));
+        menu.setItem(0, customPotionStack(PotionEffectType.INVISIBILITY, 400, 0, "Potion of Invisibility", "an open eyeblossom"));
+        menu.setItem(1, customPotionStack(PotionEffectType.SPEED, 400, 0, "Potion of Speed", "a pitcher plant"));
+        menu.setItem(2, customPotionStack(PotionEffectType.FIRE_RESISTANCE, 400, 0, "Potion of Fire Resistance", "a torchflower"));
+        menu.setItem(3, customPotionStack(PotionEffectType.HASTE, 400, 0, "Potion of Haste", "torchflower seeds"));
+        menu.setItem(4, customPotionStack(Material.SPLASH_POTION, PotionEffectType.WEAKNESS, 400, 0, "Splash Potion of Weakness", "a wither rose"));
         player.openInventory(menu);
     }
 
@@ -462,7 +498,54 @@ public class SongPlugHelper {
         menu.setItem(3, sowEnchantmentStack("Max Health 1"));
         menu.setItem(4, sowEnchantmentStack("Movement Speed 1"));
         menu.setItem(5, sowEnchantmentStack("Song Resistance 1"));
-        menu.setItem(6, sowEnchantmentStack("All Attributes 1"));
+
+        if(getLevel(player) >= 35) {
+            menu.setItem(9, sowEnchantmentStack("Armor rating 2"));
+            menu.setItem(10, sowEnchantmentStack("Weapon Damage 2"));
+            menu.setItem(11, sowEnchantmentStack("Luck 2"));
+            menu.setItem(12, sowEnchantmentStack("Max Health 2"));
+            menu.setItem(13, sowEnchantmentStack("Movement Speed 2"));
+            menu.setItem(14, sowEnchantmentStack("Song Resistance 2"));
+        }
+
+        if(getLevel(player) >= 40) {
+            menu.setItem(18, sowEnchantmentStack("Armor rating 3"));
+            menu.setItem(19, sowEnchantmentStack("Weapon Damage 3"));
+            menu.setItem(20, sowEnchantmentStack("Luck 3"));
+            menu.setItem(21, sowEnchantmentStack("Max Health 3"));
+            menu.setItem(22, sowEnchantmentStack("Movement Speed 3"));
+            menu.setItem(23, sowEnchantmentStack("Song Resistance 3"));
+        }
+
+        if(getLevel(player) >= 45) menu.setItem(26, customNameItemStack(Material.MAGENTA_GLAZED_TERRACOTTA, Component.text("Next Page")));
+
+        player.openInventory(menu);
+    }
+
+    public static void openSecondaryEnchantingMenu(Player player) {
+        Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST, Component.text("Enchantment Table"));
+
+        if(getLevel(player) >= 45) {
+            menu.setItem(0, sowEnchantmentStack("Armor rating 4"));
+            menu.setItem(1, sowEnchantmentStack("Weapon Damage 4"));
+            menu.setItem(2, sowEnchantmentStack("Luck 4"));
+            menu.setItem(3, sowEnchantmentStack("Max Health 4"));
+            menu.setItem(4, sowEnchantmentStack("Movement Speed 4"));
+            menu.setItem(5, sowEnchantmentStack("Song Resistance 4"));
+        }
+
+        if(getLevel(player) >= 50) {
+            menu.setItem(9, sowEnchantmentStack("Armor rating 5"));
+            menu.setItem(10, sowEnchantmentStack("Weapon Damage 5"));
+            menu.setItem(11, sowEnchantmentStack("Luck 5"));
+            menu.setItem(12, sowEnchantmentStack("Max Health 5"));
+            menu.setItem(13, sowEnchantmentStack("Movement Speed 5"));
+            menu.setItem(14, sowEnchantmentStack("Song Resistance 5"));
+            menu.setItem(15, sowEnchantmentStackLore("All Attributes 1", "Cost: 30 lazuli, 10 diamonds"));
+        }
+
+        menu.setItem(26, customNameItemStack(Material.MAGENTA_GLAZED_TERRACOTTA, Component.text("First Page")));
+
         player.openInventory(menu);
     }
 
@@ -473,6 +556,39 @@ public class SongPlugHelper {
         menu.setItem(2, shopCrateStack("Rare"));
         menu.setItem(3, shopCrateStack("Legendary"));
         player.openInventory(menu);
+    }
+
+    public static ItemStack noLoreStack(ItemStack stack) {
+        ItemMeta meta = stack.getItemMeta();
+        meta.lore(new ArrayList<>());
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
+    public static void songDamage(LivingEntity entity, double amount, Entity source, Player manaSurgePlayer, boolean aggroSong) {
+        double value = amount;
+        if(entity instanceof Player player) {
+            for(ItemStack stack : usedStacks(player)) {
+                if(getCustomItemDataInt(stack, "song_resistance") != 0) value -= value * getCustomItemDataInt(stack, "song_resistance") * 2 / 100f;
+                if(getSowClass(manaSurgePlayer) == 3 && getLevel(manaSurgePlayer) >= 30) value += value * 10f / 100f;
+                if(getSowClass(manaSurgePlayer) == 3 && getLevel(manaSurgePlayer) >= 40 && aggroSong) value += value * 5f / 100f;
+            }
+        }
+
+        entity.damage(value, source);
+    }
+
+    public static void songDamage(LivingEntity entity, double amount, Player manaSurgePlayer, boolean aggroSong) {
+        double value = amount;
+        if(entity instanceof Player player) {
+            for(ItemStack stack : usedStacks(player)) {
+                if(getCustomItemDataInt(stack, "song_resistance") != 0) value -= value * getCustomItemDataInt(stack, "song_resistance") * 2 / 100f;
+                if(getSowClass(manaSurgePlayer) == 3 && getLevel(manaSurgePlayer) >= 30) value += value * 10f / 100f;
+                if(getSowClass(manaSurgePlayer) == 3 && getLevel(manaSurgePlayer) >= 40 && aggroSong) value += value * 5f / 100f;
+            }
+        }
+
+        entity.damage(value);
     }
 
     public static double getMaxDistanceInFrontOfPlayer(Player player, double max, boolean includeEntities) {

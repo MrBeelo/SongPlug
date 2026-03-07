@@ -1425,7 +1425,7 @@ public class SongPlugTick {
 
                         if((collidedEntity != null) || centerLocation.getBlock().isSolid()) {
                             if(collidedEntity instanceof LivingEntity living) {
-                                living.damage(32, entity);
+                                songDamage(living,32, entity, player, true);
                                 if(collidedEntity instanceof Player player2 && player2.getActiveItem().getType() == Material.SHIELD) {
                                     ItemStack stack = player2.getActiveItem();
                                     stack.damage(9999, living);
@@ -1507,7 +1507,7 @@ public class SongPlugTick {
             if(usingActiveSong <= 200 && usingActiveSong > 0) {
                 Entity target = player.getTargetEntity(18, false);
                 if(target instanceof LivingEntity living && !isAnEntityItem(living)) {
-                    living.damage(5, player);
+                    songDamage(living,5, player, true);
                 }
 
                 Score cooldownScore = scoreType(player, "RedEnergyCooldown");
@@ -1642,7 +1642,7 @@ public class SongPlugTick {
                             && living != player && player.getLocation().distance(entity.getLocation()) < distanceFromBarrier) {
                         double distance = player.getLocation().distance(living.getLocation());
                         living.setVelocity(entityDistanceVector(player, entity).multiply(1.4 - distance / 3));
-                        living.damage(40 - distance * 5, player);
+                        songDamage(living,40 - distance * 5, player, true);
                     }
                 }
 
@@ -1729,7 +1729,7 @@ public class SongPlugTick {
                                     ItemStack stack = player2.getActiveItem();
                                     stack.damage(336 / 2, living);
                                 } else {
-                                    living.damage(20, entity);
+                                    songDamage(living,20, entity, player, true);
                                     player.getWorld().createExplosion(collidedEntity.getLocation().add(0, 1, 0), 0.5f, false, false);
                                 }
                             } else {
@@ -1850,7 +1850,7 @@ public class SongPlugTick {
                                     ItemStack stack = player2.getActiveItem();
                                     stack.damage(30, living);
                                 } else {
-                                    living.damage(40);
+                                    songDamage(living,40, player, true);
                                 }
                             }
 
@@ -1966,7 +1966,7 @@ public class SongPlugTick {
                                     ItemStack stack = player2.getActiveItem();
                                     stack.damage(9999, living);
                                 } else {
-                                    living.damage(30, entity);
+                                    songDamage(living,30, entity, player, true);
                                     player.getWorld().createExplosion(collidedEntity.getLocation().add(0, -1, 0), 0.5f, false, false);
                                 }
                             } else {
@@ -2017,7 +2017,7 @@ public class SongPlugTick {
                     if(entity instanceof LivingEntity living && living != player) {
                         living.setVelocity(living.getVelocity().add(entityDistanceVector(player, entity).multiply(-0.05)));
                         double distance = player.getLocation().distance(living.getLocation());
-                        if(7 - distance > 0) living.damage(7 - distance);
+                        if(7 - distance > 0) songDamage(living,7 - distance, player, true);
                     }
                 }
 
@@ -2108,8 +2108,6 @@ public class SongPlugTick {
                         }
                     }
 
-
-
                     if(entity.getScoreboardTags().contains("Aggroshock" + player.getName()) && entity != player && entity instanceof LivingEntity living) {
                         BoundingBox box = entity.getBoundingBox();
                         ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -2119,7 +2117,7 @@ public class SongPlugTick {
                             player.getWorld().spawnParticle(Particle.DUST, loc, 0, new Particle.DustOptions((i % 2 == 0) ? Color.RED : Color.ORANGE, 0.7f));
                         }
 
-                        living.damage(20);
+                        songDamage(living,20, player, true);
 
                         if(entity.getScoreboardTags().contains("AggroshockVictim1") && !entity.getScoreboardTags().contains("AggroshockTransfered")) {
                             entity.getScoreboardTags().add("AggroshockTransfered");

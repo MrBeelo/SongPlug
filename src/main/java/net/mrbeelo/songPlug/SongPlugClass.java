@@ -135,10 +135,42 @@ public class SongPlugClass {
             }
         }
 
+
+
+        for(ItemStack stack : usedStacks(player)) {
+            if(getCustomItemDataInt(stack, "armor_rating") != 0) {
+                baseArmor += getCustomItemDataInt(stack, "armor_rating") / 2f;
+            }
+
+            if(getCustomItemDataInt(stack, "weapon_damage") != 0) {
+                baseAttackDamage += getCustomItemDataInt(stack, "weapon_damage") / 2f;
+            }
+
+            if(getCustomItemDataInt(stack, "max_health") != 0) {
+                baseMaxHealth += getCustomItemDataInt(stack, "max_health") / 2f;
+            }
+
+            if(getCustomItemDataInt(stack, "movement_speed") != 0) {
+                baseMovementSpeed += getCustomItemDataInt(stack, "movement_speed") / 2f;
+            }
+
+            if(getCustomItemDataInt(stack, "all_attributes") != 0) {
+                int all_attributes = getCustomItemDataInt(stack, "all_attributes");
+                baseMovementSpeed += all_attributes;
+                baseJumpStrength += all_attributes;
+                baseAttackDamage += all_attributes;
+                baseAttackSpeed += all_attributes;
+                baseMaxHealth += all_attributes;
+                baseArmor += all_attributes;
+            }
+        }
+
         if(scoreValue(player, "StealthTime") > 0) baseArmor = 0;
 
         ItemStack stack = player.getInventory().getItemInMainHand();
         String weaponType = getCustomItemDataString(stack, "weapon_type");
+
+        if(getSowClass(player) == 2 && getLevel(player) >= 40 && weaponType != null && weaponType.equals("Staff")) baseAttackDamage += 0.5f;
 
         if(weaponType != null) {
             float speedDecreasePercent = switch(weaponType) {
