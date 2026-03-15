@@ -51,6 +51,7 @@ public final class SongPlug extends JavaPlugin {
         for (Player player : Bukkit.getOnlinePlayers()) {
             Score energyScore = scoreType(player, "SongEnergy");
             updateClasses(player);
+            updateCollisions(player);
             updateBossBar(player);
             updateRegen(player, energyScore);
             updateCooldowns(player);
@@ -60,6 +61,7 @@ public final class SongPlug extends JavaPlugin {
 
         for(Entity entity : getGlobalEntityCollection()) {
             updateEntities(entity);
+            updateCollisions(entity);
         }
     }
 }

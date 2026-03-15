@@ -59,10 +59,3 @@ Magnorite:
 30 - Enraged
 40 - Champion
 50 - Projectile Reduction
-
-Necromancer:
-10 -
-20 -
-30 -
-40 -
-50 -

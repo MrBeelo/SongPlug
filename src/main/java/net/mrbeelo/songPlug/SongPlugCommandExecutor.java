@@ -23,7 +23,7 @@ import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
     public static String[] commands = {"class", "givesong", "getblock", "resetcooldowns", "energy", "infusesong", "clearsongs",
-            "level", "sowxp", "skull", "weapontype", "givecrate", "shop", "points"};
+            "level", "sowxp", "skull", "weapontype", "givecrate", "shop", "points", "colltag"};
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] strings) {
@@ -208,6 +208,23 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
                     }
                 }
             }
+            case "colltag" -> {
+                String selector = strings[0];
+                String identifier = strings[1];
+                String selector2 = strings[2];
+                for (Entity entity : Bukkit.selectEntities(sender, selector)) {
+                    if(Bukkit.selectEntities(sender, selector2).size() == 1) {
+                        for(Entity entity2 : Bukkit.selectEntities(sender, selector2)) {
+                            if(sender instanceof Player player) player.sendMessage("Setting tag: " + "Collision" + identifier + "Pardon" + entity2.getName());
+                            entity.getScoreboardTags().add("Collision" + identifier + "Pardon" + entity2.getName());
+                        }
+                    } else if(Bukkit.selectEntities(sender, selector2).isEmpty()) {
+                        if(sender instanceof Player player) player.sendMessage("ERROR: No entities in last selector!");
+                    } else {
+                        if(sender instanceof Player player) player.sendMessage("ERROR: Too many entities in last selector!");
+                    }
+                }
+            }
         }
         return false;
     }
@@ -215,7 +232,7 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
         String name = command.getName();
-        if(Arrays.asList(commands).contains(name) && args.length == 1) {
+        if(Arrays.asList(commands).contains(name) && (args.length == 1 || (name.equals("colltag") && args.length == 3))) {
             List<String> names = new ArrayList<>();
             names.add("@a");
             names.add("@e");

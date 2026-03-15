@@ -31,3 +31,5 @@ commands:
     description: Opens the shop
   points:
     description: Adds, removes, or sets the player's points
+  colltag:
+    description: Adds a collision tag, with a specified identifier and name, to an enttity

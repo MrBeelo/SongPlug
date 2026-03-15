@@ -52,6 +52,33 @@ public class SongPlugTick {
         if(disarmStun > 0) disarmStunScore.setScore(disarmStun - 1);
     }
 
+    public static void updateCollisions(Entity entity) {
+        for(String tag : entity.getScoreboardTags()) {
+            if(tag.startsWith("SeenCollision")) {
+                Score collisionScore = scoreType(entity, tag.substring("Seen".length()));
+                collisionScore.setScore(0);
+            }
+        }
+
+        for(Entity entity2 : getEntities(entity)) {
+            if(entity2 != entity && entity2 instanceof Interaction interaction) {
+                for(String tag : interaction.getScoreboardTags()) {
+                    if(tag.startsWith("Collision")) {
+                        BoundingBox box = entity.getBoundingBox();
+                        BoundingBox box2 = interaction.getBoundingBox();
+                        String tagNoName = tag;
+                        if(tag.contains("Pardon")) tagNoName = tag.substring(0, tag.indexOf("Pardon"));
+                        if(box.overlaps(box2) && !tag.endsWith("Pardon" + entity.getName())) {
+                            Score collisionScore = scoreType(entity, tagNoName);
+                            collisionScore.setScore(1);
+                            entity.getScoreboardTags().add("Seen" + tagNoName);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public static void updateClasses(Player player) {
         Score infuseDebuffScore = scoreType(player, "InfuseDebuff");
         int infuseDebuff = infuseDebuffScore.getScore();
