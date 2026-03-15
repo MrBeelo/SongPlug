@@ -30,11 +30,9 @@ import org.bukkit.scoreboard.*;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static net.mrbeelo.songPlug.SongPlug.plugin;
@@ -73,6 +71,18 @@ public class SongPlugHelper {
 
     public static <T> boolean isIn(T name, T[] array) {
         return Arrays.asList(array).contains(name);
+    }
+
+    public static int getUUIDpart(Entity entity, int part) {
+        UUID uuid = entity.getUniqueId();
+        long most = uuid.getMostSignificantBits();
+        long least = uuid.getLeastSignificantBits();
+        return (int) switch(part) {
+            case 1 -> most;
+            case 2 -> least >> 32;
+            case 3 -> least;
+            default -> most >> 32;
+        };
     }
 
     public static void giveCustomItemName(Player player, Material material, String name) {

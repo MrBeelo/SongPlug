@@ -66,12 +66,10 @@ public class SongPlugTick {
                     if(tag.startsWith("Collision")) {
                         BoundingBox box = entity.getBoundingBox();
                         BoundingBox box2 = interaction.getBoundingBox();
-                        String tagNoName = tag;
-                        if(tag.contains("Pardon")) tagNoName = tag.substring(0, tag.indexOf("Pardon"));
-                        if(box.overlaps(box2) && !tag.endsWith("Pardon" + entity.getName())) {
-                            Score collisionScore = scoreType(entity, tagNoName);
+                        if(box.overlaps(box2) && scoreValue(interaction, "PardonedUUID") != getUUIDpart(entity, 0)) {
+                            Score collisionScore = scoreType(entity, tag);
                             collisionScore.setScore(1);
-                            entity.getScoreboardTags().add("Seen" + tagNoName);
+                            entity.getScoreboardTags().add("Seen" + tag);
                         }
                     }
                 }
