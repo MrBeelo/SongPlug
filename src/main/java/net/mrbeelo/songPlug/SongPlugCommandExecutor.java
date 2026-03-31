@@ -23,7 +23,7 @@ import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
     public static String[] commands = {"class", "givesong", "getblock", "resetcooldowns", "energy", "infusesong", "clearsongs",
-            "level", "sowxp", "skull", "weapontype", "givecrate", "shop", "points"};
+            "level", "sowxp", "skull", "weapontype", "givecrate", "shop", "points", "dataint"};
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] strings) {
@@ -207,6 +207,18 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
                         }
                     }
                 }
+            }
+            case "dataint" -> {
+                String selector = strings[0];
+                String key = strings[1];
+                int value = Integer.parseInt(strings[2]);
+                for (Entity entity : Bukkit.selectEntities(sender, selector)) {
+                    if(entity instanceof Player player) {
+                        ItemStack stack = player.getInventory().getItemInMainHand();
+                        setCustomItemDataInt(stack, key, value);
+                    }
+                }
+
             }
         }
         return false;

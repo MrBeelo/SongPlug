@@ -642,6 +642,18 @@ public class SongPlugHelper {
         }
     }
 
+    public static double getTotalAttackDamage(Player player) {
+        ItemStack stack = player.getInventory().getItemInMainHand();
+        ItemMeta meta = stack.getItemMeta();
+        double itemAttackDamage = 0;
+        var modifiers = meta.getAttributeModifiers(Attribute.ATTACK_DAMAGE);
+        if(modifiers != null) {
+            for(AttributeModifier modifier : modifiers) itemAttackDamage += modifier.getAmount();
+        }
+        double playerBaseAttackDamage = Objects.requireNonNull(player.getAttribute(Attribute.ATTACK_DAMAGE)).getBaseValue();
+        return itemAttackDamage + playerBaseAttackDamage;
+    }
+
     public static Collection<Entity> getGlobalEntityCollection() {
         Collection<Entity> entities = new ArrayList<>();
         for (World world : Bukkit.getWorlds()) entities.addAll(world.getEntities());

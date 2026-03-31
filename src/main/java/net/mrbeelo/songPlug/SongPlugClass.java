@@ -174,11 +174,11 @@ public class SongPlugClass {
 
         if(weaponType != null) {
             float speedDecreasePercent = switch(weaponType) {
-                case "Sword" -> 20f;
-                case "Longsword" -> 25f;
-                case "Battleaxe" -> 35f;
-                case "Spear","Staff" -> 30f;
-                case "Dagger" -> 10f;
+                case "Sword" -> 10f;
+                case "Longsword" -> 12.5f;
+                case "Battleaxe" -> 17.5f;
+                case "Spear","Staff" -> 15f;
+                case "Dagger" -> 5f;
                 default -> 0f;
             };
 

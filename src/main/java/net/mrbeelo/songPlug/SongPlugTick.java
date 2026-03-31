@@ -25,6 +25,7 @@ import org.joml.Vector3f;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.random.RandomGenerator;
 
@@ -50,6 +51,21 @@ public class SongPlugTick {
         Score disarmStunScore = scoreType(entity, "DisarmStun");
         int disarmStun = disarmStunScore.getScore();
         if(disarmStun > 0) disarmStunScore.setScore(disarmStun - 1);
+
+        if(entity instanceof Player player) {
+            for(String tag : player.getScoreboardTags()) {
+                if(tag.startsWith("ToAttack")) {
+                    String name = tag.substring("ToAttack".length());
+                    if(player.getAttackCooldown() >= 0.8) {
+                        Entity entity2 = Bukkit.getEntity(UUID.fromString(name));
+                        double attackDamage = getTotalAttackDamage(player);
+                        if(entity2 instanceof LivingEntity living) living.damage(attackDamage, player);
+                        player.getScoreboardTags().remove(tag);
+                        player.removePotionEffect(PotionEffectType.MINING_FATIGUE);
+                    }
+                }
+            }
+        }
     }
 
     public static void updateCollisions(Entity entity) {

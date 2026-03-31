@@ -765,6 +765,17 @@ public class SongPlugListener implements Listener {
                 felineFuryCooldownScore.setScore(20 * 20);
             }
         }
+
+        if(damager instanceof Player player && !player.getScoreboardTags().contains("ToAttack" + entity.getUniqueId())) {
+            ItemStack stack = player.getInventory().getItemInMainHand();
+            int attackDelay = getCustomItemDataInt(stack, "attack_delay");
+            if(attackDelay == 1) {
+                player.sendMessage("yo");
+                player.getScoreboardTags().add("ToAttack" + entity.getUniqueId());
+                player.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, 5, 7, true, false, false));
+                event.setCancelled(true);
+            }
+        }
     }
 
     @EventHandler
