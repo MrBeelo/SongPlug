@@ -33,3 +33,5 @@ commands:
     description: Adds, removes, or sets the player's points
   dataint:
     description: Sets an int to the selected item as custom data
+  resetblockcharges:
+    description: Resets the player's block charges

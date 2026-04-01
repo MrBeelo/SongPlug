@@ -53,19 +53,45 @@ public class SongPlugTick {
         if(disarmStun > 0) disarmStunScore.setScore(disarmStun - 1);
 
         if(entity instanceof Player player) {
+            Score attackDelayScore = scoreType(player, "AttackDelay");
+            int attackDelay = attackDelayScore.getScore();
+            if(attackDelay > 0) attackDelayScore.setScore(attackDelay - 1);
             for(String tag : player.getScoreboardTags()) {
                 if(tag.startsWith("ToAttack")) {
                     String name = tag.substring("ToAttack".length());
-                    if(player.getAttackCooldown() >= 0.8) {
+                    if(attackDelay == 0) {
                         Entity entity2 = Bukkit.getEntity(UUID.fromString(name));
-                        double attackDamage = getTotalAttackDamage(player);
+                        double attackDamage = scoreValue(player, "DamageToDeal") / 10d;
                         if(entity2 instanceof LivingEntity living) living.damage(attackDamage, player);
                         player.getScoreboardTags().remove(tag);
-                        player.removePotionEffect(PotionEffectType.MINING_FATIGUE);
                     }
                 }
             }
         }
+
+        Score holdingBlockScore = scoreType(entity, "HoldingBlock");
+        Score blockChargesScore = scoreType(entity, "BlockCharges");
+        Score blockChargeCooldownScore = scoreType(entity, "BlockChargeCooldown");
+        if(entity instanceof Player player) {
+            if(blockChargeCooldownScore.getScore() > 0) blockChargeCooldownScore.setScore(blockChargeCooldownScore.getScore() - 1);
+            if(blockChargeCooldownScore.getScore() == 0 && blockChargesScore.getScore() < 5) {
+                blockChargeCooldownScore.setScore(5 * 20);
+                blockChargesScore.setScore(blockChargesScore.getScore() + 1);
+            }
+            if(blockChargesScore.getScore() > 0) {
+                if(player.isBlocking() && holdingBlockScore.getScore() == 0) {
+                    holdingBlockScore.setScore(1);
+                    blockChargesScore.setScore(blockChargesScore.getScore() - 1);
+                } else if(!player.isBlocking()) {
+                    holdingBlockScore.setScore(0);
+                }
+            } else {
+                if(player.isBlocking()) {
+                    player.sendMessage("Not enough block charges! You are dying!");
+                }
+            }
+        }
+
     }
 
     public static void updateCollisions(Entity entity) {
@@ -1867,8 +1893,8 @@ public class SongPlugTick {
 
                 Location pivot = stand.getBoundingBox().getCenter().toLocation(player.getWorld());
 
-                BlockDisplay display = summonDisplay(pivot, "AggroshardDisplay" + player.getName(), Material.MAGMA_BLOCK);
-                BlockDisplay display2 = summonDisplay(pivot, "AggroshardDisplay2" + player.getName(), Material.RED_STAINED_GLASS);
+                //BlockDisplay display = summonDisplay(pivot, "AggroshardDisplay" + player.getName(), Material.MAGMA_BLOCK);
+                //BlockDisplay display2 = summonDisplay(pivot, "AggroshardDisplay2" + player.getName(), Material.RED_STAINED_GLASS);
             }
 
             if(usingPassiveSong > 0 && usingPassiveSong <= 200) {
@@ -1903,7 +1929,7 @@ public class SongPlugTick {
                             }
                         }
 
-                        for(Entity entity2 : getEntities(player)) {
+                        /*for(Entity entity2 : getEntities(player)) {
                             if((entity2.getScoreboardTags().contains("AggroshardDisplay" + player.getName()) ||
                                     entity2.getScoreboardTags().contains("AggroshardDisplay2" + player.getName())) &&
                                     entity2 instanceof BlockDisplay display && getCenter(entity).distance(getCenter(entity2)) <= 1.4f) {
@@ -1917,7 +1943,7 @@ public class SongPlugTick {
                                 display.teleport(entity.getBoundingBox().getCenter().toLocation(player.getWorld()));
                                 display.setRotation(entity.getYaw(), entity.getPitch());
                             }
-                        }
+                        }*/
 
                         Particle.DUST_COLOR_TRANSITION.builder().location(centerLocation.clone()).count(0).allPlayers().colorTransition(Color.RED, Color.fromARGB(0, 255, 0, 0)).spawn();
                     }

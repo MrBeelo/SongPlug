@@ -27,7 +27,7 @@ public class SongPlugClass {
     public static void setAttackDamage(Player player, float amount) {
         AttributeInstance instance = player.getAttribute(Attribute.ATTACK_DAMAGE);
         assert instance != null;
-        float value = amount / 10f;
+        float value = amount / 6f;
         instance.setBaseValue(value);
     }
 
@@ -170,19 +170,32 @@ public class SongPlugClass {
         ItemStack stack = player.getInventory().getItemInMainHand();
         String weaponType = getCustomItemDataString(stack, "weapon_type");
 
+        if(getCustomItemDataInt(stack, "two_hander") != 0) {
+            int twoHander = getCustomItemDataInt(stack, "two_hander");
+            player.sendMessage("cool thing 1");
+            baseAttackDamage += (float) twoHander / 2;
+            baseAttackSpeed -= (float) twoHander / 2;
+            if(!player.getInventory().getItemInOffHand().isEmpty()) {
+                baseAttackSpeed -= 1;
+                if(twoHander >= 2) baseAttackDamage -= 1;
+                player.sendMessage("cool thing 2");
+            }
+        }
+
         if(getSowClass(player) == 2 && getLevel(player) >= 40 && weaponType != null && weaponType.equals("Staff")) baseAttackDamage += 0.5f;
 
         if(weaponType != null) {
-            float speedDecreasePercent = switch(weaponType) {
-                case "Sword" -> 10f;
-                case "Longsword" -> 12.5f;
-                case "Battleaxe" -> 17.5f;
-                case "Spear","Staff" -> 15f;
-                case "Dagger" -> 5f;
+            float speedDecreasePercent = switch (weaponType) {
+                case "Sword" -> 20f;
+                case "Longsword" -> 25f;
+                case "Battleaxe" -> 35f;
+                case "Spear", "Staff" -> 30f;
+                case "Dagger" -> 10f;
                 default -> 0f;
             };
 
-            if(getSowClass(player) == 0 && getLevel(player) >= 10 && speedDecreasePercent >= 3f) speedDecreasePercent -= 5f;
+            if (getSowClass(player) == 0 && getLevel(player) >= 10 && speedDecreasePercent >= 3f)
+                speedDecreasePercent -= 5f;
 
             baseMovementSpeed -= baseMovementSpeed * speedDecreasePercent / 100f;
         }

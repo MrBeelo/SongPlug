@@ -23,7 +23,7 @@ import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
     public static String[] commands = {"class", "givesong", "getblock", "resetcooldowns", "energy", "infusesong", "clearsongs",
-            "level", "sowxp", "skull", "weapontype", "givecrate", "shop", "points", "dataint"};
+            "level", "sowxp", "skull", "weapontype", "givecrate", "shop", "points", "dataint", "resetblockcharges"};
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] strings) {
@@ -164,6 +164,7 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
                     if (entity instanceof Player player) {
                         ItemStack stack = player.getInventory().getItemInMainHand();
                         setCustomItemDataString(stack, "weapon_type", strings[1]);
+                        resetClassStats(player);
                     }
                 }
             }
@@ -218,7 +219,22 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
                         setCustomItemDataInt(stack, key, value);
                     }
                 }
-
+            }
+            case "resetblockcharges" -> {
+                if(strings.length != 0) {
+                    String selector = strings[0];
+                    for (Entity entity : Bukkit.selectEntities(sender, selector)) {
+                        if (entity instanceof Player player) {
+                            Score blockChargesScore = scoreType(player, "BlockCharges");
+                            blockChargesScore.setScore(5);
+                        }
+                    }
+                } else {
+                    if (sender instanceof Player player) {
+                        Score blockChargesScore = scoreType(player, "BlockCharges");
+                        blockChargesScore.setScore(5);
+                    }
+                }
             }
         }
         return false;

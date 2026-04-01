@@ -767,13 +767,23 @@ public class SongPlugListener implements Listener {
         }
 
         if(damager instanceof Player player && !player.getScoreboardTags().contains("ToAttack" + entity.getUniqueId())) {
-            ItemStack stack = player.getInventory().getItemInMainHand();
-            int attackDelay = getCustomItemDataInt(stack, "attack_delay");
-            if(attackDelay == 1) {
-                player.sendMessage("yo");
+            if(scoreValue(entity, "AttackDelay") == 0) {
                 player.getScoreboardTags().add("ToAttack" + entity.getUniqueId());
-                player.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, 5, 7, true, false, false));
+                Score attackDelayScore = scoreType(player, "AttackDelay");
+                attackDelayScore.setScore(7);
+                Score damageToDealScore = scoreType(player, "DamageToDeal");
+                damageToDealScore.setScore((int) Math.floor(event.getDamage() * 10f));
                 event.setCancelled(true);
+            } else if(scoreValue(entity, "AttackDelay") <= 5) {
+                for(String tag : entity.getScoreboardTags()) {
+                    if(tag.equals("ToAttack" + player.getUniqueId())) {
+                        entity.removeScoreboardTag(tag);
+                        Score attackDelayScore = scoreType(entity, "AttackDelay");
+                        attackDelayScore.setScore(0);
+                        playSoundToNearby(player.getLocation(), 5, Sound.BLOCK_ANVIL_LAND, SoundCategory.MASTER, 1, 1.5f);
+                        event.setCancelled(true);
+                    }
+                }
             }
         }
     }
