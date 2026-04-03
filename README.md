@@ -1,61 +1,25 @@
-She song me till I plugin
+# Welcome to cool Songs of War plugin!
 
-//--SONGS & RARITIES--// (Common, Uncommon, Rare, Legendary)
+This readme will kinda serve as a noteboard, since nobody has any idea what we're doing.
+Aiming to finish the plugin mid-june, but we'll see how it goes!
 
-Aggrosphere - R1
-Aggrobeam - L1
-Aggroblast - R2
-Aggrodetonate - C1
-Aggrostorm - U1
-Aggroquake - R3
-Aggroshock - L2
-Aggroshard - U2
-Aggrovortex - C2
-Mobiliflash - U3
-Mobiliburst - R4
-Mobilibounce - L3
-Mobilileap - C3
-Mobiliwings - L4
-Mobiliglide - U4
-Protesphere - L5
-Proteclone - U5
-Protearmor - R5
-Protebarrier - U6
-Protepoint - C4
-Proteheal - U7
-Supporolift - L6
-Supporokenisis - U8
-Supporoform - C5
-Supporospike - R6
+# TODO:
 
-Common: 5, Uncommon: 8, Rare: 6, Legendary: 6
+- Make 3 main bosses, each dropping an exclusive reward!
 
-//--PERKS--//
+- Add arenas that players will be able to fight in! There will be 5: 
+3 for bosses, one for waves, and one for pvp. All PvE arenas will give players 
+rewards, like songs!
 
-Human:
-10 - Master Of Arms
-20 - Potion Chugger
-30 - Enchanter
-40 - Lukertum
-50 - Ender Path
+- Add the Songs of War map to the server, and add ores to it as well.
 
-Felina:
-10 - Monster Hunter
-20 - Scaredy Cat
-30 - Stealth
-40 - Feline Fury
-50 - Fish Muncher
+- Add all new weapons, of many different types, and also balance them.
 
-Ardoni:
-10 - Song Wielder
-20 - Amateur
-30 - Mana Surge
-40 - Staff Mastery
-50 - War Song
+- Finish the perks for each class ( 5 remaining )
 
-Magnorite:
-10 - Protection From Evil
-20 - Disarm
-30 - Enraged
-40 - Champion
-50 - Projectile Reduction
+- Add the Ender Perk, a way for players to ride the ender dragon!
+
+- Add new crafting recipes, using datapacks
+
+As we continue making the server, more and more of these will appear.
+I plan on making this README a wiki when we're done with everything, so keep notes future me!

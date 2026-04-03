@@ -770,7 +770,7 @@ public class SongPlugListener implements Listener {
             if(scoreValue(entity, "AttackDelay") == 0) {
                 player.getScoreboardTags().add("ToAttack" + entity.getUniqueId());
                 Score attackDelayScore = scoreType(player, "AttackDelay");
-                attackDelayScore.setScore(7);
+                if(scoreValue(entity, "UsingProtearmor") == 0) attackDelayScore.setScore(5);
                 Score damageToDealScore = scoreType(player, "DamageToDeal");
                 damageToDealScore.setScore((int) Math.floor(event.getDamage() * 10f));
                 event.setCancelled(true);
@@ -786,6 +786,8 @@ public class SongPlugListener implements Listener {
                 }
             }
         }
+
+        if(damager instanceof Player player && player.getAttackCooldown() < 0) event.setCancelled(true);
     }
 
     @EventHandler
@@ -831,7 +833,7 @@ public class SongPlugListener implements Listener {
         }
     }
 
-    @EventHandler
+    /*@EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
         Location from = event.getFrom();
@@ -840,7 +842,7 @@ public class SongPlugListener implements Listener {
         if (from.getBlockX() == to.getBlockX() && from.getBlockZ() == to.getBlockZ()) return;
         if(getSowClass(player) != 5 && player.hasPotionEffect(PotionEffectType.INVISIBILITY)) player.removePotionEffect(PotionEffectType.INVISIBILITY);
 
-    }
+    }*/
 
     @EventHandler
     public void onEntityMove(EntityMoveEvent event) {

@@ -62,36 +62,12 @@ public class SongPlugTick {
                     if(attackDelay == 0) {
                         Entity entity2 = Bukkit.getEntity(UUID.fromString(name));
                         double attackDamage = scoreValue(player, "DamageToDeal") / 10d;
-                        if(entity2 instanceof LivingEntity living) living.damage(attackDamage, player);
+                        if(entity2 instanceof LivingEntity living && player.getHealth() > 0) living.damage(attackDamage, player);
                         player.getScoreboardTags().remove(tag);
                     }
                 }
             }
         }
-
-        Score holdingBlockScore = scoreType(entity, "HoldingBlock");
-        Score blockChargesScore = scoreType(entity, "BlockCharges");
-        Score blockChargeCooldownScore = scoreType(entity, "BlockChargeCooldown");
-        if(entity instanceof Player player) {
-            if(blockChargeCooldownScore.getScore() > 0) blockChargeCooldownScore.setScore(blockChargeCooldownScore.getScore() - 1);
-            if(blockChargeCooldownScore.getScore() == 0 && blockChargesScore.getScore() < 5) {
-                blockChargeCooldownScore.setScore(5 * 20);
-                blockChargesScore.setScore(blockChargesScore.getScore() + 1);
-            }
-            if(blockChargesScore.getScore() > 0) {
-                if(player.isBlocking() && holdingBlockScore.getScore() == 0) {
-                    holdingBlockScore.setScore(1);
-                    blockChargesScore.setScore(blockChargesScore.getScore() - 1);
-                } else if(!player.isBlocking()) {
-                    holdingBlockScore.setScore(0);
-                }
-            } else {
-                if(player.isBlocking()) {
-                    player.sendMessage("Not enough block charges! You are dying!");
-                }
-            }
-        }
-
     }
 
     public static void updateCollisions(Entity entity) {

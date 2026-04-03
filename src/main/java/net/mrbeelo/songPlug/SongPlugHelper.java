@@ -913,7 +913,7 @@ public class SongPlugHelper {
     }
 
     public static ResolvableProfile patchedPlayerProfile(String playerPatch) {
-        ResolvableProfile.SkinPatch patch = ResolvableProfile.SkinPatch.skinPatch().body(Key.key("block/gold_block")).build();
+        ResolvableProfile.SkinPatch patch = ResolvableProfile.SkinPatch.skinPatch().body(Key.key(playerPatch)).build();
         return ResolvableProfile.resolvableProfile().skinPatch(patch).build();
     }
 

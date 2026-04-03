@@ -4,6 +4,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
 
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
@@ -135,8 +136,6 @@ public class SongPlugClass {
             }
         }
 
-
-
         for(ItemStack stack : usedStacks(player)) {
             if(getCustomItemDataInt(stack, "armor_rating") != 0) {
                 baseArmor += getCustomItemDataInt(stack, "armor_rating") / 2f;
@@ -173,16 +172,17 @@ public class SongPlugClass {
         if(getCustomItemDataInt(stack, "two_hander") != 0) {
             int twoHander = getCustomItemDataInt(stack, "two_hander");
             player.sendMessage("cool thing 1");
-            baseAttackDamage += (float) twoHander / 2;
+            baseAttackDamage += (float) twoHander * 1.5f;
             baseAttackSpeed -= (float) twoHander / 2;
             if(!player.getInventory().getItemInOffHand().isEmpty()) {
                 baseAttackSpeed -= 1;
-                if(twoHander >= 2) baseAttackDamage -= 1;
+                if(twoHander >= 2) baseAttackDamage -= 1f;
                 player.sendMessage("cool thing 2");
             }
         }
 
         if(getSowClass(player) == 2 && getLevel(player) >= 40 && weaponType != null && weaponType.equals("Staff")) baseAttackDamage += 0.5f;
+        if(player.hasPotionEffect(PotionEffectType.INVISIBILITY)) baseAttackDamage -= 0.8f;
 
         if(weaponType != null) {
             float speedDecreasePercent = switch (weaponType) {
@@ -199,6 +199,8 @@ public class SongPlugClass {
 
             baseMovementSpeed -= baseMovementSpeed * speedDecreasePercent / 100f;
         }
+
+        player.sendMessage("Attack DMG: " + baseAttackDamage);
 
         setMovementSpeed(player, baseMovementSpeed);
         setJumpStrength(player, baseJumpStrength);
