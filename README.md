@@ -5,6 +5,12 @@ Aiming to finish the plugin mid-june, but we'll see how it goes!
 
 # TODO:
 
+- Left click detection as an API
+
+- Keeping the player on one slot as an API
+
+- Remove parrying and attack delay
+
 - Make 3 main bosses, each dropping an exclusive reward!
 
 - Add arenas that players will be able to fight in! There will be 5: 
