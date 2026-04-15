@@ -14,19 +14,13 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.damage.DamageSource;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
@@ -43,6 +37,7 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static net.mrbeelo.songPlug.SongPlug.plugin;
@@ -574,6 +569,31 @@ public class SongPlugListener implements Listener {
                     int index = random.nextInt(0, songPool.length);
                     giveSong(player, songPool[index]);
                 }
+            }
+        }
+
+        if(getCustomItemDataInt(event.getPlayer().getInventory().getItemInMainHand(), "special_projectile") == 1) {
+            Player player = event.getPlayer();
+            ItemStack stack = player.getInventory().getItemInMainHand();
+            event.setCancelled(true);
+            ThrowableProjectile projectile = player.launchProjectile(Snowball.class);
+            projectile.setItem(stack);
+            projectile.customName(Component.text("SpecialProjectile"));
+            projectile.setVelocity(player.getLocation().getDirection().multiply(1.5));
+            stack.setAmount(stack.getAmount() - 1);
+        }
+    }
+
+    @EventHandler
+    public void onProjectileHit(ProjectileHitEvent event) {
+        Projectile projectile = event.getEntity();
+        Entity hitEntity = event.getHitEntity();
+        if(hitEntity instanceof Player player && Objects.equals(projectile.customName(), Component.text("SpecialProjectile"))) {
+            String[] scores = {"RedEnergyCooldown", "BlueEnergyCooldown", "YellowEnergyCooldown", "GreenEnergyCooldown",
+                    "DisarmCooldown", "EnragedCooldown", "StealthCooldown", "FelineFuryCooldown"};
+            for(String scoreName : scores) {
+                Score score = scoreType(player, scoreName);
+                if(getSowClass(player) != 3) score.setScore(score.getScore() + 7 * 20);
             }
         }
     }
