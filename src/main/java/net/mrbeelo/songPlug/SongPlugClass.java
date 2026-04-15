@@ -181,6 +181,7 @@ public class SongPlugClass {
             }
         }
 
+        // ! CHANGE THE BOTTOM LINE TO THE NEW VERSION
         if(getSowClass(player) == 2 && getLevel(player) >= 40 && weaponType != null && weaponType.equals("Staff")) baseAttackDamage += 0.5f;
         if(player.hasPotionEffect(PotionEffectType.INVISIBILITY)) baseAttackDamage -= 0.8f;
 

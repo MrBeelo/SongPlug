@@ -171,7 +171,7 @@ public class SongPlugListener implements Listener {
     public void onPlayerPressedF(PlayerSwapHandItemsEvent event) {
         Player player = event.getPlayer();
 
-        if(!player.getScoreboardTags().contains("ArdoniClass")) return;
+        if(getSowClass(player) != 2) return;
         if(getLevel(player) < 10) return;
 
         Score score = scoreType(player, "FCycle");

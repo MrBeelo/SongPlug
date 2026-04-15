@@ -598,7 +598,11 @@ public class SongPlugHelper {
         double value = amount;
         if(entity instanceof Player player) {
             for(ItemStack stack : usedStacks(player)) {
-                if(getCustomItemDataInt(stack, "song_resistance") != 0) value -= value * getCustomItemDataInt(stack, "song_resistance") * 2 / 100f;
+                if(getCustomItemDataInt(stack, "song_resistance") != 0) {
+                    double decreaseValue = value * getCustomItemDataInt(stack, "song_resistance") * 2 / 100f;
+                    if(source instanceof Player player2 && getSowClass(player2) == 2 && getLevel(player2) >= 30) decreaseValue -= decreaseValue * 10 / 100;
+                    value -= decreaseValue;
+                }
                 if(getSowClass(manaSurgePlayer) == 3 && getLevel(manaSurgePlayer) >= 30) value += value * 10f / 100f;
                 if(getSowClass(manaSurgePlayer) == 3 && getLevel(manaSurgePlayer) >= 40 && aggroSong) value += value * 5f / 100f;
             }
