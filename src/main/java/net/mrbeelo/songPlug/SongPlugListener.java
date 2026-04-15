@@ -459,7 +459,7 @@ public class SongPlugListener implements Listener {
             if(stack != null && human instanceof Player player) {
                 String name = stack.getItemMeta().getItemName();
                 int requiredPoints;
-                if(stack.getType().equals(Material.DRAGON_EGG)) {
+                if(stack.getType().equals(Material.DRAGON_EGG) || stack.getType().equals(Material.DIAMOND)) {
                     requiredPoints = 1000;
                 } else {
                     String rarity = name.substring(0, name.indexOf(" "));
@@ -470,6 +470,12 @@ public class SongPlugListener implements Listener {
                         case "Legendary" -> 1000;
                         default -> 0;
                     };
+                }
+
+                if(stack.getType().equals(Material.DRAGON_EGG) && (getSowClass(player) != 0 || getLevel(player) < 50)) {
+                    player.sendMessage("Cannot buy this item!");
+                } else if(stack.getType().equals(Material.DIAMOND) && (getSowClass(player) != 0 || getLevel(player) < 20)) {
+                    player.sendMessage("Cannot buy this item!");
                 }
 
                 Score pointScore = scoreType(player, "Points");
@@ -533,7 +539,7 @@ public class SongPlugListener implements Listener {
             int level = getLevel(player);
 
             if(block.getType().equals(Material.BREWING_STAND)) {
-                if(sowClass == 0 && level >= 20) {
+                if(sowClass == 0 && level >= 10) {
                     event.setCancelled(true);
                     openBrewingMenu(player);
                 } else if(sowClass != 5) {

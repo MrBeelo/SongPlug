@@ -194,9 +194,6 @@ public class SongPlugClass {
                 default -> 0f;
             };
 
-            if (getSowClass(player) == 0 && getLevel(player) >= 10 && speedDecreasePercent >= 3f)
-                speedDecreasePercent -= 5f;
-
             baseMovementSpeed -= baseMovementSpeed * speedDecreasePercent / 100f;
         }
 

@@ -468,6 +468,12 @@ public class SongPlugHelper {
         return stack;
     }
 
+    public static ItemStack itemCustomDataInt(Material material, String lore, boolean glint, String key, int value) {
+        ItemStack stack = itemStackLoreGlint(material, lore, glint);
+        setCustomItemDataInt(stack, key, value);
+        return stack;
+    }
+
     public static void openSongMenu(Player player) {
         Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST, Component.text("Song Selection"));
         menu.setItem(4, customNameItemStack(Material.RED_STAINED_GLASS, Component.text("Aggressium").color(NamedTextColor.RED)));
@@ -576,6 +582,7 @@ public class SongPlugHelper {
         menu.setItem(1, shopCrateStack("Uncommon"));
         menu.setItem(2, shopCrateStack("Rare"));
         menu.setItem(3, shopCrateStack("Legendary"));
+        menu.setItem(7, itemCustomDataInt(Material.DIAMOND, "Cost: 1000 points", true, "special_projectile", 1));
         menu.setItem(8, itemStackLoreGlint(Material.DRAGON_EGG, "Cost: 1000 points", true));
         player.openInventory(menu);
     }
