@@ -1444,6 +1444,7 @@ public class SongPlugTick {
                 Entity entity = player.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
                 entity.setGravity(false);
                 entity.setVisibleByDefault(false);
+                entity.customName(Component.text("Aggrosphere"));
                 entity.getScoreboardTags().add("Aggrosphere" + player.getName());
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
 
@@ -1550,7 +1551,7 @@ public class SongPlugTick {
             if(usingActiveSong <= 200 && usingActiveSong > 0) {
                 Entity target = player.getTargetEntity(18, false);
                 if(target instanceof LivingEntity living && !isAnEntityItem(living)) {
-                    songDamage(living,5, player, true);
+                    songDamage(living,5, player, player, true);
                 }
 
                 Score cooldownScore = scoreType(player, "RedEnergyCooldown");
@@ -1685,7 +1686,7 @@ public class SongPlugTick {
                             && living != player && player.getLocation().distance(entity.getLocation()) < distanceFromBarrier) {
                         double distance = player.getLocation().distance(living.getLocation());
                         living.setVelocity(entityDistanceVector(player, entity).multiply(1.4 - distance / 3));
-                        songDamage(living,40 - distance * 5, player, true);
+                        songDamage(living,40 - distance * 5, player, player, true);
                     }
                 }
 
@@ -1742,6 +1743,7 @@ public class SongPlugTick {
                 Entity entity = player.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
                 entity.setGravity(false);
                 entity.setVisibleByDefault(false);
+                entity.customName(Component.text("Aggrovortex"));
                 entity.getScoreboardTags().add("Aggrovortex" + player.getName());
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
 
@@ -1863,10 +1865,10 @@ public class SongPlugTick {
 
                 ArmorStand stand = player.getWorld().spawn(location, ArmorStand.class);
                 stand.setGravity(false);
-                stand.setVisibleByDefault(false);
+                //stand.setVisibleByDefault(false);
                 stand.getScoreboardTags().add("Aggroshard" + player.getName());
                 playSoundToNearby(player.getLocation(), 10, Sound.ITEM_CROSSBOW_SHOOT, SoundCategory.MASTER, 100f, 0.35f);
-
+                stand.customName(Component.text("Aggroshard"));
                 Location pivot = stand.getBoundingBox().getCenter().toLocation(player.getWorld());
 
                 //BlockDisplay display = summonDisplay(pivot, "AggroshardDisplay" + player.getName(), Material.MAGMA_BLOCK);
@@ -1881,8 +1883,7 @@ public class SongPlugTick {
 
                         Entity collidedEntity = null;
                         for(Entity entity2 : getEntities(player)) {
-                            if(entity.getBoundingBox().overlaps(entity2.getBoundingBox()) && entity2 != entity && entity2 != player &&
-                                    (entity2 instanceof BlockDisplay)) {
+                            if(entity.getBoundingBox().overlaps(entity2.getBoundingBox()) && entity2 != entity && entity2 != player) {
                                 collidedEntity = entity2;
                             }
                         }
@@ -1893,7 +1894,7 @@ public class SongPlugTick {
                                     ItemStack stack = player2.getActiveItem();
                                     stack.damage(30, living);
                                 } else {
-                                    songDamage(living,40, player, true);
+                                    songDamage(living,40, entity, player, true);
                                 }
                             }
 
@@ -1958,6 +1959,7 @@ public class SongPlugTick {
                 Entity entity = player.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
                 entity.setGravity(false);
                 entity.setVisibleByDefault(false);
+                entity.customName(Component.text("Aggrodetonate"));
                 entity.getScoreboardTags().add("Aggrodetonate" + player.getName());
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.MASTER, 100f, 0.35f);
 
@@ -2117,6 +2119,7 @@ public class SongPlugTick {
                 Entity entity = player.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
                 entity.setGravity(false);
                 entity.setVisibleByDefault(false);
+                entity.customName(Component.text("Aggroshock"));
                 entity.getScoreboardTags().add("AggroshockProjectile" + player.getName());
             }
 
@@ -2160,7 +2163,7 @@ public class SongPlugTick {
                             player.getWorld().spawnParticle(Particle.DUST, loc, 0, new Particle.DustOptions((i % 2 == 0) ? Color.RED : Color.ORANGE, 0.7f));
                         }
 
-                        songDamage(living,20, player, true);
+                        songDamage(living,20, entity, player, true);
 
                         if(entity.getScoreboardTags().contains("AggroshockVictim1") && !entity.getScoreboardTags().contains("AggroshockTransfered")) {
                             entity.getScoreboardTags().add("AggroshockTransfered");

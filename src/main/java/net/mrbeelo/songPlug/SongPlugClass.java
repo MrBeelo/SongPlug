@@ -171,13 +171,11 @@ public class SongPlugClass {
 
         if(getCustomItemDataInt(stack, "two_hander") != 0) {
             int twoHander = getCustomItemDataInt(stack, "two_hander");
-            player.sendMessage("cool thing 1");
             baseAttackDamage += (float) twoHander * 1.5f;
             baseAttackSpeed -= (float) twoHander / 2;
             if(!player.getInventory().getItemInOffHand().isEmpty()) {
                 baseAttackSpeed -= 1;
                 if(twoHander >= 2) baseAttackDamage -= 1f;
-                player.sendMessage("cool thing 2");
             }
         }
 
@@ -197,8 +195,6 @@ public class SongPlugClass {
 
             baseMovementSpeed -= baseMovementSpeed * speedDecreasePercent / 100f;
         }
-
-        player.sendMessage("Attack DMG: " + baseAttackDamage);
 
         setMovementSpeed(player, baseMovementSpeed);
         setJumpStrength(player, baseJumpStrength);

@@ -792,27 +792,6 @@ public class SongPlugListener implements Listener {
             }
         }
 
-        if(damager instanceof Player player && !player.getScoreboardTags().contains("ToAttack" + entity.getUniqueId())) {
-            if(scoreValue(entity, "AttackDelay") == 0) {
-                player.getScoreboardTags().add("ToAttack" + entity.getUniqueId());
-                Score attackDelayScore = scoreType(player, "AttackDelay");
-                if(scoreValue(entity, "UsingProtearmor") == 0) attackDelayScore.setScore(5);
-                Score damageToDealScore = scoreType(player, "DamageToDeal");
-                damageToDealScore.setScore((int) Math.floor(event.getDamage() * 10f));
-                event.setCancelled(true);
-            } else if(scoreValue(entity, "AttackDelay") <= 5) {
-                for(String tag : entity.getScoreboardTags()) {
-                    if(tag.equals("ToAttack" + player.getUniqueId())) {
-                        entity.removeScoreboardTag(tag);
-                        Score attackDelayScore = scoreType(entity, "AttackDelay");
-                        attackDelayScore.setScore(0);
-                        playSoundToNearby(player.getLocation(), 5, Sound.BLOCK_ANVIL_LAND, SoundCategory.MASTER, 1, 1.5f);
-                        event.setCancelled(true);
-                    }
-                }
-            }
-        }
-
         if(damager instanceof Player player && player.getAttackCooldown() < 0) event.setCancelled(true);
     }
 
