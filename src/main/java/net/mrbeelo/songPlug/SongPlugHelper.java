@@ -57,6 +57,12 @@ public class SongPlugHelper {
     static String[] rareSongs = {"Aggrosphere", "Aggroblast", "Aggroquake", "Mobiliburst", "Protearmor", "Supporospike"};
     static String[] legendarySongs = {"Aggrobeam", "Aggroshock", "Mobilibounce", "Mobiliwings", "Protesphere", "Supporolift"};
 
+    static String[] weapons = {"Deathsinger", "Diamond_Bardice", "Diamond_Chronos_Sword", "Diamond_Halberd", "Diamond_Light_Spear",
+            "Diamond_Staff_Guard", "Heavy_Diamond_Spear", "Iron_Bardice", "Iron_Blazer_Claws", "Iron_Chronos_Sword", "Iron_Dagger",
+            "Iron_Greatsword", "Iron_Halberd", "Iron_Halberd_Double", "Iron_Katana", "Iron_Light_Spear", "Iron_Mace", "Iron_Scythe",
+            "Iron_Splitsword", "Iron_Staffpoint", "Iron_Staffstrike", "Iron_Stubby_Axe", "Ria", "Thalleous", "Tygren", "Warmaul",
+            "Zewihander"};
+
     public static Objective getNotNullObjective(Scoreboard scoreboard, String name) {
         Objective objective = scoreboard.getObjective(name);
 
@@ -160,6 +166,15 @@ public class SongPlugHelper {
         } else {
             return null;
         }
+    }
+
+    public static ItemStack weaponStack(String name) {
+        ItemStack stack = new ItemStack(Material.DIAMOND_SWORD, 1);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setItemModel(NamespacedKey.minecraft("bmchub" + name.toLowerCase().replace("_", "")));
+        meta.itemName(Component.text(name.replace("_", " ")));
+        stack.setItemMeta(meta);
+        return stack;
     }
 
     public static void dropCustomItemName(Player player, Material material, String name) {

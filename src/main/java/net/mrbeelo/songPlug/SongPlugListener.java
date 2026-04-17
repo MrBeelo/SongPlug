@@ -476,14 +476,14 @@ public class SongPlugListener implements Listener {
                     player.sendMessage("Cannot buy this item!");
                 } else if(stack.getType().equals(Material.DIAMOND) && (getSowClass(player) != 0 || getLevel(player) < 20)) {
                     player.sendMessage("Cannot buy this item!");
-                }
-
-                Score pointScore = scoreType(player, "Points");
-                if(pointScore.getScore() >= requiredPoints) {
-                    pointScore.setScore(pointScore.getScore() - requiredPoints);
-                    player.give(noLoreStack(stack));
                 } else {
-                    player.sendMessage("Not enough points!");
+                    Score pointScore = scoreType(player, "Points");
+                    if(pointScore.getScore() >= requiredPoints) {
+                        pointScore.setScore(pointScore.getScore() - requiredPoints);
+                        player.give(noLoreStack(stack));
+                    } else {
+                        player.sendMessage("Not enough points!");
+                    }
                 }
 
                 event.setCancelled(true);

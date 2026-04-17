@@ -1,7 +1,7 @@
 name: SongPlug
 version: '1.0-SNAPSHOT'
 main: net.mrbeelo.songPlug.SongPlug
-api-version: '1.21'
+api-version: '26.1.2'
 commands:
   class:
     description: Opens a menu for the player to change their class
@@ -37,3 +37,5 @@ commands:
     description: Resets the player's block charges
   printscore:
     description: Prints the player's score of a scoreboard
+  giveweapon:
+    description: Gives the player the specified weapon

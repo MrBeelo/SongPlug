@@ -9,8 +9,6 @@ Aiming to finish the plugin mid-june, but we'll see how it goes!
 
 - Keeping the player on one slot as an API
 
-- Remove parrying and attack delay
-
 - Make 3 main bosses, each dropping an exclusive reward!
 
 - Add arenas that players will be able to fight in! There will be 5: 
@@ -21,7 +19,7 @@ rewards, like songs!
 
 - Add all new weapons, of many different types, and also balance them.
 
-- Finish the perks for each class ( 5 remaining )
+- Finish the perks for each class ( 3 remaining )
 
 - Add the Ender Perk, a way for players to ride the ender dragon!
 

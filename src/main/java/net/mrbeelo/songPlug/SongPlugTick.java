@@ -910,7 +910,7 @@ public class SongPlugTick {
             }
 
             if(usingActiveSong == 0) {
-                player.setAllowFlight(false);
+                if(player.getGameMode().equals(GameMode.ADVENTURE) || player.getGameMode().equals(GameMode.SURVIVAL)) player.setAllowFlight(false);
                 player.removePotionEffect(PotionEffectType.INVISIBILITY);
                 player.getScoreboardTags().remove("UsedMobiliwings");
                 for(Entity entity : getEntities(player)) {
@@ -1865,7 +1865,7 @@ public class SongPlugTick {
 
                 ArmorStand stand = player.getWorld().spawn(location, ArmorStand.class);
                 stand.setGravity(false);
-                //stand.setVisibleByDefault(false);
+                stand.setVisibleByDefault(false);
                 stand.getScoreboardTags().add("Aggroshard" + player.getName());
                 playSoundToNearby(player.getLocation(), 10, Sound.ITEM_CROSSBOW_SHOOT, SoundCategory.MASTER, 100f, 0.35f);
                 stand.customName(Component.text("Aggroshard"));

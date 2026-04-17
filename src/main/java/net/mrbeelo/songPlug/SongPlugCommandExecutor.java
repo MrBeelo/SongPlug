@@ -7,6 +7,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.Score;
@@ -23,7 +24,8 @@ import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
     public static String[] commands = {"class", "givesong", "getblock", "resetcooldowns", "energy", "infusesong", "clearsongs",
-            "level", "sowxp", "skull", "weapontype", "givecrate", "shop", "points", "dataint", "resetblockcharges", "printscore"};
+            "level", "sowxp", "skull", "weapontype", "givecrate", "shop", "points", "dataint", "resetblockcharges", "printscore",
+            "giveweapon"};
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] strings) {
@@ -242,6 +244,11 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
                     entity.sendMessage("Score " + score + ": " + scoreValue(entity, score));
                 }
             }
+            case "giveweapon" -> {
+                for (Entity entity : Bukkit.selectEntities(sender, strings[0])) {
+                    if(entity instanceof Player player) player.give(weaponStack(strings[1]));
+                }
+            }
         }
         return false;
     }
@@ -280,6 +287,8 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
             return List.of(rarities);
         } else if(name.equals("points") & args.length == 2) {
             return List.of("add", "remove", "set");
+        } else if(name.equals("giveweapon") & args.length == 2) {
+            return List.of(weapons);
         }
         return List.of();
     }
