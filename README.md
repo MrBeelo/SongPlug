@@ -17,8 +17,6 @@ rewards, like songs!
 
 - Add the Songs of War map to the server, and add ores to it as well.
 
-- Add all new weapons, of many different types, and also balance them.
-
 - Finish the perks for each class ( 3 remaining )
 
 - Add the Ender Perk, a way for players to ride the ender dragon!
