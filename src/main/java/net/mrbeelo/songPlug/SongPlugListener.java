@@ -588,11 +588,25 @@ public class SongPlugListener implements Listener {
             projectile.setVelocity(player.getLocation().getDirection().multiply(1.5));
             stack.setAmount(stack.getAmount() - 1);
         }
+
+        if(getCustomItemDataInt(event.getPlayer().getInventory().getItemInMainHand(), "nplush") == 1) {
+            Player player = event.getPlayer();
+            ItemStack stack = player.getInventory().getItemInMainHand();
+            event.setCancelled(true);
+            ThrowableProjectile projectile = player.launchProjectile(Snowball.class);
+            projectile.setItem(stack);
+            projectile.customName(Component.text("NPlushie"));
+            projectile.setVelocity(player.getLocation().getDirection().multiply(1.5));
+            stack.setAmount(stack.getAmount() - 1);
+        }
     }
 
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
         Projectile projectile = event.getEntity();
+        Location hitLocation = null;
+        if(event.getHitEntity() != null) hitLocation = event.getHitEntity().getLocation();
+        if(event.getHitBlock() != null) hitLocation = event.getHitBlock().getLocation();
         Entity hitEntity = event.getHitEntity();
         if(hitEntity instanceof Player player && Objects.equals(projectile.customName(), Component.text("SpecialProjectile"))) {
             String[] scores = {"RedEnergyCooldown", "BlueEnergyCooldown", "YellowEnergyCooldown", "GreenEnergyCooldown",
@@ -601,6 +615,18 @@ public class SongPlugListener implements Listener {
                 Score score = scoreType(player, scoreName);
                 if(getSowClass(player) != 3) score.setScore(score.getScore() + 7 * 20);
             }
+        }
+        if(Objects.equals(projectile.customName(), Component.text("NPlushie")) && hitLocation != null) {
+            hitLocation.createExplosion(5, false, false);
+            hitLocation.getWorld().spawnParticle(Particle.FLASH, hitLocation, 1, 0, 0.5, 0, Color.WHITE);
+            float offset = 0.5f;
+            ThreadLocalRandom random = ThreadLocalRandom.current();
+            for(int i = 0; i < 20; i++) {
+                Location loc = new Location(hitLocation.getWorld(), random.nextDouble(hitLocation.x() - offset, hitLocation.x() + offset),
+                        random.nextDouble(hitLocation.y() - offset, hitLocation.y() + offset), random.nextDouble(hitLocation.z() - offset, hitLocation.z() + offset));
+                hitLocation.getWorld().spawnParticle(Particle.FLAME, loc, 1);
+            }
+            //world.spawnParticle(Particle.FLASH, hitEntity.getLocation(), 1);
         }
     }
 

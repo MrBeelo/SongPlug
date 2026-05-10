@@ -39,3 +39,5 @@ commands:
     description: Prints the player's score of a scoreboard
   giveweapon:
     description: Gives the player the specified weapon
+  givenplush:
+    description: Gives an explosive N Plushie to the player

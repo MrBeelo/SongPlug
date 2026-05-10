@@ -1,7 +1,9 @@
 package net.mrbeelo.songPlug;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,6 +12,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.Score;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +28,7 @@ import static net.mrbeelo.songPlug.SongPlugHelper.*;
 public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
     public static String[] commands = {"class", "givesong", "getblock", "resetcooldowns", "energy", "infusesong", "clearsongs",
             "level", "sowxp", "skull", "weapontype", "givecrate", "shop", "points", "dataint", "resetblockcharges", "printscore",
-            "giveweapon"};
+            "giveweapon", "givenplush"};
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] strings) {
@@ -247,6 +250,23 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
             case "giveweapon" -> {
                 for (Entity entity : Bukkit.selectEntities(sender, strings[0])) {
                     if(entity instanceof Player player) player.give(weaponStack(strings[1]));
+                }
+            }
+            case "givenplush" -> {
+                ItemStack stack = new ItemStack(Material.NETHERITE_INGOT);
+                ItemMeta meta = stack.getItemMeta();
+                meta.setItemModel(new NamespacedKey("minecraft", "nplushie"));
+                meta.itemName(Component.text("N Plushie"));
+                stack.setItemMeta(meta);
+                setCustomItemDataInt(stack, "nplush", 1);
+
+                if(strings.length != 0) {
+                    String selector = strings[0];
+                    for (Entity entity : Bukkit.selectEntities(sender, selector)) {
+                        if (entity instanceof Player player) player.give(stack);
+                    }
+                } else {
+                    if (sender instanceof Player player) player.give(stack);
                 }
             }
         }
