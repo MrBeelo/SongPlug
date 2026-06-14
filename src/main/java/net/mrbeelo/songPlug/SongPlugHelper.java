@@ -1,5 +1,6 @@
 package net.mrbeelo.songPlug;
 
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -61,7 +62,7 @@ public class SongPlugHelper {
             "Diamond_Staff_Guard", "Heavy_Diamond_Spear", "Iron_Bardice", "Iron_Blazer_Claws", "Iron_Chronos_Sword", "Iron_Dagger",
             "Iron_Greatsword", "Iron_Halberd", "Iron_Halberd_Double", "Iron_Katana", "Iron_Light_Spear", "Iron_Mace", "Iron_Scythe",
             "Iron_Splitsword", "Iron_Staffpoint", "Iron_Staffstrike", "Iron_Stubby_Axe", "Ria", "Thalleous", "Tygren", "Warmaul",
-            "Zewihander"};
+            "Zweihander"};
 
     public static Objective getNotNullObjective(Scoreboard scoreboard, String name) {
         Objective objective = scoreboard.getObjective(name);
@@ -174,6 +175,25 @@ public class SongPlugHelper {
         meta.setItemModel(NamespacedKey.minecraft("bmchub" + name.toLowerCase().replace("_", "")));
         meta.itemName(Component.text(name.replace("_", " ")));
         stack.setItemMeta(meta);
+        setCustomItemDataString(stack, "weapon", "bmchub");
+
+        String[] swords = {"Deathsinger", "Diamond_Chronos_Sword", "Iron_Chronos_Sword", "Iron_Greatsword", "Iron_Splitsword",
+                "Thalleous", "Tygren", "Zweihander"};
+        String[] axes = {"Diamond_Bardice", "Diamond_Halberd", "Iron_Bardice", "Iron_Halberd", "Iron_Halberd_Double",
+                "Iron_Stubby_Axe"};
+        String[] spears = {"Diamond_Light_Spear", "Diamond_Staff_Guard", "Heavy_Diamond_Spear", "Iron_Light_Spear",
+                "Iron_Staffpoint", "Iron_Staffstrike", "Ria"};
+        String[] others = {"Iron_Blazer_Claws", "Iron_Katana", "Iron_Scythe", "Warmaul"};
+        String[] maces = {"Iron_Mace"};
+        String[] daggers = {"Iron_Dagger"};
+
+        if(isIn(name, swords)) setCustomItemDataString(stack, "weapontype", "sword");
+        if(isIn(name, axes)) setCustomItemDataString(stack, "weapontype", "axe");
+        if(isIn(name, spears)) setCustomItemDataString(stack, "weapontype", "spear");
+        if(isIn(name, others)) setCustomItemDataString(stack, "weapontype", "other");
+        if(isIn(name, maces)) setCustomItemDataString(stack, "weapontype", "mace");
+        if(isIn(name, daggers)) setCustomItemDataString(stack, "weapontype", "dagger");
+
         return stack;
     }
 

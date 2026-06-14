@@ -38,6 +38,7 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static net.mrbeelo.songPlug.SongPlug.log;
 import static net.mrbeelo.songPlug.SongPlug.plugin;
 import static net.mrbeelo.songPlug.SongPlugClass.resetClassStats;
 import static net.mrbeelo.songPlug.SongPlugCraftingRecipes.*;
@@ -494,12 +495,12 @@ public class SongPlugListener implements Listener {
             for(int slot : slots) if(slot == event.getRawSlot()) event.setCancelled(true);
             if(event.getRawSlot() == 53) {
                 for(int index = 0; index < recipeAmount; index++) {
-                    Map<Integer, Material> recipe = recipes.get(index);
+                    Map<Integer, ItemStack> recipe = recipes.get(index);
                     boolean valid = true;
-                    for(Map.Entry<Integer, Material> entry : recipe.entrySet()) {
+                    for(Map.Entry<Integer, ItemStack> entry : recipe.entrySet()) {
                         int slot = entry.getKey();
-                        Material material = entry.getValue();
-                        if(!Objects.equals(inventory.getItem(slot), new ItemStack(material))) {
+                        ItemStack item = entry.getValue();
+                        if(!Objects.equals(inventory.getItem(slot), item)) {
                             valid = false;
                             break;
                         }
@@ -508,6 +509,7 @@ public class SongPlugListener implements Listener {
                     if(valid) {
                         resetSuperCraftingTableInventory(inventory);
                         inventory.setItem(22, getRecipeResult(index));
+                        break;
                     }
                 }
                 event.setCancelled(true);
@@ -521,10 +523,6 @@ public class SongPlugListener implements Listener {
         Inventory inventory = event.getInventory();
         int[] slots = {0, 1, 7, 8, 9, 10, 16, 17, 18, 19, 25, 26, 27, 28, 34, 35, 36, 37, 43, 44, 45, 46, 52, 53};
         if(event.getView().title().equals(Component.text("Super Crafting Table"))) {
-            /*for (ItemStack item : inventory.getContents()) {
-                if (item == null || item.getType().isAir()) continue;
-                player.getInventory().addItem(item);
-            }*/
             for(int currentSlot = 0; currentSlot < inventory.getSize(); currentSlot++) {
                 ItemStack item = inventory.getItem(currentSlot);
                 boolean canGiveItem = true;
@@ -619,6 +617,23 @@ public class SongPlugListener implements Listener {
                     ThreadLocalRandom random = ThreadLocalRandom.current();
                     int index = random.nextInt(0, songPool.length);
                     giveSong(player, songPool[index]);
+                }
+            }
+        }
+
+        if(event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
+            Player player = event.getPlayer();
+            if(scoreValue(player, "Attack") > 0 || scoreValue(player, "Stun") > 0) {
+                event.setCancelled(true);
+            }
+
+            if(scoreValue(player, "Attack") == 0 && scoreValue(player, "Stun") == 0) {
+                String weaponString = getCustomItemDataString(player.getInventory().getItemInMainHand(), "weapon");
+                if(weaponString != null) {
+                    if(weaponString.equals("bmchub")) {
+                        Score attackScore = scoreType(player, "Attack");
+                        attackScore.setScore(20);
+                    }
                 }
             }
         }
@@ -944,6 +959,32 @@ public class SongPlugListener implements Listener {
         Player player = event.getPlayer();
         if(entity instanceof Interaction interaction && interaction.getScoreboardTags().contains("SuperCraftingTable")) {
             openSuperCraftingTable(player);
+        }
+    }
+
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        Entity damager = event.getDamager();
+        if(!(damager instanceof Player player)) return;
+
+        if(event.isCritical()) {
+            Entity entity = event.getEntity();
+            if(entity instanceof LivingEntity living) living.damage(event.getDamage() / 1.5f, player);
+            event.setCancelled(true);
+        }
+
+        if(scoreValue(player, "Attack") > 0 || scoreValue(player, "Stun") > 0) {
+            event.setCancelled(true);
+        }
+
+        if(scoreValue(player, "Attack") == 0 && scoreValue(player, "Stun") == 0) {
+            String weaponString = getCustomItemDataString(player.getInventory().getItemInMainHand(), "weapon");
+            if(weaponString != null) {
+                if(weaponString.equals("bmchub")) {
+                    Score attackScore = scoreType(player, "Attack");
+                    attackScore.setScore(20);
+                }
+            }
         }
     }
 }

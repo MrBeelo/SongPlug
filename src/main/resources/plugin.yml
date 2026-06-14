@@ -41,3 +41,5 @@ commands:
     description: Gives the player the specified weapon
   givenplush:
     description: Gives an explosive N Plushie to the player
+  datastr:
+    description: Sets a string to the selected item as custom data

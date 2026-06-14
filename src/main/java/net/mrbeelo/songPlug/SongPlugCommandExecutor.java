@@ -28,7 +28,7 @@ import static net.mrbeelo.songPlug.SongPlugHelper.*;
 public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
     public static String[] commands = {"class", "givesong", "getblock", "resetcooldowns", "energy", "infusesong", "clearsongs",
             "level", "sowxp", "skull", "weapontype", "givecrate", "shop", "points", "dataint", "resetblockcharges", "printscore",
-            "giveweapon", "givenplush"};
+            "giveweapon", "givenplush", "datastr"};
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] strings) {
@@ -267,6 +267,17 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
                     }
                 } else {
                     if (sender instanceof Player player) player.give(stack);
+                }
+            }
+            case "datastr" -> {
+                String selector = strings[0];
+                String key = strings[1];
+                String value = strings[2];
+                for (Entity entity : Bukkit.selectEntities(sender, selector)) {
+                    if(entity instanceof Player player) {
+                        ItemStack stack = player.getInventory().getItemInMainHand();
+                        setCustomItemDataString(stack, key, value);
+                    }
                 }
             }
         }
