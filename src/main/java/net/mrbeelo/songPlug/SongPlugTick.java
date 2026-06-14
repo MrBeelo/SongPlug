@@ -68,6 +68,27 @@ public class SongPlugTick {
                 }
             }
         }
+
+        for(Entity entity2 : getNearbyEntities(entity.getLocation(), 5)) {
+            if(!(entity instanceof ArmorStand) && entity instanceof LivingEntity living && entity2 instanceof ArmorStand) {
+                if(entity2.getScoreboardTags().contains("AttackMarker")) {
+                    Player player = null;
+                    int uuidPart = scoreValue(entity2, "UUID");
+                    for(Entity entity3 : getEntities(entity)) {
+                        if (entity3 != entity && entity3 instanceof Player player1) {
+                            if(getUUIDpart(player1, 0) == uuidPart) player = player1;
+                        }
+                    }
+                    if(player != null) {
+                        living.damage(2, player);
+                    } else {
+                        living.damage(2);
+                        living.sendMessage("Problem, fix");
+                    }
+
+                }
+            }
+        }
     }
 
     public static void updateCollisions(Entity entity) {

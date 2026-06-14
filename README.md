@@ -10,8 +10,8 @@ Aiming to finish the plugin mid-june, but we'll see how it goes!
 - Finish the perks for each class ( 3 remaining )  
 ATTENTION: URGENT (work you little twat)  
 
-- Add new crafting recipes, using datapacks  
-Pretty easy to do, awaiting crafting recipes
+- Just add all the crafting recipes (main logic done)
+awaiting...
 
 ## NICK:
 

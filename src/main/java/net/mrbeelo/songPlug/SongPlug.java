@@ -14,6 +14,7 @@ import java.util.Objects;
 import static net.mrbeelo.songPlug.SongPlugCommandExecutor.commands;
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 import static net.mrbeelo.songPlug.SongPlugTick.*;
+import static net.mrbeelo.songPlug.SongPlugCraftingRecipes.*;
 
 //! WARNING
 //! All the code within this project is absolutely terrible and unoptimized
@@ -38,6 +39,7 @@ public final class SongPlug extends JavaPlugin {
         instance = this;
         getServer().getPluginManager().registerEvents(new SongPlugListener(), this);
         getServer().getScheduler().runTaskTimer(this, this::tick, 0,  1);
+        initRecipes();
 
         for(String command : commands) Objects.requireNonNull(getCommand(command)).setExecutor(new SongPlugCommandExecutor());
     }
@@ -55,7 +57,7 @@ public final class SongPlug extends JavaPlugin {
             updateBossBar(player);
             updateRegen(player, energyScore);
             updateCooldowns(player);
-            updateSidebar(player);
+            //updateSidebar(player);
             updateSongs(player);
         }
 

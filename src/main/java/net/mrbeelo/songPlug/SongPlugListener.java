@@ -22,6 +22,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -34,14 +35,12 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static net.mrbeelo.songPlug.SongPlug.plugin;
 import static net.mrbeelo.songPlug.SongPlugClass.resetClassStats;
+import static net.mrbeelo.songPlug.SongPlugCraftingRecipes.*;
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 import static org.bukkit.plugin.java.JavaPlugin.getPlugin;
 
@@ -488,6 +487,52 @@ public class SongPlugListener implements Listener {
 
                 event.setCancelled(true);
             }
+        } else if(view.title().equals(Component.text("Super Crafting Table"))) {
+            Player player = (Player)view.getPlayer();
+            Inventory inventory = view.getTopInventory();
+            int[] slots = {0, 1, 7, 8, 9, 10, 16, 17, 18, 19, 25, 26, 27, 28, 34, 35, 36, 37, 43, 44, 45, 46, 52};
+            for(int slot : slots) if(slot == event.getRawSlot()) event.setCancelled(true);
+            if(event.getRawSlot() == 53) {
+                for(int index = 0; index < recipeAmount; index++) {
+                    Map<Integer, Material> recipe = recipes.get(index);
+                    boolean valid = true;
+                    for(Map.Entry<Integer, Material> entry : recipe.entrySet()) {
+                        int slot = entry.getKey();
+                        Material material = entry.getValue();
+                        if(!Objects.equals(inventory.getItem(slot), new ItemStack(material))) {
+                            valid = false;
+                            break;
+                        }
+                    }
+
+                    if(valid) {
+                        resetSuperCraftingTableInventory(inventory);
+                        inventory.setItem(22, getRecipeResult(index));
+                    }
+                }
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        Player player = (Player)event.getPlayer();
+        Inventory inventory = event.getInventory();
+        int[] slots = {0, 1, 7, 8, 9, 10, 16, 17, 18, 19, 25, 26, 27, 28, 34, 35, 36, 37, 43, 44, 45, 46, 52, 53};
+        if(event.getView().title().equals(Component.text("Super Crafting Table"))) {
+            /*for (ItemStack item : inventory.getContents()) {
+                if (item == null || item.getType().isAir()) continue;
+                player.getInventory().addItem(item);
+            }*/
+            for(int currentSlot = 0; currentSlot < inventory.getSize(); currentSlot++) {
+                ItemStack item = inventory.getItem(currentSlot);
+                boolean canGiveItem = true;
+                for(int slot : slots) if (slot == currentSlot) { canGiveItem = false; break; }
+                if(item == null || item.getType().isAir()) canGiveItem = false;
+                if(!canGiveItem) continue;
+                player.getInventory().addItem(item);
+            }
         }
     }
 
@@ -889,8 +934,16 @@ public class SongPlugListener implements Listener {
         Player player = event.getPlayer();
         ItemStack stack = player.getInventory().getItemInMainHand();
         if(stack.getItemMeta().getItemName().endsWith(" Song Crate")) event.setCancelled(true);
-
         String name = stack.getItemMeta().getItemName();
         if(isIn(name, redSongs) || isIn(name, blueSongs) || isIn(name, yellowSongs) || isIn(name, greenSongs)) event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onEntityInteraction(PlayerInteractAtEntityEvent event) {
+        Entity entity = event.getRightClicked();
+        Player player = event.getPlayer();
+        if(entity instanceof Interaction interaction && interaction.getScoreboardTags().contains("SuperCraftingTable")) {
+            openSuperCraftingTable(player);
+        }
     }
 }

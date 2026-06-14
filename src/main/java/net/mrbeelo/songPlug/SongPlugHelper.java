@@ -602,6 +602,12 @@ public class SongPlugHelper {
         player.openInventory(menu);
     }
 
+    public static void openSuperCraftingTable(Player player) {
+        Inventory menu = Bukkit.createInventory(player, 54, Component.text("Super Crafting Table"));
+        resetSuperCraftingTableInventory(menu);
+        player.openInventory(menu);
+    }
+
     public static ItemStack noLoreStack(ItemStack stack) {
         ItemMeta meta = stack.getItemMeta();
         meta.lore(new ArrayList<>());
@@ -1066,5 +1072,22 @@ public class SongPlugHelper {
                 player.getScoreboardTags().add("Used" + song);
             }
         }
+    }
+
+    public static void resetSuperCraftingTableInventory(Inventory inventory) {
+        inventory.clear();
+        int[] slots = {0, 1, 7, 8, 9, 10, 16, 17, 18, 19, 25, 26, 27, 28, 34, 35, 36, 37, 43, 44, 45, 46, 52};
+
+        ItemStack invalidSlotStack = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+        ItemMeta invalidSlotMeta = invalidSlotStack.getItemMeta();
+        invalidSlotMeta.itemName(Component.text("Invalid Slot"));
+        invalidSlotStack.setItemMeta(invalidSlotMeta);
+        ItemStack craftStack = new ItemStack(Material.CRAFTING_TABLE);
+        ItemMeta craftMeta = craftStack.getItemMeta();
+        craftMeta.itemName(Component.text("Craft!"));
+        craftStack.setItemMeta(craftMeta);
+
+        for(int slot : slots) inventory.setItem(slot, invalidSlotStack);
+        inventory.setItem(53, craftStack);
     }
 }
