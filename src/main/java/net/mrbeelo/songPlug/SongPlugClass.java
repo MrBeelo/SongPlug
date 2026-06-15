@@ -1,10 +1,13 @@
 package net.mrbeelo.songPlug;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
+
+import java.util.Objects;
 
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
@@ -28,14 +31,7 @@ public class SongPlugClass {
     public static void setAttackDamage(Player player, float amount) {
         AttributeInstance instance = player.getAttribute(Attribute.ATTACK_DAMAGE);
         assert instance != null;
-        float value = amount / 6f;
-        instance.setBaseValue(value);
-    }
-
-    public static void setAttackSpeed(Player player, float amount) {
-        AttributeInstance instance = player.getAttribute(Attribute.ATTACK_SPEED);
-        assert instance != null;
-        float value = amount / 10f * 4f;
+        float value = amount / 8f;
         instance.setBaseValue(value);
     }
 
@@ -78,13 +74,6 @@ public class SongPlugClass {
         };
     }
 
-    public static float getAttackSpeed(int index) {
-        return switch(index) {
-            case 3,4 -> 8.5f;
-            default -> 10;
-        };
-    }
-
     public static float getMaxHealth(int index) {
         return switch(index) {
             case 1 -> 9;
@@ -108,7 +97,6 @@ public class SongPlugClass {
         float baseMovementSpeed = getMovementSpeed(index);
         float baseJumpStrength = getJumpStrength(index);
         float baseAttackDamage = getAttackDamage(index);
-        float baseAttackSpeed = getAttackSpeed(index);
         float baseMaxHealth = getMaxHealth(index);
         float baseArmor = getArmor(index);
 
@@ -142,7 +130,7 @@ public class SongPlugClass {
             }
 
             if(getCustomItemDataInt(stack, "weapon_damage") != 0) {
-                baseAttackDamage += getCustomItemDataInt(stack, "weapon_damage") / 2f;
+                baseAttackDamage += getCustomItemDataInt(stack, "weapon_damage") * 2f;
             }
 
             if(getCustomItemDataInt(stack, "max_health") != 0) {
@@ -158,7 +146,6 @@ public class SongPlugClass {
                 baseMovementSpeed += all_attributes;
                 baseJumpStrength += all_attributes;
                 baseAttackDamage += all_attributes;
-                baseAttackSpeed += all_attributes;
                 baseMaxHealth += all_attributes;
                 baseArmor += all_attributes;
             }
@@ -172,9 +159,7 @@ public class SongPlugClass {
         if(getCustomItemDataInt(stack, "two_hander") != 0) {
             int twoHander = getCustomItemDataInt(stack, "two_hander");
             baseAttackDamage += (float) twoHander * 1.5f;
-            baseAttackSpeed -= (float) twoHander / 2;
             if(!player.getInventory().getItemInOffHand().isEmpty()) {
-                baseAttackSpeed -= 1;
                 if(twoHander >= 2) baseAttackDamage -= 1f;
             }
         }
@@ -199,8 +184,31 @@ public class SongPlugClass {
         setMovementSpeed(player, baseMovementSpeed);
         setJumpStrength(player, baseJumpStrength);
         setAttackDamage(player, baseAttackDamage);
-        setAttackSpeed(player, baseAttackSpeed);
         setMaxHealth(player, baseMaxHealth);
         setArmor(player, baseArmor);
+
+        AttributeInstance entityInteractionRange = player.getAttribute(Attribute.ENTITY_INTERACTION_RANGE);
+        assert entityInteractionRange != null;
+        if(player.getInventory().getItemInMainHand().getItemMeta() == null) {
+            entityInteractionRange.setBaseValue(3);
+        } else {
+            float value = switch(player.getInventory().getItemInMainHand().getItemMeta().getItemName()) {
+                case "Iron Bardice", "Diamond Bardice", "Iron Light Spear", "Diamond Light Spear", "Zweihander",
+                     "Warmaul", "Diamond Staff Guard", "Iron Staffpoint", "Iron Staffstrike", "Ria" -> 4f;
+                case "Iron Blazer Claws", "Iron Dagger", "Iron Stubby Axe", "Iron Mace" -> 3f;
+                default -> 3.5f;
+            };
+            entityInteractionRange.setBaseValue(value);
+        }
+
+        AttributeInstance attackSpeed = player.getAttribute(Attribute.ATTACK_SPEED);
+        assert attackSpeed != null;
+
+        if(Objects.equals(getCustomItemDataString(player.getInventory().getItemInMainHand(), "weapon"), "bmchub")) {
+            attackSpeed.setBaseValue(3.4f);
+        } else {
+            attackSpeed.setBaseValue(4f);
+        }
+
     }
 }

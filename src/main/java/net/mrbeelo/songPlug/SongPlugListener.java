@@ -967,9 +967,37 @@ public class SongPlugListener implements Listener {
         Entity damager = event.getDamager();
         if(!(damager instanceof Player player)) return;
 
+        Entity entity = event.getEntity();
+        if(entity instanceof Player player2) {
+            if(Objects.equals(getCustomItemDataString(player2.getInventory().getItemInMainHand(), "canblock"), "bmchub") &&
+                    player2.isBlocking() && scoreValue(damager, "Attack") == 0 &&
+                    scoreValue(damager, "Stun") == 0) {
+                Score staminaCountScore = scoreType(player2, "StaminaCount");
+                staminaCountScore.setScore(staminaCountScore.getScore() - 1);
+            }
+
+            if((player2.getInventory().getItemInMainHand().getType().equals(Material.SHIELD) ||
+                    player2.getInventory().getItemInOffHand().getType().equals(Material.SHIELD)) &&
+                    player2.isBlocking()) {
+                Score stunScore = scoreType(player2, "Stun");
+                stunScore.setScore(10);
+            }
+        }
+
+        if(Objects.equals(getCustomItemDataString(player.getInventory().getItemInMainHand(), "weapon"), "bmchub")) {
+            AttributeInstance instance = player.getAttribute(Attribute.ATTACK_DAMAGE);
+            assert instance != null;
+            event.setDamage(8f + instance.getBaseValue());
+
+            if(entity instanceof Player player2 && !player2.isBlocking() && scoreValue(player, "Attack") == 0 &&
+                    scoreValue(player, "Stun") == 0) {
+                Score stunScore = scoreType(player2, "Stun");
+                stunScore.setScore(10);
+            }
+        }
+
         if(event.isCritical()) {
-            Entity entity = event.getEntity();
-            if(entity instanceof LivingEntity living) living.damage(event.getDamage() / 1.5f, player);
+            if(entity instanceof LivingEntity living) living.damage(event.getDamage(), player);
             event.setCancelled(true);
         }
 

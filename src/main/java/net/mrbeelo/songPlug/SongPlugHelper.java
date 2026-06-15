@@ -187,12 +187,18 @@ public class SongPlugHelper {
         String[] maces = {"Iron_Mace"};
         String[] daggers = {"Iron_Dagger"};
 
+        String[] canblocks = {"Deathsinger", "Diamond_Halberd", "Diamond_Bardice", "Iron_Halberd_Double",
+                "Diamond_Staff_Guard", "Iron_Bardice", "Iron_Greatsword", "Iron_Halberd", "Iron_Scythe",
+                "Ria", "Iron_Splitsword", "Iron_Staffstrike", "Zweihander", "Thalleous", "Tygren", "Warmaul",
+                "Iron_Katana"};
+
         if(isIn(name, swords)) setCustomItemDataString(stack, "weapontype", "sword");
         if(isIn(name, axes)) setCustomItemDataString(stack, "weapontype", "axe");
         if(isIn(name, spears)) setCustomItemDataString(stack, "weapontype", "spear");
         if(isIn(name, others)) setCustomItemDataString(stack, "weapontype", "other");
         if(isIn(name, maces)) setCustomItemDataString(stack, "weapontype", "mace");
         if(isIn(name, daggers)) setCustomItemDataString(stack, "weapontype", "dagger");
+        if(isIn(name, canblocks)) setCustomItemDataString(stack, "canblock", "bmchub");
 
         return stack;
     }

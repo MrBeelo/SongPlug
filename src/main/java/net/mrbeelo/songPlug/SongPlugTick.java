@@ -35,6 +35,8 @@ import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugTick {
     public static void updateEntities(Entity entity) {
+        if(entity instanceof Player player) resetClassStats(player);
+
         Score bleedScore = scoreType(entity, "Bleed");
         int bleed = bleedScore.getScore();
         if(bleed > 0) bleedScore.setScore(bleed - 1);
