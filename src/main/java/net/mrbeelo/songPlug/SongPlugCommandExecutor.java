@@ -22,12 +22,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import static net.mrbeelo.songPlug.SongPlugClass.resetClassStats;
-import static net.mrbeelo.songPlug.SongPlugClass.weaponTypes;
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
     public static String[] commands = {"class", "givesong", "getblock", "resetcooldowns", "energy", "infusesong", "clearsongs",
-            "level", "sowxp", "skull", "weapontype", "givecrate", "shop", "points", "dataint", "resetblockcharges", "printscore",
+            "level", "sowxp", "skull", "givecrate", "shop", "points", "dataint", "resetblockcharges", "printscore",
             "giveweapon", "givenplush", "datastr"};
 
     @Override
@@ -160,16 +159,6 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
                         } else {
                             player.sendMessage("Amount out of bounds!");
                         }
-                    }
-                }
-            }
-            case "weapontype" -> {
-                String selector = strings[0];
-                for (Entity entity : Bukkit.selectEntities(sender, selector)) {
-                    if (entity instanceof Player player) {
-                        ItemStack stack = player.getInventory().getItemInMainHand();
-                        setCustomItemDataString(stack, "weapon_type", strings[1]);
-                        resetClassStats(player);
                     }
                 }
             }
@@ -312,8 +301,6 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
             return List.of("force");
         } else if(name.equals("level") && args.length == 3) {
             return List.of("clearxp");
-        } else if(name.equals("weapontype") && args.length == 2) {
-            return Arrays.asList(weaponTypes);
         } else if(name.equals("givecrate") & args.length == 2) {
             return List.of(rarities);
         } else if(name.equals("points") & args.length == 2) {

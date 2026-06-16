@@ -80,6 +80,7 @@ public class SongPlugTick {
                     case "other" -> 4;
                     case "mace" -> 5;
                     case "dagger" -> 6;
+                    case "vanilla" -> 7;
                     default -> 0;
                 };
                 weaponTypeScore.setScore(score);
@@ -135,7 +136,7 @@ public class SongPlugTick {
         AttributeInstance blockBreakSpeedInstance = player.getAttribute(Attribute.BLOCK_BREAK_SPEED);
         assert blockBreakSpeedInstance != null;
 
-        if(getSowClass(player) != 5) {
+        if(getSowClass(player) != 5 && isPickaxe(player.getInventory().getItemInMainHand())) {
             if(blockBreakSpeedInstance.getBaseValue() != 10) blockBreakSpeedInstance.setBaseValue(10);
         } else {
             if(blockBreakSpeedInstance.getBaseValue() != 1) blockBreakSpeedInstance.setBaseValue(1);

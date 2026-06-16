@@ -170,7 +170,7 @@ public class SongPlugHelper {
     }
 
     public static ItemStack weaponStack(String name) {
-        ItemStack stack = new ItemStack(Material.DIAMOND_SWORD, 1);
+        ItemStack stack = new ItemStack(Material.NETHERITE_SWORD, 1);
         ItemMeta meta = stack.getItemMeta();
         meta.setItemModel(NamespacedKey.minecraft("bmchub" + name.toLowerCase().replace("_", "")));
         meta.itemName(Component.text(name.replace("_", " ")));
@@ -349,6 +349,14 @@ public class SongPlugHelper {
     public static boolean isFish(Material material) {
         return material.equals(Material.TROPICAL_FISH) || material.equals(Material.PUFFERFISH) || material.equals(Material.COD) ||
                 material.equals(Material.COOKED_COD) || material.equals(Material.SALMON) || material.equals(Material.COOKED_SALMON);
+    }
+
+    public static boolean isPickaxe(ItemStack stack) {
+        Material mat = stack.getType();
+        Material[] validMaterials = {Material.WOODEN_PICKAXE, Material.STONE_PICKAXE, Material.COPPER_PICKAXE, Material.IRON_PICKAXE,
+                Material.GOLDEN_PICKAXE, Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE};
+
+        return isIn(mat, validMaterials);
     }
 
     public static Score scoreType(Entity entity, String scoreboardName) {

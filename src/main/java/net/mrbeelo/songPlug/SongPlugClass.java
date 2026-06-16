@@ -6,14 +6,13 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.Score;
 
 import java.util.Objects;
 
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugClass {
-    public static String[] weaponTypes = {"Sword", "Longsword", "Battleaxe", "Spear", "Staff", "Dagger"};
-
     public static void setMovementSpeed(Player player, float amount) {
         AttributeInstance instance = player.getAttribute(Attribute.MOVEMENT_SPEED);
         assert instance != null;
@@ -154,7 +153,6 @@ public class SongPlugClass {
         if(scoreValue(player, "StealthTime") > 0) baseArmor = 0;
 
         ItemStack stack = player.getInventory().getItemInMainHand();
-        String weaponType = getCustomItemDataString(stack, "weapon_type");
 
         if(getCustomItemDataInt(stack, "two_hander") != 0) {
             int twoHander = getCustomItemDataInt(stack, "two_hander");
@@ -164,22 +162,7 @@ public class SongPlugClass {
             }
         }
 
-        // ! CHANGE THE BOTTOM LINE TO THE NEW VERSION
-        if(getSowClass(player) == 2 && getLevel(player) >= 40 && weaponType != null && weaponType.equals("Staff")) baseAttackDamage += 0.5f;
         if(player.hasPotionEffect(PotionEffectType.INVISIBILITY)) baseAttackDamage -= 0.8f;
-
-        if(weaponType != null) {
-            float speedDecreasePercent = switch (weaponType) {
-                case "Sword" -> 20f;
-                case "Longsword" -> 25f;
-                case "Battleaxe" -> 35f;
-                case "Spear", "Staff" -> 30f;
-                case "Dagger" -> 10f;
-                default -> 0f;
-            };
-
-            baseMovementSpeed -= baseMovementSpeed * speedDecreasePercent / 100f;
-        }
 
         setMovementSpeed(player, baseMovementSpeed);
         setJumpStrength(player, baseJumpStrength);
@@ -209,6 +192,8 @@ public class SongPlugClass {
         } else {
             attackSpeed.setBaseValue(4f);
         }
+
+        if(scoreValue(player, "Attack") > 0) attackSpeed.setBaseValue(-1f);
 
     }
 }

@@ -846,14 +846,14 @@ public class SongPlugListener implements Listener {
 
         if(damager instanceof Player player && getSowClass(player) == 1 && getLevel(player) >= 30) {
             ItemStack stack = player.getInventory().getItemInMainHand();
-            String weaponType = getCustomItemDataString(stack, "weapon_type");
+            String weaponType = getCustomItemDataString(stack, "weapontype");
 
             if(entity instanceof Player attackedPlayer) {
                 Vector attackedPlayerVector = attackedPlayer.getLocation().getDirection().normalize().setY(attackedPlayer.getLocation().getDirection().normalize().getY() / 3);
                 Vector combinedVector = entityDistanceVector(player, attackedPlayer).normalize();
                 double angle = Math.toDegrees(attackedPlayerVector.angle(combinedVector));
 
-                if(weaponType != null && weaponType.equals("Dagger") && angle < 20f &&
+                if(weaponType != null && weaponType.equals("dagger") && angle < 20f &&
                         scoreValue(player, "StealthCooldown") == 0) {
                     Score stealthTimeScore = scoreType(attackedPlayer, "StealthTime");
                     stealthTimeScore.setScore(2 * 20);
@@ -971,7 +971,8 @@ public class SongPlugListener implements Listener {
         if(entity instanceof Player player2) {
             if(Objects.equals(getCustomItemDataString(player2.getInventory().getItemInMainHand(), "canblock"), "bmchub") &&
                     player2.isBlocking() && scoreValue(damager, "Attack") == 0 &&
-                    scoreValue(damager, "Stun") == 0) {
+                    scoreValue(damager, "Stun") == 0 &&
+                    Objects.equals(getCustomItemDataString(player.getInventory().getItemInMainHand(), "weapon"), "bmchub")) {
                 Score staminaCountScore = scoreType(player2, "StaminaCount");
                 staminaCountScore.setScore(staminaCountScore.getScore() - 1);
             }
@@ -984,7 +985,8 @@ public class SongPlugListener implements Listener {
             }
         }
 
-        if(Objects.equals(getCustomItemDataString(player.getInventory().getItemInMainHand(), "weapon"), "bmchub")) {
+        if(Objects.equals(getCustomItemDataString(player.getInventory().getItemInMainHand(), "weapon"), "bmchub") &&
+                !Objects.equals(getCustomItemDataString(player.getInventory().getItemInMainHand(), "weapontype"), "vanilla")) {
             AttributeInstance instance = player.getAttribute(Attribute.ATTACK_DAMAGE);
             assert instance != null;
             event.setDamage(8f + instance.getBaseValue());
@@ -997,7 +999,7 @@ public class SongPlugListener implements Listener {
         }
 
         if(event.isCritical()) {
-            if(entity instanceof LivingEntity living) living.damage(event.getDamage(), player);
+            if(entity instanceof LivingEntity living) living.damage(event.getDamage() / 1.5f, player);
             event.setCancelled(true);
         }
 

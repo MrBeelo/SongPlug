@@ -23,8 +23,6 @@ commands:
     description: Sets the player's xp
   skull:
     description: Sets the player's skull
-  weapontype:
-    description: Sets the held weapon's type
   givecrate:
     description: Gives the player the specified crate
   shop:
