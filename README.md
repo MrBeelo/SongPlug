@@ -1,36 +1,30 @@
 # Welcome to cool Songs of War plugin!
 
 This readme will kinda serve as a noteboard, since nobody has any idea what we're doing.
-Aiming to finish the plugin mid-june, but we'll see how it goes!
+Aiming to finish the plugin till july, but we'll see how it goes!
 
 # TODO:
 
 ## BEELO:
 
-- Finish the perks for each class ( 3 remaining )  
-ATTENTION: URGENT (work you little twat)  
-
-- Just add all the crafting recipes (main logic done)
-awaiting...
+- Finish the perks for each class ( 2 remaining )  
+ATTENTION: URGENT (work you little twat)
 
 ## NICK:
 
 - Add the Ender Perk, a way for players to ride the ender dragon!  
-Will be done after combat  
+ATTENTION: NICK FINISH IT!!!!!!
 
 - Add the Songs of War map to the server, and add ores to it as well.  
 Very easy, should be made before arenas and raids for obvious reasons.  
 
 ## TOGETHER:
 
-- The new combat system
-ATTENTION: URGENT (its literally what we're doing right now)  
-
 - Make 3 main bosses, each dropping an exclusive reward!  
 New combat and dragon is a priority, will be done after (90% nick, 10% me)
 
 - Add arenas that players will be able to fight in!  
-- There will be 5: 3 for bosses, one for waves, and one for pvp. All PvE arenas will give players 
+There will be 5: 3 for bosses, one for waves, and one for pvp. All PvE arenas will give players 
 rewards, like songs!  
 First thing to do after finishing anything that doesn't have to do with the map.  
 

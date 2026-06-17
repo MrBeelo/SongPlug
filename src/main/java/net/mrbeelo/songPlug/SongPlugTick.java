@@ -248,23 +248,8 @@ public class SongPlugTick {
             }
         }
 
-        //STEALTH
-        Score stealthTimeScore = scoreType(player, "StealthTime");
-        int stealthTime = stealthTimeScore.getScore();
-        if(stealthTime > 0) stealthTimeScore.setScore(stealthTime - 1);
-
-        Score stealthCooldownScore = scoreType(player, "StealthCooldown");
-        int stealthCooldown = stealthCooldownScore.getScore();
-        if(stealthCooldown > 0) stealthCooldownScore.setScore(stealthCooldown - 1);
-
-        if(stealthTime == 1) {
-            Bukkit.getScheduler().runTaskLater(plugin(), () -> {
-                resetClassStats(player);
-            }, 1L);
-        }
-
         //FELINE FURY
-        if(getSowClass(player) == 1 && getLevel(player) >= 30) {
+        if(getSowClass(player) == 1 && getLevel(player) >= 40) {
             for(Entity entity : getNearbyEntities(player.getLocation(), 10)) {
                 if(entity instanceof Creeper && player.hasLineOfSight(entity)) {
                     entity.setVelocity(entityDistanceVector(player, entity).multiply(0.5f).setY(0));
@@ -275,6 +260,11 @@ public class SongPlugTick {
         Score felineFuryCooldownScore = scoreType(player, "FelineFuryCooldown");
         int felineFuryCooldown = felineFuryCooldownScore.getScore();
         if(felineFuryCooldown > 0) felineFuryCooldownScore.setScore(felineFuryCooldown - 1);
+
+        //BOW MASTERY
+        Score bowMasteryCooldownScore = scoreType(player, "BowMasteryCooldown");
+        int bowMasteryCooldown = bowMasteryCooldownScore.getScore();
+        if(bowMasteryCooldown > 0) bowMasteryCooldownScore.setScore(bowMasteryCooldown - 1);
     }
 
     public static void updateBossBar(Player player) {

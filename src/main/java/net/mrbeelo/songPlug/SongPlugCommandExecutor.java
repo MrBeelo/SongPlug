@@ -66,7 +66,7 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
             }
             case "resetcooldowns" -> {
                 String[] scores = {"RedEnergyCooldown", "BlueEnergyCooldown", "YellowEnergyCooldown", "GreenEnergyCooldown",
-                        "DisarmCooldown", "EnragedCooldown", "StealthCooldown", "FelineFuryCooldown"};
+                        "DisarmCooldown", "EnragedCooldown", "StealthCooldown", "FelineFuryCooldown", "BowMasteryCooldown"};
 
                 if(strings.length != 0) {
                     String selector = strings[0];

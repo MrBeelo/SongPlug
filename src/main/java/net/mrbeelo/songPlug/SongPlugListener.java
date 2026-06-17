@@ -184,7 +184,7 @@ public class SongPlugListener implements Listener {
 
             int usingActiveSong = scoreValue(player, "UsingActiveSong");
             if(usingActiveSong > 0) {
-                player.sendMessage("What are you doing?!?");
+                player.sendMessage("You are already using an active song!");
                 return;
             }
 
@@ -536,8 +536,8 @@ public class SongPlugListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
         if(event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
-            Player player = event.getPlayer();
             Block downBlock = player.getLocation().subtract(0, 1, 0).getBlock();
 
             if(downBlock.getType() == Material.STRUCTURE_BLOCK && player.isSneaking()) {
@@ -575,7 +575,6 @@ public class SongPlugListener implements Listener {
         }
 
         if(event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            Player player = event.getPlayer();
             Block block = event.getClickedBlock();
             assert block != null;
             int sowClass = getSowClass(player);
@@ -599,7 +598,6 @@ public class SongPlugListener implements Listener {
         }
 
         if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            Player player = event.getPlayer();
             ItemStack stack = player.getInventory().getItemInMainHand();
             if(!stack.isEmpty() && stack.getItemMeta().getItemName().endsWith(" Song Crate")) {
                 String name = stack.getItemMeta().getItemName();
@@ -622,7 +620,6 @@ public class SongPlugListener implements Listener {
         }
 
         if(event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
-            Player player = event.getPlayer();
             if(scoreValue(player, "Attack") > 0 || scoreValue(player, "Stun") > 0) {
                 event.setCancelled(true);
             }
@@ -639,7 +636,6 @@ public class SongPlugListener implements Listener {
         }
 
         if(getCustomItemDataInt(event.getPlayer().getInventory().getItemInMainHand(), "special_projectile") == 1) {
-            Player player = event.getPlayer();
             ItemStack stack = player.getInventory().getItemInMainHand();
             event.setCancelled(true);
             ThrowableProjectile projectile = player.launchProjectile(Snowball.class);
@@ -650,7 +646,6 @@ public class SongPlugListener implements Listener {
         }
 
         if(getCustomItemDataInt(event.getPlayer().getInventory().getItemInMainHand(), "nplush") == 1) {
-            Player player = event.getPlayer();
             ItemStack stack = player.getInventory().getItemInMainHand();
             event.setCancelled(true);
             ThrowableProjectile projectile = player.launchProjectile(Snowball.class);
@@ -658,6 +653,26 @@ public class SongPlugListener implements Listener {
             projectile.customName(Component.text("NPlushie"));
             projectile.setVelocity(player.getLocation().getDirection().multiply(1.5));
             stack.setAmount(stack.getAmount() - 1);
+        }
+
+        if(getSowClass(player) == 1 && getLevel(player) >= 30) {
+            ItemStack stack = player.getInventory().getItemInMainHand();
+            if(stack.getType().equals(Material.BOW) && (event.getAction() == Action.LEFT_CLICK_AIR ||
+                    event.getAction() == Action.LEFT_CLICK_BLOCK) && (player.getInventory().contains(Material.ARROW) ||
+                    player.getInventory().contains(Material.SPECTRAL_ARROW) || player.getInventory().contains(Material.TIPPED_ARROW)) &&
+                    scoreValue(player, "BowMasteryCooldown") == 0) {
+                Arrow arrow = player.launchProjectile(Arrow.class);
+                arrow.setCustomName("Arrow" + player.getName());
+                arrow.setVelocity(arrow.getVelocity().multiply(1.5f));
+
+                if(player.getInventory().contains(Material.ARROW)) {
+                    player.getInventory().remove(new ItemStack(Material.ARROW, 1));
+                } else if(player.getInventory().contains(Material.SPECTRAL_ARROW)) {
+                    player.getInventory().remove(new ItemStack(Material.SPECTRAL_ARROW, 1));
+                } else if(player.getInventory().contains(Material.TIPPED_ARROW)) {
+                    player.getInventory().remove(new ItemStack(Material.TIPPED_ARROW, 1));
+                }
+            }
         }
     }
 
@@ -667,10 +682,11 @@ public class SongPlugListener implements Listener {
         Location hitLocation = null;
         if(event.getHitEntity() != null) hitLocation = event.getHitEntity().getLocation();
         if(event.getHitBlock() != null) hitLocation = event.getHitBlock().getLocation();
+
         Entity hitEntity = event.getHitEntity();
         if(hitEntity instanceof Player player && Objects.equals(projectile.customName(), Component.text("SpecialProjectile"))) {
             String[] scores = {"RedEnergyCooldown", "BlueEnergyCooldown", "YellowEnergyCooldown", "GreenEnergyCooldown",
-                    "DisarmCooldown", "EnragedCooldown", "StealthCooldown", "FelineFuryCooldown"};
+                    "DisarmCooldown", "EnragedCooldown", "StealthCooldown", "FelineFuryCooldown", "BowMasteryCooldown"};
             for(String scoreName : scores) {
                 Score score = scoreType(player, scoreName);
                 if(getSowClass(player) != 3) score.setScore(score.getScore() + 7 * 20);
@@ -687,6 +703,17 @@ public class SongPlugListener implements Listener {
                 hitLocation.getWorld().spawnParticle(Particle.FLAME, loc, 1);
             }
             //world.spawnParticle(Particle.FLASH, hitEntity.getLocation(), 1);
+        }
+
+        if(event.getHitBlock() != null) {
+            if(projectile.getCustomName() != null && projectile.getCustomName().startsWith("Arrow")) {
+                String playerName = projectile.getCustomName().substring("Arrow".length());
+                Player attacker = Bukkit.getPlayer(playerName);
+                if(attacker != null) {
+                    Score score = scoreType(attacker, "BowMasteryCooldown");
+                    score.setScore(20 * 20);
+                }
+            }
         }
     }
 
@@ -843,30 +870,6 @@ public class SongPlugListener implements Listener {
         }
 
         if(damager instanceof Player player && scoreValue(player, "DisarmStun") > 0) event.setCancelled(true);
-
-        if(damager instanceof Player player && getSowClass(player) == 1 && getLevel(player) >= 30) {
-            ItemStack stack = player.getInventory().getItemInMainHand();
-            String weaponType = getCustomItemDataString(stack, "weapontype");
-
-            if(entity instanceof Player attackedPlayer) {
-                Vector attackedPlayerVector = attackedPlayer.getLocation().getDirection().normalize().setY(attackedPlayer.getLocation().getDirection().normalize().getY() / 3);
-                Vector combinedVector = entityDistanceVector(player, attackedPlayer).normalize();
-                double angle = Math.toDegrees(attackedPlayerVector.angle(combinedVector));
-
-                if(weaponType != null && weaponType.equals("dagger") && angle < 20f &&
-                        scoreValue(player, "StealthCooldown") == 0) {
-                    Score stealthTimeScore = scoreType(attackedPlayer, "StealthTime");
-                    stealthTimeScore.setScore(2 * 20);
-                    Score stealthCooldownScore = scoreType(player, "StealthCooldown");
-                    stealthCooldownScore.setScore(20 * 20);
-                    stealthHelper(attackedPlayer, 2);
-
-                    Bukkit.getScheduler().runTaskLater(plugin(), () -> {
-                        resetClassStats(attackedPlayer);
-                    }, 1L);
-                }
-            }
-        }
 
         if(damager instanceof Player player && getSowClass(player) == 1 && getLevel(player) >= 40) {
             ItemStack stack = player.getInventory().getItemInMainHand();
