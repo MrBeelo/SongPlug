@@ -5,20 +5,11 @@ Aiming to finish the plugin till july, but we'll see how it goes!
 
 # TODO:
 
-## BEELO:
-
-- Finish the perks for each class ( 2 remaining )  
-ATTENTION: URGENT (work you little twat)
-
-## NICK:
-
 - Add the Ender Perk, a way for players to ride the ender dragon!  
 ATTENTION: NICK FINISH IT!!!!!!
 
 - Add the Songs of War map to the server, and add ores to it as well.  
-Very easy, should be made before arenas and raids for obvious reasons.  
-
-## TOGETHER:
+Very easy, should be made before arenas and raids for obvious reasons.
 
 - Make 3 main bosses, each dropping an exclusive reward!  
 New combat and dragon is a priority, will be done after (90% nick, 10% me)
@@ -26,9 +17,7 @@ New combat and dragon is a priority, will be done after (90% nick, 10% me)
 - Add arenas that players will be able to fight in!  
 There will be 5: 3 for bosses, one for waves, and one for pvp. All PvE arenas will give players 
 rewards, like songs!  
-First thing to do after finishing anything that doesn't have to do with the map.  
-
-## UNDECIDED (AKA prob nick):
+First thing to do after finishing anything that doesn't have to do with the map.
 
 - RAIDS!!  
 Least important for now...  

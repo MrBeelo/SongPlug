@@ -192,6 +192,8 @@ public class SongPlugHelper {
                 "Ria", "Iron_Splitsword", "Iron_Staffstrike", "Zweihander", "Thalleous", "Tygren", "Warmaul",
                 "Iron_Katana"};
 
+        String[] staffs = {"Diamond_Staff_Guard", "Iron_Staffpoint", "Iron_Staffstrike"};
+
         if(isIn(name, swords)) setCustomItemDataString(stack, "weapontype", "sword");
         if(isIn(name, axes)) setCustomItemDataString(stack, "weapontype", "axe");
         if(isIn(name, spears)) setCustomItemDataString(stack, "weapontype", "spear");
@@ -199,6 +201,7 @@ public class SongPlugHelper {
         if(isIn(name, maces)) setCustomItemDataString(stack, "weapontype", "mace");
         if(isIn(name, daggers)) setCustomItemDataString(stack, "weapontype", "dagger");
         if(isIn(name, canblocks)) setCustomItemDataString(stack, "canblock", "bmchub");
+        if(isIn(name, staffs)) setCustomItemDataString(stack, "staff", "bmchub");
 
         return stack;
     }
@@ -778,12 +781,12 @@ public class SongPlugHelper {
         }, seconds * 20L);
     }
 
-    public static boolean aggroblastSightHelper(Player player, LivingEntity entity) {
+    public static boolean aggroblastSightHelper(Player player, LivingEntity entity, float requiredAngle) {
         if(entity == player) return false;
         Vector playerVector = player.getLocation().getDirection().normalize().setY(player.getLocation().getDirection().normalize().getY() / 3);
         Vector entityVector = entityDistanceVector(player, entity).normalize();
         double angle = Math.toDegrees(playerVector.angle(entityVector));
-        return angle < 17.5f;
+        return angle < requiredAngle;
     }
 
     public static Entity getClosestEntity(Entity entity, double radius, String doesntContainTag) {

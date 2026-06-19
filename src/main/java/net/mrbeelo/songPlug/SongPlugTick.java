@@ -265,6 +265,11 @@ public class SongPlugTick {
         Score bowMasteryCooldownScore = scoreType(player, "BowMasteryCooldown");
         int bowMasteryCooldown = bowMasteryCooldownScore.getScore();
         if(bowMasteryCooldown > 0) bowMasteryCooldownScore.setScore(bowMasteryCooldown - 1);
+
+        //FIRE ARMOR
+        Score fireArmorCooldownScore = scoreType(player, "FireArmorCooldown");
+        int fireArmorCooldown = fireArmorCooldownScore.getScore();
+        if(fireArmorCooldown > 0) fireArmorCooldownScore.setScore(fireArmorCooldown - 1);
     }
 
     public static void updateBossBar(Player player) {
@@ -367,6 +372,9 @@ public class SongPlugTick {
         AttributeInstance jump = player.getAttribute(Attribute.JUMP_STRENGTH);
         assert jump != null;
 
+        boolean holdingStaff = (Objects.equals(getCustomItemDataString(player.getInventory().getItemInMainHand(), "staff"), "bmchub") &&
+                getSowClass(player) == 2 && getLevel(player) >= 40);
+
         //--GREEN SONGS--//
 
         //SUPPOROLIFT
@@ -380,7 +388,7 @@ public class SongPlugTick {
             }
 
             if(usingActiveSong == 201) {
-                Entity target = player.getTargetEntity(18, false);
+                Entity target = player.getTargetEntity(holdingStaff ? 23 : 18, false);
                 if(!isAnEntityItem(target) && target != null) {
                     target.getScoreboardTags().add("GotSupporoliftedBy" + player.getName());
                 } else {
@@ -390,17 +398,19 @@ public class SongPlugTick {
                 playSoundToNearby(player.getLocation(), 10, Sound.ENTITY_WITHER_HURT, SoundCategory.MASTER, 100f, 1.85f);
             }
 
+            float maxDist = holdingStaff ? 11 : 9;
+
             if(usingActiveSong <= 200 && usingActiveSong > 0) {
                 for(Entity entity : getEntities(player)) {
                     if(entity.getScoreboardTags().contains("GotSupporoliftedBy" + player.getName()) && entityDistance(player, entity) <= 20 && !isAnEntityItem(entity)) {
                         RayTraceResult result = player.getWorld().rayTraceBlocks(
                                 player.getEyeLocation(),
                                 player.getEyeLocation().getDirection(),
-                                9
+                                maxDist
                         );
 
                         if (result == null || result.getHitBlock() == null) {
-                            entity.teleport(getLocationInFrontOfLoc(player.getLocation(), 9));
+                            entity.teleport(getLocationInFrontOfLoc(player.getLocation(), maxDist));
                         } else {
                             Location loc = result.getHitPosition().toLocation(player.getWorld());
                             loc.setRotation(player.getLocation().getRotation());
@@ -440,6 +450,8 @@ public class SongPlugTick {
 
         //SUPPOROKENISIS
         if(player.getScoreboardTags().contains("UsedSupporokenisis")) {
+            float maxDist = holdingStaff ? 11 : 9;
+
             if(usingActiveSong >= 201 && usingActiveSong <= 230) {
                 supporiumCharge(player, usingActiveSong);
             }
@@ -449,7 +461,7 @@ public class SongPlugTick {
             }
 
             if(usingActiveSong == 201) {
-                Entity target = player.getTargetEntity(18, false);
+                Entity target = player.getTargetEntity(holdingStaff ? 23 : 18, false);
                 if(isAnEntityItem(target)) {
                     target.getScoreboardTags().add("GotSupporokenisiedBy" + player.getName());
                 } else {
@@ -466,11 +478,11 @@ public class SongPlugTick {
                         RayTraceResult result = player.getWorld().rayTraceBlocks(
                                 player.getEyeLocation(),
                                 player.getEyeLocation().getDirection(),
-                                9
+                                maxDist
                         );
 
                         if (result == null || result.getHitBlock() == null) {
-                            entity.teleport(getLocationInFrontOfLoc(player.getLocation(), 9));
+                            entity.teleport(getLocationInFrontOfLoc(player.getLocation(), maxDist));
                         } else {
                             Location loc = result.getHitPosition().toLocation(player.getWorld());
                             loc.setRotation(player.getLocation().getRotation());
@@ -604,7 +616,7 @@ public class SongPlugTick {
             }
 
             if(usingPassiveSong == 201) {
-                Block targetBlock = player.getTargetBlock(null, 7);
+                Block targetBlock = player.getTargetBlock(null, holdingStaff ? 9 : 7);
                 Location spawnLocation = null;
                 if(targetBlock.isEmpty()) {
                     Location location = targetBlock.getLocation();
@@ -643,7 +655,7 @@ public class SongPlugTick {
                     Interaction interaction = player.getWorld().spawn(spawnLocation, Interaction.class);
                     interaction.getScoreboardTags().add("Supporospike" + player.getName());
                     for(Entity entity : getEntities(player)) {
-                        if(entity != player && !isAnEntityItem(entity) && entity.getLocation().distance(interaction.getLocation().add(0, 1, 0)) <= 1.5) {
+                        if(entity != player && !isAnEntityItem(entity) && entity.getLocation().distance(interaction.getLocation().add(0, 1, 0)) <= (holdingStaff ? 2f : 1.5f)) {
                             entity.setVelocity(new Vector(entity.getVelocity().getX(), 2, entity.getVelocity().getZ()));
                         }
                     }
@@ -1486,7 +1498,7 @@ public class SongPlugTick {
                                 }
                             }
 
-                            player.getWorld().createExplosion(centerLocation, 0.5f, false, false);
+                            player.getWorld().createExplosion(centerLocation, holdingStaff ? 0.7f : 0.5f, false, false);
 
                             for(Player player2 : Bukkit.getOnlinePlayers()) {
                                 if(entity.getScoreboardTags().contains("GotSupporokenisiedBy" + player2.getName())) {
@@ -1559,7 +1571,7 @@ public class SongPlugTick {
             }
 
             if(usingActiveSong <= 200 && usingActiveSong > 0) {
-                Entity target = player.getTargetEntity(18, false);
+                Entity target = player.getTargetEntity(holdingStaff ? 23 : 18, false);
                 if(target instanceof LivingEntity living && !isAnEntityItem(living)) {
                     songDamage(living,5, player, player, true);
                 }
@@ -1577,7 +1589,7 @@ public class SongPlugTick {
                     if((entity.getScoreboardTags().contains("AggrobeamDisplay" + player.getName()) || entity.getScoreboardTags().contains("AggrobeamDisplay2" + player.getName())) && entity instanceof BlockDisplay display) {
                         Location pivot = getLocationInFrontOfLoc(player.getLocation(), 0.3f).add(0, 1.3f, 0);
                         float blockSize = entity.getScoreboardTags().contains("AggrobeamDisplay" + player.getName()) ? 0.25f : 0.3f;
-                        Vector3f size = new Vector3f(blockSize, blockSize, (float) getMaxDistanceInFrontOfPlayer(player, 18, true));
+                        Vector3f size = new Vector3f(blockSize, blockSize, (float) getMaxDistanceInFrontOfPlayer(player, holdingStaff ? 23 : 18, true));
                         Vector3f translation = new Vector3f(-0.5f * size.x, -0.5f * size.y, 0);
                         display.teleport(pivot);
                         display.setTransformation(new Transformation(translation, new Quaternionf(), size, new Quaternionf()));
@@ -1614,19 +1626,19 @@ public class SongPlugTick {
             if(usingPassiveSong == 201) {
                 speed.setBaseValue(0.1);
                 jump.setBaseValue(0.42);
-                player.getWorld().createExplosion(player.getLocation(), 3.8f, false, false);
+                player.getWorld().createExplosion(player.getLocation(), holdingStaff ? 4.9f : 3.8f, false, false);
 
                 BoundingBox box = player.getBoundingBox();
                 Location location = new Location(player.getWorld(), box.getCenterX(), box.getMinY(), box.getCenterZ());
                 BlockDisplay display = summonDisplay(location, "AggroquakeDisplay" + player.getName(), Material.MAGMA_BLOCK);
 
-                Vector3f size = new Vector3f(6f, 0.4f, 6f);
+                Vector3f size = new Vector3f(holdingStaff ? 7.5f : 6f, 0.4f, holdingStaff ? 7.5f : 6f);
                 Vector3f translation = new Vector3f(-0.5f * size.x, -0.5f * size.y, -0.5f * size.z);
                 display.setTransformation(new Transformation(translation, new Quaternionf(), size, new Quaternionf()));
 
                 for(int i = -10; i <= 10; i++) {
                     for(int j = -10; j <= 10; j++) {
-                        Location loc = player.getBoundingBox().getCenter().toLocation(player.getWorld()).add(i / 10f * 6f, -0.7f, j / 10f * 6f);
+                        Location loc = player.getBoundingBox().getCenter().toLocation(player.getWorld()).add(i / 10f * (holdingStaff ? 7.5f : 6f), -0.7f, j / 10f * (holdingStaff ? 7.5f : 6f));
                         player.getWorld().spawnParticle(Particle.DUST, loc, 0, new Particle.DustOptions(Color.RED, 0.7f));
                     }
                 }
@@ -1636,6 +1648,7 @@ public class SongPlugTick {
                 Location center = getCenter(player);
                 float index = (202 - usingPassiveSong) / 2f;
                 float radius = index / 2.2f;
+                if(holdingStaff) radius += radius * 25 / 100;
 
                 for (int i = 0; i < index * 40; i++) {
                     double theta = Math.random() * Math.PI * 2;
@@ -1691,8 +1704,8 @@ public class SongPlugTick {
                     }
                 }
 
-                for(Entity entity : getNearbyEntities(player.getLocation(), 5)) {
-                    if (entity instanceof LivingEntity living && aggroblastSightHelper(player, living) && player.hasLineOfSight(entity)
+                for(Entity entity : getNearbyEntities(player.getLocation(), holdingStaff ? 6.5f : 5f)) {
+                    if (entity instanceof LivingEntity living && aggroblastSightHelper(player, living, holdingStaff ? 22f : 17.5f) && player.hasLineOfSight(entity)
                             && living != player && player.getLocation().distance(entity.getLocation()) < distanceFromBarrier) {
                         double distance = player.getLocation().distance(living.getLocation());
                         living.setVelocity(entityDistanceVector(player, entity).multiply(1.4 - distance / 3));
@@ -1785,10 +1798,10 @@ public class SongPlugTick {
                                     stack.damage(336 / 2, living);
                                 } else {
                                     songDamage(living,20, entity, player, true);
-                                    player.getWorld().createExplosion(collidedEntity.getLocation().add(0, 1, 0), 0.5f, false, false);
+                                    player.getWorld().createExplosion(collidedEntity.getLocation().add(0, 1, 0), holdingStaff ? 0.65f : 0.5f, false, false);
                                 }
                             } else {
-                                player.getWorld().createExplosion(centerLocation, 0.5f, false, false);
+                                player.getWorld().createExplosion(centerLocation, holdingStaff ? 0.65f : 0.5f, false, false);
                             }
 
                             for(Player player2 : Bukkit.getOnlinePlayers()) {
@@ -2022,10 +2035,10 @@ public class SongPlugTick {
                                     stack.damage(9999, living);
                                 } else {
                                     songDamage(living,30, entity, player, true);
-                                    player.getWorld().createExplosion(collidedEntity.getLocation().add(0, -1, 0), 0.5f, false, false);
+                                    player.getWorld().createExplosion(collidedEntity.getLocation().add(0, -1, 0), holdingStaff ? 0.65f : 0.5f, false, false);
                                 }
                             } else {
-                                player.getWorld().createExplosion(centerLocation, 0.5f, false, false);
+                                player.getWorld().createExplosion(centerLocation, holdingStaff ? 0.65f : 0.5f, false, false);
                             }
 
                             for(Player player2 : Bukkit.getOnlinePlayers()) {
@@ -2068,7 +2081,7 @@ public class SongPlugTick {
             }
 
             if(usingActiveSong > 0 && usingActiveSong <= 200) {
-                for(Entity entity : getNearbyEntities(player.getLocation(), 9)) {
+                for(Entity entity : getNearbyEntities(player.getLocation(), holdingStaff ? 11 : 9)) {
                     if(entity instanceof LivingEntity living && living != player) {
                         living.setVelocity(living.getVelocity().add(entityDistanceVector(player, entity).multiply(-0.05)));
                         double distance = player.getLocation().distance(living.getLocation());
@@ -2177,7 +2190,7 @@ public class SongPlugTick {
 
                         if(entity.getScoreboardTags().contains("AggroshockVictim1") && !entity.getScoreboardTags().contains("AggroshockTransfered")) {
                             entity.getScoreboardTags().add("AggroshockTransfered");
-                            Entity entity2 = getClosestEntity(entity, 3, null);
+                            Entity entity2 = getClosestEntity(entity, holdingStaff ? 4 : 3, null);
                             if(entity2 instanceof LivingEntity && entity2 != player) {
                                 entity2.getScoreboardTags().add("Aggroshock" + player.getName());
                                 entity2.getScoreboardTags().add("AggroshockVictim2");
@@ -2193,7 +2206,7 @@ public class SongPlugTick {
 
                         if(entity.getScoreboardTags().contains("AggroshockVictim2") && !entity.getScoreboardTags().contains("AggroshockTransfered")) {
                             entity.getScoreboardTags().add("AggroshockTransfered");
-                            Entity entity2 = getClosestEntity(entity, 3, "AggroshockVictim1");
+                            Entity entity2 = getClosestEntity(entity, holdingStaff ? 4 : 3, "AggroshockVictim1");
                             if(entity2 instanceof LivingEntity && entity2 != player) {
                                 entity2.getScoreboardTags().add("Aggroshock" + player.getName());
                                 entity2.getScoreboardTags().add("AggroshockVictim3");

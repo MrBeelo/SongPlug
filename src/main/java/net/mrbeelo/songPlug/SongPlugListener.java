@@ -686,7 +686,8 @@ public class SongPlugListener implements Listener {
         Entity hitEntity = event.getHitEntity();
         if(hitEntity instanceof Player player && Objects.equals(projectile.customName(), Component.text("SpecialProjectile"))) {
             String[] scores = {"RedEnergyCooldown", "BlueEnergyCooldown", "YellowEnergyCooldown", "GreenEnergyCooldown",
-                    "DisarmCooldown", "EnragedCooldown", "StealthCooldown", "FelineFuryCooldown", "BowMasteryCooldown"};
+                    "DisarmCooldown", "EnragedCooldown", "StealthCooldown", "FelineFuryCooldown", "BowMasteryCooldown",
+                    "FireArmorCooldown"};
             for(String scoreName : scores) {
                 Score score = scoreType(player, scoreName);
                 if(getSowClass(player) != 3) score.setScore(score.getScore() + 7 * 20);
@@ -763,6 +764,19 @@ public class SongPlugListener implements Listener {
     public void onPlayerDamagedByEntity(EntityDamageByEntityEvent event) {
         Entity entity = event.getEntity();
         Entity damager = event.getDamager();
+
+        if(entity instanceof Player player && damager instanceof LivingEntity living) {
+            if(getSowClass(player) == 3 && getLevel(player) >= 20) {
+                Score score = scoreType(player, "FireArmorCooldown");
+                if(score.getScore() == 0) {
+                    living.damage(7);
+                    event.setDamage(event.getDamage() / 2);
+                    score.setScore(15 * 20);
+                    playSoundToNearby(player.getLocation(), 10, Sound.BLOCK_ANVIL_LAND, SoundCategory.MASTER,
+                            1.0f, 0.4f);
+                }
+            }
+        }
 
         if(entity instanceof Player player && player.getScoreboardTags().contains("UsedProtearmor")) {
             Score activeScore = scoreType(player, "UsingActiveSong");
@@ -854,19 +868,6 @@ public class SongPlugListener implements Listener {
                 double damage = event.getDamage();
                 event.setDamage(damage * 1.2f);
             }
-        }
-
-        if(damager instanceof Player player && player.getInventory().getItemInMainHand().isEmpty() &&
-        scoreValue(player, "DisarmCooldown") == 0 && getSowClass(player) == 3 &&
-        getLevel(player) >= 20) {
-            player.playSound(player, Sound.BLOCK_ANVIL_LAND, SoundCategory.MASTER, 1f, 0.6f);
-            if(entity instanceof Player player2) player2.playSound(player2, Sound.BLOCK_ANVIL_LAND, SoundCategory.MASTER, 1f, 0.6f);
-
-            Score disarmStunScore = scoreType(entity, "DisarmStun");
-            disarmStunScore.setScore(2 * 20);
-
-            Score disarmCooldownScore = scoreType(player, "DisarmCooldown");
-            disarmCooldownScore.setScore(20 * 20);
         }
 
         if(damager instanceof Player player && scoreValue(player, "DisarmStun") > 0) event.setCancelled(true);
@@ -966,7 +967,7 @@ public class SongPlugListener implements Listener {
     }
 
     @EventHandler
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+    public void onEntityDamageByPlayer(EntityDamageByEntityEvent event) {
         Entity damager = event.getDamager();
         if(!(damager instanceof Player player)) return;
 
