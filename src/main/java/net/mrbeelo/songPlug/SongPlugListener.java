@@ -60,6 +60,10 @@ public class SongPlugListener implements Listener {
         Bukkit.getScheduler().runTaskLater(plugin(), () -> {
             resetClassStats(player);
         }, 1L);
+
+        if(getSowClass(player) == 1 && scoreValue(player, "CatForm") == 1) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler
@@ -171,8 +175,8 @@ public class SongPlugListener implements Listener {
     public void onPlayerPressedF(PlayerSwapHandItemsEvent event) {
         Player player = event.getPlayer();
 
-        if(getSowClass(player) != 2) return;
-        if(getLevel(player) < 10) return;
+        //if(getSowClass(player) != 2) return;
+        //if(getLevel(player) < 10) return;
 
         Score score = scoreType(player, "FCycle");
         int playerScore = score.getScore();
@@ -182,13 +186,40 @@ public class SongPlugListener implements Listener {
         } else if(playerScore == 1) {
             score.setScore(0);
 
-            int usingActiveSong = scoreValue(player, "UsingActiveSong");
-            if(usingActiveSong > 0) {
-                player.sendMessage("You are already using an active song!");
-                return;
-            }
+            if(getSowClass(player) == 2 && getLevel(player) >= 10) {
+                int usingActiveSong = scoreValue(player, "UsingActiveSong");
+                if(usingActiveSong > 0) {
+                    player.sendMessage("You are already using an active song!");
+                    return;
+                }
 
-            openSongMenu(player);
+                openSongMenu(player);
+            } else if(getSowClass(player) == 1) {
+                Score catFormScore = scoreType(player, "CatForm");
+                if(catFormScore.getScore() == 1) {
+                    catFormScore.setScore(0);
+                    for(Entity entity : getEntities(player)) {
+                        if(entity.getScoreboardTags().contains("FelinaCat" + player.getName())) entity.remove();
+                    }
+                } else if(catFormScore.getScore() == 0) {
+                    if(player.getInventory().getItemInMainHand().isEmpty() && player.getInventory().getItemInOffHand().isEmpty()) {
+                        catFormScore.setScore(1);
+                        Cat cat = player.getWorld().spawn(player.getLocation(), Cat.class);
+                        cat.getScoreboardTags().add("FelinaCat" + player.getName());
+                        setNonCollidable(cat, "NoCollisions" + player.getName());
+                        double catHealth = player.getHealth();
+                        if(catHealth > 10) catHealth = 10;
+                        cat.setHealth(catHealth);
+                        AttributeInstance fallDamage = cat.getAttribute(Attribute.SAFE_FALL_DISTANCE);
+                        assert fallDamage != null;
+                        fallDamage.setBaseValue(1000);
+                        Score lastSlotScore = scoreType(player, "LastSlot");
+                        lastSlotScore.setScore(player.getInventory().getHeldItemSlot());
+                    } else {
+                        player.sendMessage("Your hands must be empty!");
+                    }
+                }
+            }
         }
     }
 
@@ -744,6 +775,14 @@ public class SongPlugListener implements Listener {
                 }
             }
         }
+
+        if(getSowClass(player) == 1) {
+            Score catFormScore = scoreType(player, "CatForm");
+            catFormScore.setScore(0);
+            for(Entity entity : getEntities(player)) {
+                if(entity.getScoreboardTags().contains("FelinaCat" + player.getName())) entity.remove();
+            }
+        }
     }
 
     @EventHandler
@@ -872,7 +911,7 @@ public class SongPlugListener implements Listener {
 
         if(damager instanceof Player player && scoreValue(player, "DisarmStun") > 0) event.setCancelled(true);
 
-        if(damager instanceof Player player && getSowClass(player) == 1 && getLevel(player) >= 40) {
+        if(damager instanceof Player player && getSowClass(player) == 1 && getLevel(player) >= 40 && !entity.getScoreboardTags().contains("FelinaCat" + player.getName())) {
             ItemStack stack = player.getInventory().getItemInMainHand();
             if(stack.isEmpty() && scoreValue(player, "FelineFuryCooldown") == 0) {
                 Score bleedScore = scoreType(entity, "Bleed");
@@ -880,6 +919,10 @@ public class SongPlugListener implements Listener {
                 Score felineFuryCooldownScore = scoreType(player, "FelineFuryCooldown");
                 felineFuryCooldownScore.setScore(20 * 20);
             }
+        }
+
+        if (damager instanceof Player player && entity.getScoreboardTags().contains("FelinaCat" + player.getName())) {
+            event.setCancelled(true);
         }
 
         if(damager instanceof Player player && player.getAttackCooldown() < 0) event.setCancelled(true);
@@ -1019,6 +1062,22 @@ public class SongPlugListener implements Listener {
                     attackScore.setScore(20);
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onEntityDamaged(EntityDamageEvent event) {
+        Entity entity = event.getEntity();
+        boolean isFelinaCat = false;
+        for(String tag : entity.getScoreboardTags()) {
+            if(tag.startsWith("FelinaCat")) {
+                isFelinaCat = true;
+                break;
+            }
+        }
+
+        if(event.getCause().equals(EntityDamageEvent.DamageCause.SUFFOCATION) && isFelinaCat) {
+            event.setCancelled(true);
         }
     }
 }

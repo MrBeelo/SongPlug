@@ -966,7 +966,7 @@ public class SongPlugHelper {
         Team team = scoreboard.getTeam(name);
         if (team == null) {
             team = scoreboard.registerNewTeam(name);
-            if(name.equals("NoCollisions")) team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
+            team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
         }
 
         return team;
@@ -994,13 +994,28 @@ public class SongPlugHelper {
         return display;
     }
 
+    public static void setNonCollidable(Entity entity, boolean b, String teamName) {
+
+        Team noCollTeam = getTeam(teamName);
+        if(b) {
+            noCollTeam.addEntity(entity);
+        } else {
+            noCollTeam.removeEntity(entity);
+        }
+    }
+
     public static void setNonCollidable(Entity entity, boolean b) {
+
         Team noCollTeam = getTeam("NoCollisions");
         if(b) {
             noCollTeam.addEntity(entity);
         } else {
             noCollTeam.removeEntity(entity);
         }
+    }
+
+    public static void setNonCollidable(Entity entity, String teamName) {
+        setNonCollidable(entity, true, teamName);
     }
 
     public static void setNonCollidable(Entity entity) {

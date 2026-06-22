@@ -163,6 +163,11 @@ public class SongPlugClass {
         }
 
         if(player.hasPotionEffect(PotionEffectType.INVISIBILITY)) baseAttackDamage -= 0.8f;
+        if(getSowClass(player) == 1 && scoreValue(player, "CatForm") == 1) {
+            baseMaxHealth = 5;
+            baseMovementSpeed += 5;
+            baseJumpStrength += 5;
+        }
 
         setMovementSpeed(player, baseMovementSpeed);
         setJumpStrength(player, baseJumpStrength);

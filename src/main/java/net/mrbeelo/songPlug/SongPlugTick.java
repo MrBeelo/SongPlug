@@ -270,6 +270,61 @@ public class SongPlugTick {
         Score fireArmorCooldownScore = scoreType(player, "FireArmorCooldown");
         int fireArmorCooldown = fireArmorCooldownScore.getScore();
         if(fireArmorCooldown > 0) fireArmorCooldownScore.setScore(fireArmorCooldown - 1);
+
+        //FELINA CAT FORM ABILITY
+        if(scoreValue(player, "CatForm") == 1 && getSowClass(player) == 1) {
+            player.addPotionEffect(
+                    new PotionEffect(PotionEffectType.INVISIBILITY, 5, 255, true, false, false));
+            player.addPotionEffect(
+                    new PotionEffect(PotionEffectType.NIGHT_VISION, 5, 255, true, false, false));
+
+        }
+        for(Entity entity : getEntities(player)) {
+            if(entity.getScoreboardTags().contains("FelinaCat" + player.getName())) entity.teleport(player.getLocation());
+        }
+
+        AttributeInstance scale = player.getAttribute(Attribute.SCALE);
+        if(scoreValue(player, "CatForm") == 1 && getSowClass(player) == 1 && scale.getBaseValue() != 0.6f) scale.setBaseValue(0.6f);
+        if(scoreValue(player, "CatForm") == 0 && getSowClass(player) == 1 && scale.getBaseValue() != 1f) scale.setBaseValue(1f);
+
+        AttributeInstance fallDamage = player.getAttribute(Attribute.SAFE_FALL_DISTANCE);
+        assert fallDamage != null;
+
+        if(scoreValue(player, "CatForm") == 1 && getSowClass(player) == 1) {
+            boolean catExists = false;
+            Entity cat = null;
+            for(Entity entity : getEntities(player)) {
+                if(entity.getScoreboardTags().contains("FelinaCat" + player.getName())) {
+                    catExists = true;
+                    cat = entity;
+                    break;
+                }
+            }
+            if(!catExists) {
+                Score catFormScore = scoreType(player, "CatForm");
+                catFormScore.setScore(0);
+                player.setHealth(0);
+            } else if(cat instanceof LivingEntity living) {
+                player.setHealth(living.getHealth());
+            }
+
+            fallDamage.setBaseValue(1000);
+            player.getInventory().setHeldItemSlot(scoreValue(player, "LastSlot"));
+        } else if(scoreValue(player, "CatForm") == 0 && getSowClass(player) == 1) {
+            fallDamage.setBaseValue(3);
+        }
+
+        //NON COLLIDABLE THING
+        boolean closeNonCollidableExists = false;
+        for(Entity entity2 : getNearbyEntities(player.getLocation(), 0.3f)) {
+            if(!(entity2 instanceof Player) && getTeam("NoCollisions" + player.getName()).hasEntity(entity2)) closeNonCollidableExists = true;
+        }
+
+        if(closeNonCollidableExists) {
+            setNonCollidable(player, true, "NoCollisions" + player.getName());
+        } else {
+            setNonCollidable(player, false, "NoCollisions" + player.getName());
+        }
     }
 
     public static void updateBossBar(Player player) {
@@ -1063,7 +1118,7 @@ public class SongPlugTick {
                     mannequin.getScoreboardTags().add("Mobiliglide" + i + player.getName());
                     mannequin.setCollidable(false);
                     mannequin.setProfile(patchedPlayerProfile("block/gold_block"));
-                    setNonCollidable(mannequin);
+                    setNonCollidable(mannequin, "NoCollisions" + player.getName());
                 }
             }
 
@@ -1333,7 +1388,7 @@ public class SongPlugTick {
                 Mannequin mannequin = player.getWorld().spawn(player.getLocation(), Mannequin.class);
                 mannequin.getScoreboardTags().add("Proteclone" + player.getName());
                 mannequin.setImmovable(true);
-                setNonCollidable(mannequin);
+                setNonCollidable(mannequin, "NoCollisions" + player.getName());
 
                 mannequin.setProfile(patchedPlayerProfile("block/lapis_block"));
 
