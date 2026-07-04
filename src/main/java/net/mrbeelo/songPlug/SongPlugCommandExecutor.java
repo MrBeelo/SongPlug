@@ -2,6 +2,7 @@ package net.mrbeelo.songPlug;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
@@ -13,19 +14,27 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
+import static net.mrbeelo.songPlug.SongPlug.log;
 import static net.mrbeelo.songPlug.SongPlugClass.resetClassStats;
 import static net.mrbeelo.songPlug.SongPlugHelper.*;
 
 public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
     public static String[] commands = {"class", "givesong", "getblock", "resetcooldowns", "energy", "infusesong", "clearsongs",
+            "level", "sowxp", "skull", "givecrate", "shop", "points", "dataint", "resetblockcharges", "printscore",
+            "giveweapon", "givenplush", "datastr", "arena", "arenaset", "getpvetime"};
+
+    public static String[] commands_selector = {"class", "givesong", "getblock", "resetcooldowns", "energy", "infusesong", "clearsongs",
             "level", "sowxp", "skull", "givecrate", "shop", "points", "dataint", "resetblockcharges", "printscore",
             "giveweapon", "givenplush", "datastr"};
 
@@ -270,6 +279,110 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
                     }
                 }
             }
+            case "arena" -> {
+                String arena = strings[0];
+
+                if(arena.equals("leave") && sender instanceof Player player) {
+                    if(!player.getScoreboardTags().contains("InPVP") && !player.getScoreboardTags().contains("InPVE")) {
+                        player.sendMessage("You are not in an arena!");
+                    } else {
+                        player.removeScoreboardTag("InPVP");
+                        player.removeScoreboardTag("InPVE");
+
+                        Location spawnLocation = player.getRespawnLocation();
+                        player.teleport(spawnLocation == null ? player.getWorld().getSpawnLocation() : spawnLocation);
+                    }
+                } else {
+                    //Player locator = Bukkit.getPlayer("Locator");
+                    Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+                    Objective objective = scoreboard.getObjective("Locations");
+                    if (objective == null) {
+                        objective = scoreboard.registerNewObjective("Locations", "dummy", "Locations");
+                    }
+
+                    int pveX = objective.getScore("pveX").getScore();
+                    int pveY = objective.getScore("pveY").getScore();
+                    int pveZ = objective.getScore("pveZ").getScore();
+                    int pvpX = objective.getScore("pvpX").getScore();
+                    int pvpY = objective.getScore("pvpY").getScore();
+                    int pvpZ = objective.getScore("pvpZ").getScore();
+                    Score pveTime = objective.getScore("PVETime");
+
+                    if(sender instanceof Player player) {
+                        int pvpPlayers = 0;
+                        int pvePlayers = 0;
+                        for (Player player2 : Bukkit.getOnlinePlayers()) {
+                            if(player2 != player) {
+                                if (player2.getScoreboardTags().contains("InPVP")) pvpPlayers++;
+                                if (player2.getScoreboardTags().contains("InPVE")) pvePlayers++;
+                            }
+                        }
+
+                        switch(arena) {
+                            case "pve" -> {
+                                if(pveTime.getScore() >= 0) {
+                                    if(pvePlayers == 0) {
+                                        pveTime.setScore(3 * 60 * 20);
+
+                                        player.addScoreboardTag("InPVE");
+                                        player.teleport(new Location(player.getWorld(), pveX, pveY, pveZ));
+                                    } else if(pveTime.getScore() > 0) {
+                                        player.addScoreboardTag("InPVE");
+                                        player.teleport(new Location(player.getWorld(), pveX, pveY, pveZ));
+                                    } else {
+                                        player.sendMessage("PVE arena is being used!");
+                                    }
+                                } else {
+                                    player.sendMessage("PVE arena is on cooldown!");
+                                }
+                            }
+                            case "pvp" -> {
+                                if(pvpPlayers < 2) {
+                                    player.addScoreboardTag("InPVP");
+                                    player.teleport(new Location(player.getWorld(), pvpX, pvpY, pvpZ));
+                                } else {
+                                    player.sendMessage("PVP arena is being used!");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            case "arenaset" -> {
+                //Player locator = Bukkit.getPlayer("Locator");
+                String arena = strings[0];
+                int xLoc = Integer.parseInt(strings[1]);
+                int yLoc = Integer.parseInt(strings[2]);
+                int zLoc = Integer.parseInt(strings[3]);
+
+                Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+                Objective objective = scoreboard.getObjective("Locations");
+                if (objective == null) {
+                    objective = scoreboard.registerNewObjective("Locations", "dummy", "Locations");
+                }
+
+                switch(arena) {
+                    case "pve" -> {
+                        objective.getScore("pveX").setScore(xLoc);
+                        objective.getScore("pveY").setScore(yLoc);
+                        objective.getScore("pveZ").setScore(zLoc);
+                    }
+                    case "pvp" -> {
+                        objective.getScore("pvpX").setScore(xLoc);
+                        objective.getScore("pvpY").setScore(yLoc);
+                        objective.getScore("pvpZ").setScore(zLoc);
+                    }
+                }
+            }
+            case "getpvetime" -> {
+                Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+                Objective objective = scoreboard.getObjective("Locations");
+                if (objective == null) {
+                    objective = scoreboard.registerNewObjective("Locations", "dummy", "Locations");
+                }
+                Score pveTime = objective.getScore("PVETime");
+                if(sender instanceof Player player) player.sendMessage(String.valueOf(pveTime.getScore()));
+            }
         }
         return false;
     }
@@ -277,7 +390,7 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
         String name = command.getName();
-        if(Arrays.asList(commands).contains(name) && args.length == 1) {
+        if(Arrays.asList(commands_selector).contains(name) && args.length == 1) {
             List<String> names = new ArrayList<>();
             names.add("@a");
             names.add("@e");
@@ -308,6 +421,10 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
             return List.of("add", "remove", "set");
         } else if(name.equals("giveweapon") & args.length == 2) {
             return List.of(weapons);
+        } else if(name.equals("arena") && args.length == 1) {
+            return List.of("pve", "pvp", "leave");
+        } else if(name.equals("arenaset") && args.length == 1) {
+            return List.of("pve", "pvp");
         }
         return List.of();
     }

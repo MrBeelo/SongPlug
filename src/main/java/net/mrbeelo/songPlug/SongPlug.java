@@ -57,6 +57,7 @@ public final class SongPlug extends JavaPlugin {
             updateBossBar(player);
             updateRegen(player, energyScore);
             updateCooldowns(player);
+            updateArenas();
             //updateSidebar(player);
             updateSongs(player);
         }

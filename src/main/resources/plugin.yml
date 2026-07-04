@@ -41,3 +41,9 @@ commands:
     description: Gives an explosive N Plushie to the player
   datastr:
     description: Sets a string to the selected item as custom data
+  arena:
+    description: teleports the player into the arena of their choice
+  arenaset:
+    description: Sets the location that each arena command will teleport the player
+  getpvetime:
+    description: What is even the point of this anymore.

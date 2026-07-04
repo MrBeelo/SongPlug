@@ -31,7 +31,9 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
@@ -1078,6 +1080,29 @@ public class SongPlugListener implements Listener {
 
         if(event.getCause().equals(EntityDamageEvent.DamageCause.SUFFOCATION) && isFelinaCat) {
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        Objective objective = scoreboard.getObjective("Locations");
+        if (objective == null) {
+            objective = scoreboard.registerNewObjective("Locations", "dummy", "Locations");
+        }
+
+        if(player.getScoreboardTags().contains("InPVE")) {
+            int pveX = objective.getScore("pveX").getScore();
+            int pveY = objective.getScore("pveY").getScore();
+            int pveZ = objective.getScore("pveZ").getScore();
+            event.setRespawnLocation(new Location(player.getWorld(), pveX, pveY, pveZ));
+        } else if(player.getScoreboardTags().contains("InPVP")) {
+            int pvpX = objective.getScore("pvpX").getScore();
+            int pvpY = objective.getScore("pvpY").getScore();
+            int pvpZ = objective.getScore("pvpZ").getScore();
+            event.setRespawnLocation(new Location(player.getWorld(), pvpX, pvpY, pvpZ));
         }
     }
 }

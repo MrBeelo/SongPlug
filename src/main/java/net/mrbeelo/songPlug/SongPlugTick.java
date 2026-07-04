@@ -327,6 +327,26 @@ public class SongPlugTick {
         }
     }
 
+    public static void updateArenas() {
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        Objective objective = scoreboard.getObjective("Locations");
+        if (objective == null) {
+            objective = scoreboard.registerNewObjective("Locations", "dummy", "Locations");
+        }
+
+        Score pveTime = objective.getScore("PVETime");
+        int pvePlayers = 0;
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.getScoreboardTags().contains("InPVE")) pvePlayers++;
+        }
+
+        if(pvePlayers > 0) {
+            if(pveTime.getScore() > 0) pveTime.setScore(pveTime.getScore() - 1);
+        } else if(pvePlayers == 0) {
+            if(pveTime.getScore() < 0) pveTime.setScore(pveTime.getScore() + 1);
+        }
+    }
+
     public static void updateBossBar(Player player) {
         NamespacedKey songEnergyKey = new NamespacedKey("songplug", "song_energy_" + player.getName().toLowerCase() + "_key");
         KeyedBossBar songEnergyKeyedBossBar = Bukkit.getBossBar(songEnergyKey);
