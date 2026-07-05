@@ -627,6 +627,9 @@ public class SongPlugListener implements Listener {
                 } else if(sowClass != 5) {
                     event.setCancelled(true);
                 }
+            } else if(block.getType().equals(Material.SMITHING_TABLE)) {
+                event.setCancelled(true);
+                openSuperCraftingTable(player);
             }
         }
 
