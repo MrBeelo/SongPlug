@@ -345,6 +345,14 @@ public class SongPlugTick {
         } else if(pvePlayers == 0) {
             if(pveTime.getScore() < 0) pveTime.setScore(pveTime.getScore() + 1);
         }
+
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            Score score = scoreType(player, "PlayerPVETime");
+            if(score.getScore() != 0) {
+                pveTime.setScore(score.getScore());
+                score.setScore(0);
+            }
+        }
     }
 
     public static void updateBossBar(Player player) {

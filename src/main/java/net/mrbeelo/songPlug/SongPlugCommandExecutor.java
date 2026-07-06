@@ -309,6 +309,10 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
                     Score pveTime = objective.getScore("PVETime");
 
                     if(sender instanceof Player player) {
+                        if(player.getScoreboardTags().contains("InPVE") || player.getScoreboardTags().contains("InPVP")) {
+                            player.sendMessage("Already in an arena!");
+                            break;
+                        }
                         int pvpPlayers = 0;
                         int pvePlayers = 0;
                         for (Player player2 : Bukkit.getOnlinePlayers()) {
@@ -320,24 +324,32 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
 
                         switch(arena) {
                             case "pve" -> {
-                                if(pveTime.getScore() >= 0) {
+                                if(pveTime.getScore() < 0) {
+                                    player.sendMessage("PVE arena is on cooldown!");
+                                    break;
+                                }
+
+                                if(pveTime.getScore() == 0 && pvePlayers > 0) {
+                                    player.sendMessage("PVE arena is being used!");
+                                    break;
+                                }
+
+                                if(pvePlayers == 0 || pveTime.getScore() > 0) {
                                     if(pvePlayers == 0) {
                                         pveTime.setScore(3 * 60 * 20);
-
-                                        player.addScoreboardTag("InPVE");
-                                        player.teleport(new Location(player.getWorld(), pveX, pveY, pveZ));
-                                    } else if(pveTime.getScore() > 0) {
-                                        player.addScoreboardTag("InPVE");
-                                        player.teleport(new Location(player.getWorld(), pveX, pveY, pveZ));
+                                        player.sendMessage("Joining PVE Arena! (First player, starting 3 minute timer)");
                                     } else {
-                                        player.sendMessage("PVE arena is being used!");
+                                        player.sendMessage("Joining PVE Arena! (Players: " + (pvePlayers + 1) + ")");
                                     }
-                                } else {
-                                    player.sendMessage("PVE arena is on cooldown!");
+
+
+                                    player.addScoreboardTag("InPVE");
+                                    player.teleport(new Location(player.getWorld(), pveX, pveY, pveZ));
                                 }
                             }
                             case "pvp" -> {
                                 if(pvpPlayers < 2) {
+                                    player.sendMessage("Joining PVP Arena! (Players: " + (pvpPlayers + 1) + "/2)");
                                     player.addScoreboardTag("InPVP");
                                     player.teleport(new Location(player.getWorld(), pvpX, pvpY, pvpZ));
                                 } else {
@@ -351,9 +363,6 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
             case "arenaset" -> {
                 //Player locator = Bukkit.getPlayer("Locator");
                 String arena = strings[0];
-                int xLoc = Integer.parseInt(strings[1]);
-                int yLoc = Integer.parseInt(strings[2]);
-                int zLoc = Integer.parseInt(strings[3]);
 
                 Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
                 Objective objective = scoreboard.getObjective("Locations");
@@ -361,16 +370,41 @@ public class SongPlugCommandExecutor implements CommandExecutor, TabCompleter {
                     objective = scoreboard.registerNewObjective("Locations", "dummy", "Locations");
                 }
 
-                switch(arena) {
-                    case "pve" -> {
-                        objective.getScore("pveX").setScore(xLoc);
-                        objective.getScore("pveY").setScore(yLoc);
-                        objective.getScore("pveZ").setScore(zLoc);
+                if(strings.length == 1) {
+                    if(sender instanceof Player player) {
+                        int xLoc = player.getLocation().getBlockX();
+                        int yLoc = player.getLocation().getBlockY();
+                        int zLoc = player.getLocation().getBlockZ();
+
+                        switch(arena) {
+                            case "pve" -> {
+                                objective.getScore("pveX").setScore(xLoc);
+                                objective.getScore("pveY").setScore(yLoc);
+                                objective.getScore("pveZ").setScore(zLoc);
+                            }
+                            case "pvp" -> {
+                                objective.getScore("pvpX").setScore(xLoc);
+                                objective.getScore("pvpY").setScore(yLoc);
+                                objective.getScore("pvpZ").setScore(zLoc);
+                            }
+                        }
                     }
-                    case "pvp" -> {
-                        objective.getScore("pvpX").setScore(xLoc);
-                        objective.getScore("pvpY").setScore(yLoc);
-                        objective.getScore("pvpZ").setScore(zLoc);
+                } else {
+                    int xLoc = Integer.parseInt(strings[1]);
+                    int yLoc = Integer.parseInt(strings[2]);
+                    int zLoc = Integer.parseInt(strings[3]);
+
+                    switch(arena) {
+                        case "pve" -> {
+                            objective.getScore("pveX").setScore(xLoc);
+                            objective.getScore("pveY").setScore(yLoc);
+                            objective.getScore("pveZ").setScore(zLoc);
+                        }
+                        case "pvp" -> {
+                            objective.getScore("pvpX").setScore(xLoc);
+                            objective.getScore("pvpY").setScore(yLoc);
+                            objective.getScore("pvpZ").setScore(zLoc);
+                        }
                     }
                 }
             }
